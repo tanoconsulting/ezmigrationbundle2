@@ -1,0 +1,35 @@
+{
+    "name": "tanoconsulting/ezmigrationbundle2",
+    "type": "symfony-bundle",
+    "description": "TanoConsulting eZ-Migration Bundle 2",
+    "keywords": ["migrations", "database", "ezplatform"],
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Gaetano Giunta",
+            "email": "ggiunta@tanoconsulting.com",
+            "role": "Lead Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.3",
+        "ext-pdo": "*",
+        "ezsystems/ezplatform-kernel": ">=5.4|>=2014.11",
+        "mtdowling/jmespath.php": "2.*",
+        "nikic/php-parser": "^2.0 || ^3.0 || ^4.0",
+        "symfony/process": "*",
+        "symfony/swiftmailer-bundle": "*",
+        "symfony/validator": "*",
+        "symfony/var-dumper": "*"
+    },
+    "require-dev": {
+    },
+    "suggest": {
+        "php-http/httplug-bundle": "Required for usage of HTTP/CALL migration steps"
+    },
+    "conflict": {
+    },
+    "autoload": {
+        "psr-4": { "Kaliop\\eZMigrationBundle\\": "" }
+    }
+}
