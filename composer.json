@@ -1,7 +1,7 @@
 {
     "name": "tanoconsulting/ezmigrationbundle2",
     "type": "symfony-bundle",
-    "description": "TanoConsulting eZ-Migration Bundle 2",
+    "description": "TanoConsulting eZ-Migration-Bundle 2",
     "keywords": ["migrations", "database", "ezplatform"],
     "license": "GPL-2.0",
     "authors": [
@@ -28,6 +28,7 @@
         "php-http/httplug-bundle": "Required for usage of HTTP/CALL migration steps"
     },
     "conflict": {
+        "kaliop/ezmigrationbundle": "*"
     },
     "autoload": {
         "psr-4": { "Kaliop\\eZMigrationBundle\\": "" }
