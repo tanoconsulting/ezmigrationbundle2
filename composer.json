@@ -1,8 +1,8 @@
 {
-    "name": "kaliop/ezmigrationbundle",
+    "name": "tanoconsulting/ezmigrationbundle2",
     "type": "symfony-bundle",
-    "description": "Kaliop eZ-Migration Bundle",
-    "keywords": ["migrations", "database", "ezpublish"],
+    "description": "The port of Kaliop eZ-Migration Bundle to eZPlatorm 3 aka Ibexa",
+    "keywords": ["migrations", "database", "ezplatform"],
     "license": "GPL-2.0",
     "authors": [
         {
@@ -16,14 +16,12 @@
             "role": "Original author"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
-        "php": "^7.3",
+        "php": "^7.3|^8.0",
         "ext-pdo": "*",
         "ezsystems/ezplatform-kernel": "^1.0",
         "ezsystems/doctrine-dbal-schema": "^1.0",
-        "mtdowling/jmespath.php": "2.*",
+        "mtdowling/jmespath.php": "^2.0.0",
         "nikic/php-parser": "^4.2.2",
         "symfony/process": "*",
         "symfony/swiftmailer-bundle": "*",
@@ -32,8 +30,7 @@
     },
     "require-dev": {
         "mikey179/vfsstream": "^2.0@dev",
-        "phpunit/phpunit": "^7.5",
-        "roave/security-advisories": "dev-disablechecks as dev-master"
+        "phpunit/phpunit": "^7.5"
     },
     "suggest": {
         "php-http/httplug-bundle": "Required for usage of HTTP/CALL migration steps"
@@ -41,13 +38,6 @@
     "autoload": {
         "psr-4": { "Kaliop\\eZMigrationBundle\\": "" }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/kaliop-uk/SecurityAdvisoriesNoConflicts",
-            "no-api": true
-        }
-    ],
     "funding": [
         {
             "type": "github",
