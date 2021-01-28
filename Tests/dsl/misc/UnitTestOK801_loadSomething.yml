@@ -1,0 +1,6 @@
+# A migration which has to be executed by an Admin
+-
+    type: content
+    mode: load
+    match:
+        object_id: 14

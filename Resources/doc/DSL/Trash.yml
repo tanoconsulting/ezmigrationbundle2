@@ -1,0 +1,63 @@
+# Empties the trash
+-
+    type: trash
+    mode: purge
+    if: # Optional. If set, the migration step will be skipped unless the condition is matched
+        "reference:_ref_name": # name of a reference to be used for the test
+            _operator_: value # allowed operators: eq, gt, gte, lt, lte, ne, count, length, regexp, satisfies
+
+# Restores one or more Locations that are in the trash
+-
+    type: trash
+    mode: recover
+    match:
+        xxx # See the conditions for content/update. NB: the migration will not fail if nothing is matched
+    references: # Optional
+        # short syntax:
+        referenceId: attributeId # (possible values and meaning are explained for the 'long syntax')
+        # long syntax:
+        -
+            identifier: referenceId # A string used to identify the reference
+            attribute: attribute # An attribute to get the value of for the reference.
+                                 # Supports: see location/create
+            overwrite: true|false # Optional, default false. If not set, and the reference already exists, an exception is thrown
+    expect: one|any|many # Optional. If set, the number of matched items will be validated, and the type of values set to created references will change
+                         # 'one': only one element should be matched; reference values will be scalars
+                         # 'any': zero or more element should be matched; reference values will be arrays
+                         # 'many': one or more element should be matched; reference values will be arrays
+    if: # Optional. If set, the migration step will be skipped unless the condition is matched
+        "reference:_ref_name": # name of a reference to be used for the test
+            _operator_: value # allowed operators: eq, gt, gte, lt, lte, ne, count, length, regexp, satisfies
+
+# Deletes definitively one or more Locations that are already in the trash
+-
+    type: trash
+    mode: delete
+    match:
+        xxx # See the conditions for content/update. NB: the migration will not fail if nothing is matched
+    references: # Optional
+        # short syntax:
+        referenceId: attributeId # (possible values and meaning are explained for the 'long syntax')
+        # long syntax:
+        -
+            identifier: referenceId # A string used to identify the reference
+            attribute: attribute # An attribute to get the value of for the reference.
+                                 # Supports: see location/create
+            overwrite: true|false # Optional, default false. If not set, and the reference already exists, an exception is thrown
+    expect: one|any|many # Optional. If set, the number of matched items will be validated, and the type of values set to created references will change
+                         # 'one': only one element should be matched; reference values will be scalars
+                         # 'any': zero or more element should be matched; reference values will be arrays
+                         # 'many': one or more element should be matched; reference values will be arrays
+    if: # Optional. If set, the migration step will be skipped unless the condition is matched
+        "reference:_ref_name": # name of a reference to be used for the test
+            _operator_: value # allowed operators: eq, gt, gte, lt, lte, ne, count, length, regexp, satisfies
+
+# Loads trashed items, allowing to set references to their attributes
+-
+    type: trash
+    mode: load
+    match: # See docs above for update and delete
+    match_tolerate_misses: # Optional. See above for allowed values
+    references: # Optional. See above for allowed values
+    expect: # Optional. See above for allowed values
+    if:  # Optional. See above for allowed values

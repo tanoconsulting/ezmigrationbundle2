@@ -1,0 +1,7 @@
+# should fail
+
+-
+    type: sql
+    mode: query
+    mysql: "SELECT CURDATE() UNION SELECT CURDATE()+1"
+    expect: one

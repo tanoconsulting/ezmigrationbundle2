@@ -1,0 +1,82 @@
+-
+    type: reference
+    mode: set
+    identifier: kmb_test_ref
+    value: abc
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_ref
+    test:
+        equals: abc
+
+-
+    type: reference
+    mode: set
+    identifier: kmb_test_ref
+    value: '%test.param.for.custom.refs%'
+    overwrite: true
+
+-
+    type: reference
+    mode: set
+    identifier: kmb_test_refsfile
+    value: '%kernel.cache_dir%/test_refs_generated.yml'
+    overwrite: true
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_ref
+    test:
+        equals: def
+
+-
+    type: reference
+    mode: dump
+    identifier: reference:kmb_test_ref
+
+-
+    type: reference
+    mode: dump
+    identifier: reference:kmb_test_ref
+    label: this is not a reference
+
+-
+    type: reference
+    mode: load
+    file: test_refs.yml
+
+-
+    type: assert
+    target: reference
+    identifier: reference:hello
+    test:
+        equals: world
+
+-
+    type: reference
+    mode: save
+    file: reference:kmb_test_refsfile
+    overwrite: true
+
+-
+    type: reference
+    mode: set
+    identifier: kmb_test_ref
+    value: 'will be reset when reloading refs from file'
+    overwrite: true
+
+-
+    type: reference
+    mode: load
+    file: reference:kmb_test_refsfile
+    overwrite: true
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_ref
+    test:
+        equals: def

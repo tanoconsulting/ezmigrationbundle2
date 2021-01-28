@@ -1,0 +1,73 @@
+-
+    type: reference
+    mode: set
+    identifier: kmb_test_37_cmd
+    value: php
+
+-   type: reference
+    mode: set
+    identifier: kmb_test_37_arg
+    value: -v
+
+-
+    type: process
+    mode: run
+    command: reference:kmb_test_37_cmd
+    arguments:
+        - reference:kmb_test_37_arg
+    references:
+        kmb_test_37_out: output
+        kmb_test_37_errout: error_output
+        kmb_test_37_exit: exit_code
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_37_exit
+    test:
+        equals: 0
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_37_errout
+    test:
+        equals: ''
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_37_out
+    test:
+        contains: PHP
+
+-
+    type: process
+    mode: run
+    command: pwd
+    working_directory: /tmp
+    references:
+        kmb_test_37_out2: output
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_37_out2
+    test:
+        contains: /tmp
+
+-
+    type: process
+    mode: run
+    command: env
+    environment:
+        HELLO: world
+    references:
+        kmb_test_37_out3: output
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_37_out3
+    test:
+        contains: 'HELLO=world'

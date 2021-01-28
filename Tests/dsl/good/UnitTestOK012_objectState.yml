@@ -1,0 +1,143 @@
+-
+    type: object_state_group
+    mode: create
+    identifier: an_object_state_group
+    names:
+        eng-GB: An Object State Group
+    descriptions:
+        eng-GB:  Kaliop Migration Bundle Test Object State Group 1
+    roles: [1, 2] # Anon, admin
+    references:
+        -
+            identifier: kmb_test_12
+            attribute: id
+
+-
+    type: object_state_group
+    mode: update
+    match:
+        identifier: an_object_state_group
+    identifier: an_object_state_group_updated
+
+-
+    type: object_state
+    mode: create
+    identifier: an_object_state
+    object_state_group: reference:kmb_test_12
+    names:
+        eng-GB: An Object State
+    descriptions:
+        eng-GB:  Kaliop Migration Bundle Test Object State 1
+    references:
+        -
+            identifier: kmb_test_12_state
+            attribute: id
+
+-
+    type: object_state
+    mode: create
+    identifier: another_object_state
+    object_state_group: reference:kmb_test_12
+    names:
+        eng-GB: Another Object State
+    descriptions:
+        eng-GB:  Kaliop Migration Bundle Test Object State 2
+
+-
+    type: content_type
+    mode: create
+    content_type_group: 1
+    identifier: kmb_test_12_ct
+    name: Kaliop Migration Bundle Test Class 12
+    name_pattern: '<ezstring>'
+    attributes:
+        -
+            type: ezstring
+            name: ezstring
+            identifier: ezstring
+
+-
+    type: content
+    mode: create
+    content_type: kmb_test_12_ct
+    parent_location: 2
+    attributes:
+        - ezstring: hello world
+    references:
+        -
+            identifier: kmb_test_12_obj
+            attribute: object_id
+    object_states:
+        - an_object_state_group_updated/another_object_state
+
+-
+    type: content
+    mode: load
+    match:
+        content_id: "reference:kmb_test_12_obj"
+    references:
+        -
+            identifier: kmb_test_12_obj_state1
+            attribute: object_state.an_object_state_group_updated
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_12_obj_state1
+    test:
+        equals: "an_object_state_group_updated/another_object_state"
+
+-
+    type: content
+    mode: update
+    match:
+        content_id: "reference:kmb_test_12_obj"
+    object_states:
+        - "an_object_state_group_updated/an_object_state"
+
+-
+    type: content
+    mode: load
+    match:
+        content_id: "reference:kmb_test_12_obj"
+    references:
+        -
+            identifier: kmb_test_12_obj_state2
+            attribute: object_state.an_object_state_group_updated
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_12_obj_state2
+    test:
+        equals: "an_object_state_group_updated/an_object_state"
+
+-
+    type: content
+    mode: delete
+    match:
+        content_type: kmb_test_12_ct
+
+-
+    type: content_type
+    mode: delete
+    identifier: kmb_test_12_ct
+
+-
+    type: object_state
+    mode: update
+    match:
+        identifier: an_object_state
+    identifier: an_object_state_updated
+
+-
+    type: object_state
+    mode: delete
+    match:
+        id: reference:kmb_test_12_state
+
+-
+    type: object_state_group
+    mode: delete
+    match:
+        id: reference:kmb_test_12

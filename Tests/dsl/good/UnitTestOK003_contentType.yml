@@ -1,0 +1,426 @@
+# test creation/updating/deleting of a custom content type
+# NB: assumes that 'folder' ContentType is available
+
+-
+    type: content_type
+    mode: create
+    content_type_group: 1
+    name: Kaliop Migration Bundle Test Class 1
+    identifier: kmb_test_1
+    description: Kaliop Migration Bundle Test Class 1
+    name_pattern: <title>
+    default_always_available: true
+    default_sort_field: priority
+    default_sort_order: asc
+    attributes:
+        -
+            type: ezstring
+            name: Title
+            identifier: title
+            description: Title
+            required: true
+            searchable: true
+    references:
+        -
+            identifier: kmb_test_003_1_identifier
+            attribute: identifier
+        -
+            identifier: kmb_test_003_1_content_type_id
+            attribute: content_type_id
+        -
+            identifier: kmb_test_003_1_creation_date
+            attribute: creation_date
+        -
+            identifier: kmb_test_003_1_default_always_available
+            attribute: default_always_available
+        -
+            identifier: kmb_test_003_1_default_sort_field
+            attribute: default_sort_field
+        -
+            identifier: kmb_test_003_1_default_sort_order
+            attribute: default_sort_order
+        -
+            identifier: kmb_test_003_1_is_container
+            attribute: is_container
+        -
+            identifier: kmb_test_003_1_modification_date
+            attribute: modification_date
+        -
+            identifier: kmb_test_003_1_name_pattern
+            attribute: name_pattern
+        -
+            identifier: kmb_test_003_1_remote_id
+            attribute: remote_id
+        -
+            identifier: kmb_test_003_1_status
+            attribute: status
+        -
+            identifier: kmb_test_003_1_url_name_pattern
+            attribute: url_name_pattern
+        -
+            identifier: kmb_test_003_1_content_type_identifier
+            attribute: content_type_identifier
+        -
+            identifier: kmb_test_003_1_id
+            attribute: id
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_1_identifier
+    test:
+        equals: kmb_test_1
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_1_content_type_identifier
+    test:
+        equals: kmb_test_1
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_1_content_type_id
+    test:
+        equals: reference:kmb_test_003_1_id
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_1_name_pattern
+    test:
+        equals: '<title>'
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: reference:kmb_test_003_1_identifier
+    attributes:
+        -
+            type: ezstring
+            name: Title
+            identifier: title
+            description: Title field
+            required: false
+            searchable: false
+            disable-translation: true
+            category: meta
+            field-settings: []
+            default-value: 'hello world'
+        -
+            type: ezauthor
+            name: ezauthor
+            identifier: ezauthor
+        -
+            type: ezbinaryfile
+            name: ezbinaryfile
+            identifier: ezbinaryfile
+            validator-configuration:
+                FileSizeValidator: { maxFileSize: 123 }
+        -
+            type: ezboolean
+            name: ezboolean
+            identifier: ezboolean
+            default-value: true
+        -
+            type: ezcountry
+            name: ezcountry
+            identifier: ezcountry
+            field-settings:
+                isMultiple: true
+            default-value: [ AF ]
+        -
+            type: ezdatetime
+            name: ezdatetime
+            identifier: ezdatetime
+            field-settings:
+                defaultType: 1
+                useSeconds: true
+                dateInterval: null
+        -
+            type: ezdate
+            name: ezdate
+            identifier: ezdate
+            field-settings:
+                defaultType: 1
+        -
+            type: ezemail
+            name: ezemail
+            identifier: ezemail
+        -
+            type: ezfloat
+            name: ezfloat
+            identifier: ezfloat
+            validator-configuration:
+                FloatValueValidator: { minFloatValue: 42, maxFloatValue: 43 }
+            default-value: 42.42
+        # @todo ezgmaplocation fieldType seems to be enabled by default, but the db table might *not* be present...
+        #-
+        #    type: ezgmaplocation
+        #    name: ezgmaplocation
+        #    identifier: ezgmaplocation
+        -
+            type: ezimage
+            name: ezimage
+            identifier: ezimage
+            validator-configuration:
+                FileSizeValidator: { maxFileSize: 234 }
+        -
+            type: ezinteger
+            name: ezinteger
+            identifier: ezinteger
+            validator-configuration:
+                IntegerValueValidator: { minIntegerValue: -100, maxIntegerValue: 100 }
+            default-value: 42
+        -
+            type: ezisbn
+            name: ezisbn
+            identifier: ezisbn
+        -
+            type: ezkeyword
+            name: ezkeyword
+            identifier: ezkeyword
+        -
+            type: ezmedia
+            name: ezmedia
+            identifier: ezmedia
+            field-settings:
+                mediaType: html5_video
+            validator-configuration:
+                FileSizeValidator: { maxFileSize: 345 }
+        -
+            type: ezobjectrelation
+            name: ezobjectrelation
+            identifier: ezobjectrelation
+            field-settings:
+                selectionMethod: 1
+                selectionRoot: 2
+        -
+            type: ezobjectrelationlist
+            name: ezobjectrelationlist
+            identifier: ezobjectrelationlist
+            field-settings:
+                selectionMethod: 1
+                selectionDefaultLocation: 2
+                selectionContentTypes: [ folder ]
+        # @todo we should make sure that at least one layout type exists in order to create an ezpage attribute...
+        #-
+        #    type: ezpage
+        #    name: ezpage
+        #    identifier: ezpage
+        -
+            type: ezselection
+            name: ezselection
+            identifier: ezselection
+            field-settings:
+                isMultiple: true
+                options: [ one, two ]
+        # nb: ezsrrating fieldType seems to be enabled by default, but the db table might *not* be present...
+        #-
+        #    type: ezsrrating
+        #    name: ezsrrating
+        #    identifier: ezsrrating
+        -
+            type: ezstring
+            name: ezstring
+            identifier: ezstring
+            validator-configuration:
+                  StringLengthValidator: { maxStringLength: 255, minStringLength: 1 }
+        -
+            type: eztext
+            name: eztext
+            identifier: eztext
+            field-settings:
+                textRows: 25
+        -
+            type: eztime
+            name: eztime
+            identifier: eztime
+            field-settings:
+                defaultType: 1
+                useSeconds: true
+        -
+            type: ezurl
+            name: ezurl
+            identifier: ezurl
+        -
+            type: ezuser
+            name: ezuser
+            identifier: ezuser
+        #-
+        #    type: ezxmltext
+        #    name: ezxmltext
+        #    identifier: ezxmltext
+    references:
+        -
+            identifier: kmb_test_003_6_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_6_count
+    test:
+        equals: 1
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: kmb_test_1
+    attributes:
+        -
+            name: The Subtitle
+            identifier: ezstring
+            new_identifier: subtitle
+        -
+            name: An Image
+            description: An Image Field
+            identifier: ezimage
+            new_identifier: image
+    references:
+        -
+            identifier: kmb_test_003_8_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_8_count
+    test:
+        equals: 1
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: 'reference:kmb_test_003_1_identifier'
+    remove_attributes:
+        - subtitle
+        - image
+    references:
+        -
+            identifier: kmb_test_003_10_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_10_count
+    test:
+        equals: 1
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: 'reference:kmb_test_003_1_identifier'
+    new_identifier: kmb_test_1_1
+    content_type_group: 2
+    remove_type_group: 1
+    references:
+        -
+            identifier: kmb_test_003_12_identifier
+            attribute: identifier
+        -
+            identifier: kmb_test_003_12_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_12_identifier
+    test:
+        equals: kmb_test_1_1
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_12_count
+    test:
+        equals: 1
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: 'reference:kmb_test_003_12_identifier'
+    default_sort_field: name
+    default_sort_order: desc
+    remove_drafts: true
+    references:
+        -
+            identifier: kmb_test_003_15_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_15_count
+    test:
+        equals: 1
+
+-
+    type: content_type
+    mode: load
+    match:
+        contenttype_identifier: kmb_test_1_1
+    references:
+        -
+            identifier: dear
+            attribute: 'attributes.title.required'
+        -
+            identifier: world
+            attribute: 'attributes.ezobjectrelationlist."field-settings".selectionContentTypes.length(@)'
+        -
+            identifier: goodbye
+            attribute: content_type_groups_ids
+
+-
+    type: assert
+    target: reference
+    identifier: reference:dear
+    test:
+        equals: false
+
+-
+    type: assert
+    target: reference
+    identifier: reference:world
+    test:
+        equals: 1
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: 'reference:kmb_test_003_12_identifier'
+    # remove all attributes except the title
+    attributes:
+        -
+            type: ezstring
+            name: Title
+            identifier: title
+            description: Title
+            required: true
+            searchable: true
+    remove_attributes: '*'
+
+-
+    type: content_type
+    mode: delete
+    match:
+        identifier: 'reference:kmb_test_003_12_identifier'
+    references:
+        -
+            identifier: kmb_test_003_20_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_003_20_count
+    test:
+        equals: 1

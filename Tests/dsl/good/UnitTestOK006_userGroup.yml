@@ -1,0 +1,68 @@
+-
+    type: user_group
+    mode: create
+    parent_group_id: 4
+    name: Kaliop Migration Bundle Test User Group 1
+    description: Kaliop Migration Bundle Test User Group 1
+    roles: [1, 2] # Anon, admin
+    references:
+         -
+            identifier: kmb_test_6
+            attribute: id
+
+-
+    type: user_group
+    mode: update
+    id: reference:kmb_test_6
+    name: Kaliop Migration Bundle Test User Group 1, updated
+    description: Kaliop Migration Bundle Test User Group 1, updated
+    parent_group_id: 42 # Anon users
+
+-
+    type: user_group
+    mode: load
+    match:
+        id: reference:kmb_test_6
+    references:
+         -
+            identifier: kmb_test_6_objectid
+            attribute: object_id
+         -
+            identifier: kmb_test_6_contentid
+            attribute: content_id
+         -
+            identifier: kmb_test_6_usergroupid
+            attribute: user_group_id
+         -
+            identifier: kmb_test_6_usersids
+            attribute: users_ids
+         -
+            identifier: kmb_test_6_parentid
+            attribute: parent_id
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_6_objectid
+    test:
+        equals: reference:kmb_test_6
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_6_contentid
+    test:
+        equals: reference:kmb_test_6
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_6_usergroupid
+    test:
+        equals: reference:kmb_test_6
+
+-
+    type: user_group
+    mode: delete
+    match:
+        id: reference:kmb_test_6

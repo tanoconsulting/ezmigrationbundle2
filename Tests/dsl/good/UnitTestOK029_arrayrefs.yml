@@ -1,0 +1,44 @@
+# NB: assumes that 'folder' ContentType is available
+-
+    type: content
+    mode: load
+    match:
+        content_type_identifier: folder
+    expect: any
+-
+    type: content
+    mode: load
+    match:
+        content_type_identifier: folder
+    expect: many
+-
+    type: content
+    mode: load
+    match:
+        content_type_identifier: folder
+    expect: any
+    references:
+        -   identifier: hello1
+            attribute: id
+        -   identifier: hello2
+            attribute: count
+-
+    type: content
+    mode: load
+    match:
+        content_type_identifier: folder
+    expect: many
+    references:
+        -   identifier: hello3
+            attribute: id
+# BC
+-
+    type: content
+    mode: load
+    match:
+        content_type_identifier: folder
+    references_type: array
+    references:
+        -
+            identifier: hello4
+            attribute: id

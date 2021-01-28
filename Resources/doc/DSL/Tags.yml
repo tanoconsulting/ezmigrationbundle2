@@ -1,0 +1,130 @@
+-
+    type: tag
+    mode: create
+    always_available: true|false # Optional (false by default)
+    parent_tag_id: 0 # Optional. Parent tag id (0 by default). If a string, it is assumed to be a tag remote_id
+    remote_id: custom_remote_id # Optional, will set a custom remote id
+    lang: eng-GB # Optional
+    keywords:
+        _language_code_: "Keyword" # ex : eng-GB: "Test keyword"
+    references: # Optional
+        # short syntax:
+        referenceId: attributeId # (possible values and meaning are explained for the 'long syntax')
+        # long syntax:
+        -
+            identifier: referenceId # A string used to identify the reference
+            attribute: attributeId # The attribute to get the value of for the reference
+                                   # supports: always_available, depth, id, main_language_code, main_tag_id, modification_date,
+                                   # path, parent_tag_id, remote_id, keyword
+            overwrite: true|false # Optional, default false. If not set, and the reference already exists, an exception is thrown
+    if: # Optional. If set, the migration step will be skipped unless the condition is matched
+        "reference:_ref_name": # name of a reference to be used for the test
+            _operator_: value # allowed operators: eq, gt, gte, lt, lte, ne, count, length, regexp, satisfies
+
+# alternative: create tag in current siteaccess language:
+-
+    type: tag
+    mode: create
+    keywords: "hello world"
+
+-
+    type: tag
+    mode: update
+    always_available: true|false # Optional (false by default)
+    remote_id: custom_remote_id # Optional, will set a custom remote id
+    lang: eng-GB # Optional
+    keywords: # either a string or an array
+        language_code: "Keyword" # ex : eng-GB: "Test keyword"
+    match: # The tag(s) to update
+        # Possible values for matching. only one of them is allowed at a time. All of them can be single or array
+        id: # the id(s) of the tag(s) we want to update
+        remote_id: # the remote id(s) of the tag(s) we want to update
+        keyword: # the keyword(s) of the tag(s) we want to update.
+                 # NB: unlike when matching by Id/RemoteId, migrations won't fail if no tag is matched by keyowrd
+        parent_tag_id: # the id of the parent tag
+        or: # match any of the conditions below. *NB:* less efficient that using the array notation for a single condition
+            -
+                _condition_: value # where _condition_ can be any of ones specified above, including 'and' and 'or'
+            -
+                _condition_: value # where _condition can be any of ones specified above, including 'and' and 'or'
+        and: # match all of the conditions below
+            -
+                _condition_: value # where _condition_ can be any of ones specified above, including 'and' and 'or'
+            -
+                _condition_: value # where _condition_ can be any of ones specified above, including 'and' and 'or'
+    references: # Optional
+        # short syntax:
+        referenceId: attributeId # (possible values and meaning are explained for the 'long syntax')
+        # long syntax:
+        -
+            identifier: referenceId # A string used to identify the reference
+            attribute: attributeId # The attribute to get the value of for the reference
+                                   # supports: always_available, depth, id, main_language_code, main_tag_id, modification_date,
+                                   # path, parent_tag_id, remote_id, keyword
+            overwrite: true|false # Optional, default false. If not set, and the reference already exists, an exception is thrown
+    expect: one|any|many # Optional. If set, the number of matched items will be validated, and the type of values set to created references will change
+                         # 'one': only one element should be matched; reference values will be scalars
+                         # 'any': zero or more element should be matched; reference values will be arrays
+                         # 'many': one or more element should be matched; reference values will be arrays
+    if: # Optional. If set, the migration step will be skipped unless the condition is matched
+        "reference:_ref_name": # name of a reference to be used for the test
+            _operator_: value # allowed operators: eq, gt, gte, lt, lte, ne, count, length, regexp, satisfies
+
+-
+    type: tag
+    mode: delete
+    match: # The tag(s) to delete
+        # Possible values for matching. only one of them is allowed at a time. All of them can be single or array
+        id: # the id(s) of the tag(s) we want to delete
+        remote_id: # the remote id(s) of the tag(s) we want to delete
+        keyword: # the keyword(s) of the tag(s) we want to delete
+        parent_tag_id: # the id of the parent tag
+        or: # match any of the conditions below. *NB:* less efficient that using the array notation for a single condition
+            -
+                _condition_: value # where _condition_ can be any of ones specified above, including 'and' and 'or'
+            -
+                _condition_: value # where _condition can be any of ones specified above, including 'and' and 'or'
+        and: # match all of the conditions below
+            -
+                _condition_: value # where _condition_ can be any of ones specified above, including 'and' and 'or'
+            -
+                _condition_: value # where _condition_ can be any of ones specified above, including 'and' and 'or'
+    references: # Optional
+        # short syntax:
+        referenceId: attributeId # (possible values and meaning are explained for the 'long syntax')
+        # long syntax:
+        -
+            identifier: referenceId # A string used to identify the reference
+            attribute: attributeId # The attribute to get the value of for the reference
+                                   # supports: always_available, depth, id, main_language_code, main_tag_id, modification_date,
+                                   # path, parent_tag_id, remote_id, keyword
+            overwrite: true|false # Optional, default false. If not set, and the reference already exists, an exception is thrown
+    expect: one|any|many # Optional. If set, the number of matched items will be validated, and the type of values set to created references will change
+                         # 'one': only one element should be matched; reference values will be scalars
+                         # 'any': zero or more element should be matched; reference values will be arrays
+                         # 'many': one or more element should be matched; reference values will be arrays
+    if: # Optional. If set, the migration step will be skipped unless the condition is matched
+        "reference:_ref_name": # name of a reference to be used for the test
+            _operator_: value # allowed operators: eq, gt, gte, lt, lte, ne, count, length, regexp, satisfies
+
+-
+    type: tag
+    mode: load
+    match: # The tag(s) to load; See above the description in the tag/delete operation for valid values
+    references: # Optional
+        # short syntax:
+        referenceId: attributeId # (possible values and meaning are explained for the 'long syntax')
+        # long syntax:
+        -
+            identifier: referenceId # A string used to identify the reference
+            attribute: attributeId # The attribute to get the value of for the reference
+                                   # supports: always_available, depth, id, main_language_code, main_tag_id, modification_date,
+                                   # path, parent_tag_id, remote_id, keyword
+            overwrite: true|false # Optional, default false. If not set, and the reference already exists, an exception is thrown
+    expect: one|any|many # Optional. If set, the number of matched items will be validated, and the type of values set to created references will change
+                         # 'one': only one element should be matched; reference values will be scalars
+                         # 'any': zero or more element should be matched; reference values will be arrays
+                         # 'many': one or more element should be matched; reference values will be arrays
+    if: # Optional. If set, the migration step will be skipped unless the condition is matched
+        "reference:_ref_name": # name of a reference to be used for the test
+            _operator_: value # allowed operators: eq, gt, gte, lt, lte, ne, count, length, regexp, satisfies

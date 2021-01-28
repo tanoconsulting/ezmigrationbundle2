@@ -1,0 +1,11 @@
+# A migration which prints something to stdout
+-
+    type: reference
+    mode: set
+    identifier: kmb_test_21_ref
+    value: hello world
+
+-
+    type: reference
+    mode: dump
+    identifier: reference:kmb_test_21_ref

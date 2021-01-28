@@ -1,0 +1,9 @@
+# Should fail as there are many Folders
+# NB: assumes that 'folder' ContentType is available
+
+-
+    type: content
+    mode: load
+    match:
+        content_type_identifier: folder
+    expect: one

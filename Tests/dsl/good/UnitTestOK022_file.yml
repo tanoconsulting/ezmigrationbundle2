@@ -1,0 +1,222 @@
+-
+     type: reference
+     mode: set
+     identifier: kmb_test_22_x
+     value: /tmp/x.txt
+
+-
+     type: reference
+     mode: set
+     identifier: kmb_test_22_y
+     value: /tmp/y.txt
+
+-
+     type: reference
+     mode: set
+     identifier: kmb_test_22_z
+     value: world
+
+-
+    type: file
+    mode: save
+    file: reference:kmb_test_22_x
+    body: "hello [reference:kmb_test_22_z]"
+
+-
+    type: file
+    mode: load
+    file: reference:kmb_test_22_x
+    references:
+        -
+            attribute: body
+            identifier: aaa1
+        -
+            attribute: size
+            identifier: aaa2
+        -
+            attribute: atime
+            identifier: aaa3
+        -
+            attribute: ctime
+            identifier: aaa4
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa1
+    test:
+        equals: "hello world"
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa2
+    test:
+        equals: 11
+
+-
+    type: file
+    mode: append
+    file: reference:kmb_test_22_x
+    body: "wide"
+
+-
+    type: file
+    mode: load
+    file: reference:kmb_test_22_x
+    references:
+        -
+            attribute: body
+            identifier: aaa5
+        -
+            attribute: size
+            identifier: aaa6
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa5
+    test:
+        equals: "hello worldwide"
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa6
+    test:
+        equals: 15
+
+-
+    type: file
+    mode: copy
+    from: reference:kmb_test_22_x
+    to: reference:kmb_test_22_y
+
+-
+    type: file
+    mode: load
+    file: reference:kmb_test_22_y
+    references:
+        -
+            attribute: body
+            identifier: aaa7
+        -
+            attribute: size
+            identifier: aaa8
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa7
+    test:
+        equals: "hello worldwide"
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa8
+    test:
+        equals: 15
+
+-
+    type: file
+    mode: save
+    file: '/tmp/z.txt'
+    template: 'helloworld.txt'
+
+-
+    type: file
+    mode: load
+    file: '/tmp/z.txt'
+    references:
+        -
+            attribute: body
+            identifier: aaa9
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa9
+    test:
+        equals: "hello world"
+
+-
+    type: file
+    mode: delete
+    file: /tmp/z.txt
+
+-
+    type: file
+    mode: delete
+    file: reference:kmb_test_22_y
+
+-
+    type: file
+    mode: move
+    from: reference:kmb_test_22_x
+    to: reference:kmb_test_22_y
+
+-
+    type: file
+    mode: load
+    file: reference:kmb_test_22_y
+    references:
+        -
+            attribute: body
+            identifier: aaa9
+            overwrite: true
+        -
+            attribute: size
+            identifier: aaa10
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa9
+    test:
+        equals: "hello worldwide"
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa10
+    test:
+        equals: 15
+
+-
+    type: file
+    mode: exists
+    file: reference:kmb_test_22_y
+    references:
+        -
+            attribute: exists
+            identifier: aaa11
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa11
+    test:
+        equals: true
+
+-
+    type: file
+    mode: delete
+    file: reference:kmb_test_22_y
+
+-
+    type: file
+    mode: exists
+    file: reference:kmb_test_22_y
+    references:
+        -
+            attribute: exists
+            identifier: aaa11
+            overwrite: true
+
+-
+    type: assert
+    target: reference
+    identifier: reference:aaa11
+    test:
+        equals: false

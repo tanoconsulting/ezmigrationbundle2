@@ -1,0 +1,109 @@
+-
+    type: user_group
+    mode: create
+    parent_group_id: 4
+    name: Kaliop Migration Bundle Test User Group 2
+    description: Kaliop Migration Bundle Test User Group 2
+    roles: [1, 2] # Anon, admin
+    references:
+        -
+            identifier: kmb_test_32_g
+            attribute: id
+        -
+            identifier: kmb_test_32_gr
+            attribute: remote_id
+-
+    type: user
+    mode: create
+    first_name: Kaliop
+    last_name: Test User 32
+    username: kmb_test_user_32
+    email: kmb_test_user_32@test.com
+    password: anUnsafePassword123
+    groups: [reference:kmb_test_32_g]
+    references:
+        -
+            identifier: kmb_test_32_u
+            attribute: id
+-
+    type: content_type
+    mode: create
+    content_type_group: 1
+    identifier: kmb_test_32_cti
+    name: Kaliop Migration Bundle Test Class 32
+    name_pattern: '<ezstring>'
+    attributes:
+        -
+            type: ezstring
+            name: ezstring
+            identifier: ezstring
+    references:
+        -
+            identifier: kmb_test_32_ct
+            attribute: id
+-
+    type: content
+    mode: create
+    content_type: kmb_test_32_cti
+    parent_location: 2
+    owner: reference:kmb_test_32_u
+    attributes:
+        - ezstring: hello world 32
+    references:
+        -
+            identifier: kmb_test_32_c
+            attribute: id
+-
+    type: content
+    mode: load
+    match:
+        group: reference:kmb_test_32_g
+    references:
+        -
+            identifier: kmb_test_32_count_1
+            attribute: count
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_32_count_1
+    test:
+        equals: 1
+-
+    type: content
+    mode: delete
+    match:
+        content_type: kmb_test_32_cti
+-
+    type: content_type
+    mode: delete
+    identifier: kmb_test_32_cti
+-
+    type: user
+    mode: delete
+    match:
+        usergroup_id: reference:kmb_test_32_g
+    references:
+        -
+            identifier: kmb_test_32_count_2
+            attribute: count
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_32_count_2
+    test:
+        equals: 1
+-
+    type: user_group
+    mode: delete
+    match:
+        content_remote_id: reference:kmb_test_32_gr
+    references:
+        -
+            identifier: kmb_test_32_count_3
+            attribute: count
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_32_count_3
+    test:
+        equals: 1

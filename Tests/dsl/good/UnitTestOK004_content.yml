@@ -1,0 +1,598 @@
+# test  creation / updating / deleting of content. We use a custom content type for that, not to rely on the standard ones...
+
+-
+    type: content_type
+    mode: create
+    content_type_group: 1
+    identifier: kmb_test_004
+    name: Kaliop Migration Bundle Test Class 2
+    name_pattern: '<ezstring>'
+    is_container: true
+    always_available: true
+    attributes:
+        -
+            type: ezstring
+            name: ezstring
+            identifier: ezstring
+        -
+            type: ezauthor
+            name: ezauthor
+            identifier: ezauthor
+        -
+            type: ezbinaryfile
+            name: ezbinaryfile
+            identifier: ezbinaryfile
+        -
+            type: ezboolean
+            name: ezboolean
+            identifier: ezboolean
+        -
+            type: ezcountry
+            name: ezcountry
+            identifier: ezcountry
+            field-settings:
+                isMultiple: true
+        -
+            type: ezdatetime
+            name: ezdatetime
+            identifier: ezdatetime
+        -
+            type: ezdate
+            name: ezdate
+            identifier: ezdate
+        -
+            type: ezemail
+            name: ezemail
+            identifier: ezemail
+        -
+            type: ezfloat
+            name: ezfloat
+            identifier: ezfloat
+        # @todo ezgmaplocation fieldType seems to be enabled by default, but the db table might *not* be present...
+        #-
+        #    type: ezgmaplocation
+        #    name: ezgmaplocation
+        #    identifier: ezgmaplocation
+        -
+            type: ezimage
+            name: ezimage
+            identifier: ezimage
+        -
+            type: ezinteger
+            name: ezinteger
+            identifier: ezinteger
+        -
+            type: ezisbn
+            name: ezisbn
+            identifier: ezisbn
+        -
+            type: ezkeyword
+            name: ezkeyword
+            identifier: ezkeyword
+        -
+            type: ezmedia
+            name: ezmedia
+            identifier: ezmedia
+        -
+            type: ezobjectrelation
+            name: ezobjectrelation
+            identifier: ezobjectrelation
+        -
+            type: ezobjectrelationlist
+            name: ezobjectrelationlist
+            identifier: ezobjectrelationlist
+        # @todo we should make sure that at least one layout type exists in order to create an ezpage attribute...
+        #-
+        #    type: ezpage
+        #    name: ezpage
+        #    identifier: ezpage
+        -
+            type: ezrichtext
+            name: ezrichtext
+            identifier: ezrichtext
+        # nb: ezsrrating fieldType seems to be enabled by default, but the db table might *not* be present...
+        #-
+        #    type: ezsrrating
+        #    name: ezsrrating
+        #    identifier: ezsrrating
+        -
+            type: eztext
+            name: eztext
+            identifier: eztext
+        -
+            type: eztime
+            name: eztime
+            identifier: eztime
+        -
+            type: ezurl
+            name: ezurl
+            identifier: ezurl
+        -
+            type: ezuser
+            name: ezuser
+            identifier: ezuser
+        -
+            type: ezxmltext
+            name: ezxmltext
+            identifier: ezxmltext
+    references:
+        -
+            identifier: kmb_test_004
+            attribute: identifier
+        -
+            identifier: kmb_test_004_0
+            attribute: id
+-
+    type: content
+    mode: create
+    content_type: reference:kmb_test_004
+    parent_location: 2
+    section: 3
+    owner: admin
+    attributes:
+        - ezstring: hello world 1
+    object_states:
+        - locked
+    references:
+        -
+            identifier: kmb_test_004_1
+            attribute: object_id
+        -
+            identifier: kmb_test_004_1_loc
+            attribute: location_id
+        -
+            identifier: kmb_test_004_1_path
+            attribute: path
+        -
+            identifier: kmb_test_004_1_crid
+            attribute: content_remote_id
+        -
+            identifier: kmb_test_004_1_rid
+            attribute: remote_id
+        -
+            identifier: kmb_test_004_1_always_available
+            attribute: always_available
+        -
+            identifier: kmb_test_004_1_content_id
+            attribute: content_id
+        -
+            identifier: kmb_test_004_1_content_type_id
+            attribute: content_type_id
+        -
+            identifier: kmb_test_004_1_content_type_identifier
+            attribute: content_type_identifier
+        -
+            identifier: kmb_test_004_1_current_version
+            attribute: current_version
+        -
+            identifier: kmb_test_004_1_current_version_no
+            attribute: current_version_no
+        -
+            identifier: kmb_test_004_1_main_location_id
+            attribute: main_location_id
+        -
+            identifier: kmb_test_004_1_main_language_code
+            attribute: main_language_code
+        -
+            identifier: kmb_test_004_1_modification_date
+            attribute: modification_date
+        -
+            identifier: kmb_test_004_1_name
+            attribute: name
+        -
+            identifier: kmb_test_004_1_owner_id
+            attribute: owner_id
+        -
+            identifier: kmb_test_004_1_publication_date
+            attribute: publication_date
+        -
+            identifier: kmb_test_004_1_section_id
+            attribute: section_id
+        -
+            identifier: kmb_test_004_1_section_identifier
+            attribute: section_identifier
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_1
+    test:
+        equals: reference:kmb_test_004_1_content_id
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_1_crid
+    test:
+        equals: reference:kmb_test_004_1_rid
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_1_content_type_identifier
+    test:
+        equals: kmb_test_004
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_1_current_version
+    test:
+        equals: 1
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_1_current_version_no
+    test:
+        equals: 1
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_1_section_id
+    test:
+        equals: 3
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_1_section_identifier
+    test:
+        equals: media
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: kmb_test_004
+    attributes:
+        -
+            type: ezobjectrelationlist
+            name: ezobjectrelationlist
+            identifier: ezobjectrelationlist
+            field-settings:
+                selectionDefaultLocation: reference:kmb_test_004_1_loc
+
+-
+    type: content
+    mode: create
+    content_type: reference:kmb_test_004
+    main_location: 2
+    attributes:
+        - ezstring: hello world 2
+        - ezobjectrelation: 'reference:kmb_test_004_1'
+        - ezobjectrelationlist: [ 'reference:kmb_test_004_1' ]
+    references:
+        -
+            identifier: kmb_test_004_2
+            attribute: object_id
+
+-
+    type: content
+    mode: create
+    content_type: reference:kmb_test_004
+    parent_location: reference:kmb_test_004_1_loc
+    location_remote_id: kmb_test_004_3_location_remote_id
+    priority: 1999
+    is_hidden: true
+    sort_field: path
+    sort_order: DESC
+    modification_date: "2006:07:08 18:11:31"
+    publication_date: "2005:08:09 18:11:31"
+    version_creator: anonymous
+    attributes:
+        ezstring: hello world 3
+        # Issue # 224
+        ezcountry: ALB
+    references:
+        -
+            identifier: kmb_test_004_3
+            attribute: object_id
+        -
+            identifier: kmb_test_004_3_ezcountry
+            attribute: 'attributes.ezcountry[0]'
+            overwrite: true
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_3_ezcountry
+    test:
+        equals: AL
+
+-
+    type: reference
+    mode: set
+    identifier: kmb_test_004_3_ezcountry_set
+    value: [ AFG ]
+
+-
+    type: content
+    mode: update
+    match:
+        location_remote_id: kmb_test_004_3_location_remote_id
+    attributes:
+        ezcountry: reference:kmb_test_004_3_ezcountry_set
+    references:
+        -
+            identifier: kmb_test_004_3_ezcountry
+            attribute: 'attributes.ezcountry[0]'
+            overwrite: true
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_3_ezcountry
+    test:
+        equals: AF
+
+-
+    type: reference
+    mode: set
+    identifier: kmb_test_004_3_ezcountry_set
+    overwrite: true
+    value: Algeria
+
+-
+    type: content
+    mode: update
+    match:
+        location_remote_id: kmb_test_004_3_location_remote_id
+    attributes:
+        ezcountry: [ 'reference:kmb_test_004_3_ezcountry_set' ]
+    references:
+        -
+            identifier: kmb_test_004_3_ezcountry
+            attribute: 'attributes.ezcountry[0]'
+            overwrite: true
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_3_ezcountry
+    test:
+        equals: DZ
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: kmb_test_004
+    attributes:
+        -
+            type: ezobjectrelationlist
+            name: ezobjectrelationlist
+            identifier: ezobjectrelationlist
+            field-settings:
+                selectionDefaultLocation: location:kmb_test_004_3_location_remote_id
+
+-
+    type: content
+    mode: create
+    content_type: reference:kmb_test_004
+    parent_location: 2
+    priority: 1999
+    remote_id: this_is_a_test_remoteid
+    attributes:
+        - ezstring: hello world 4
+        - ezimage:
+            path: blank.jpg
+            alt_text: a blank 1x1 px image
+            filename: lol1.jpg
+        - ezbinaryfile:
+            path: emptyfile.txt
+            filename: lol2.txt
+        - ezmedia:
+            path: small.flv
+            filename: lol3.flv
+        - ezxmltext:
+            content: '<section><paragraph>Hello there! Here is an embedded object: <embed view="embed" size="medium" object_id="[reference:kmb_test_004_1]" /></paragraph></section>'
+        - ezrichtext:
+            content: '<?xml version="1.0" encoding="UTF-8"?><section xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ezxhtml="http://ez.no/xmlns/ezpublish/docbook/xhtml" xmlns:ezcustom="http://ez.no/xmlns/ezpublish/docbook/custom" version="5.0-variant ezpublish-1.0"><para><link xlink:href="ezcontent://[reference:kmb_test_004_1]">Content link</link></para></section>'
+        - ezauthor:
+            -
+                name: Author 1
+                email: test1@example.com
+            -
+                name: Author 2
+                email: test2@example.com
+        - ezcountry:
+            - Afghanistan
+            - AX
+            - ALB
+        - ezobjectrelation:
+            destinationContentId: 'reference:kmb_test_004_1'
+        - ezobjectrelationlist:
+            destinationContentIds: [ 'reference:kmb_test_004_1', 'reference:kmb_test_004_2' ]
+# Currently fails... :-(
+# Error message: Argument 'BinaryFile::id' is invalid: '/content/download/55/249' is wrong value, it does not contain prefix '/var/behat_site/storage/'. Is 'var_dir' config correct?
+#    references:
+#        -
+#            identifier: kmb_test_004_10_mimetype
+#            attribute: attributes.ezbinaryfile.mimeType
+
+# Currently fails... See: https://github.com/kaliop-uk/ezmigrationbundle/issues/147
+#-
+#    type: assert
+#    target: reference
+#    identifier: reference:kmb_test_004_10_mimetype
+#    test:
+#        equals: something/else
+
+-
+    type: content
+    mode: create
+    content_type: kmb_test_004
+    parent_location: 2
+    attributes:
+        ezstring: null
+        ezauthor: null
+        ezbinaryfile: null
+        ezboolean: null
+        ezcountry: null
+        ezdatetime: null
+        ezdate: null
+        ezemail: null
+        ezfloat: null
+        ezimage: null
+        ezinteger: null
+        ezisbn: null
+        ezkeyword: null
+        ezmedia: null
+        ezobjectrelation: null
+        ezobjectrelationlist: null
+        ezrichtext: null
+        eztext: null
+        eztime: null
+        ezurl: null
+        ezuser: null
+        ezxmltext: null
+
+-
+    type: content
+    mode: update
+    match:
+        content_id: reference:kmb_test_004_1
+    attributes:
+        - ezimage: blank.jpg
+        - ezbinaryfile: emptyfile.txt
+    section: users
+    version_creator: 14
+    owner: 10
+    new_remote_id: is_this_a_very_unlikely_remoteid
+    modification_date: "2008:07:06 18:11:31"
+    publication_date: "2007:08:09 18:11:31"
+    references:
+        -
+            identifier: kmb_test_004_8_current_version
+            attribute: current_version
+        -
+            identifier: kmb_test_004_8_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_8_count
+    test:
+        equals: 1
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_8_current_version
+    test:
+        equals: 2
+
+-
+    type: content
+    mode: update
+    match:
+        content_id: reference:kmb_test_004_1
+    new_remote_id: this_is_a_very_unlikely_remoteid
+    references:
+        -
+            identifier: kmb_test_004_9_current_version
+            attribute: current_version
+        -
+            identifier: kmb_test_004_9_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_9_count
+    test:
+        equals: 1
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_9_current_version
+    test:
+        equals: 2
+
+# @todo test as many conditions as possible
+-
+    type: content
+    mode: load
+    match:
+        and:
+            - attribute:
+                ezstring:
+                    eq: 'hello world 1'
+            - content_id: reference:kmb_test_004_1
+            - content_remote_id: this_is_a_very_unlikely_remoteid
+            - content_type_id: reference:kmb_test_004_0
+            - content_type_identifier: reference:kmb_test_004
+            - creation_date:
+                gt: 1234567
+            #- group:
+            - lang: reference:kmb_test_004_1_main_language_code
+            - location_id: reference:kmb_test_004_1_loc
+            #- object_state:
+            - owner: anonymous
+            - section: 2
+            - not:
+                visibility: false
+    references:
+        -
+            identifier: kmb_test_004_4
+            attribute: object_id
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_1
+    test:
+        equals: reference:kmb_test_004_4
+
+-
+    type: content
+    mode: delete
+    object_id: [ 'reference:kmb_test_004_2', 'reference:kmb_test_004_3' ]
+    references:
+        -
+            identifier: kmb_test_004_5
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_5
+    test:
+        equals: 2
+
+-
+    type: content
+    mode: delete
+    match:
+        content_type: reference:kmb_test_004
+    references:
+        -
+            identifier: kmb_test_004_6_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_6_count
+    test:
+        equals: 3
+
+-
+    type: content_type
+    mode: delete
+    identifier: 'reference:kmb_test_004'
+    references:
+        -
+            identifier: kmb_test_004_7_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_004_7_count
+    test:
+        equals: 1

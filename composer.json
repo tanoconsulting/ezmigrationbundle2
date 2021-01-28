@@ -1,36 +1,57 @@
 {
-    "name": "tanoconsulting/ezmigrationbundle2",
+    "name": "kaliop/ezmigrationbundle",
     "type": "symfony-bundle",
-    "description": "TanoConsulting eZ-Migration-Bundle 2",
-    "keywords": ["migrations", "database", "ezplatform"],
+    "description": "Kaliop eZ-Migration Bundle",
+    "keywords": ["migrations", "database", "ezpublish"],
     "license": "GPL-2.0",
     "authors": [
         {
             "name": "Gaetano Giunta",
             "email": "ggiunta@tanoconsulting.com",
             "role": "Lead Developer"
+        },
+        {
+            "name": "Peter Halasz",
+            "email": "peter.halasz@kaliop.co.uk",
+            "role": "Original author"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
-        "php": ">=7.3",
+        "php": "^7.3",
         "ext-pdo": "*",
-        "ezsystems/ezplatform-kernel": ">=5.4|>=2014.11",
+        "ezsystems/ezplatform-kernel": "^1.0",
+        "ezsystems/doctrine-dbal-schema": "^1.0",
         "mtdowling/jmespath.php": "2.*",
-        "nikic/php-parser": "^2.0 || ^3.0 || ^4.0",
+        "nikic/php-parser": "^4.2.2",
         "symfony/process": "*",
         "symfony/swiftmailer-bundle": "*",
         "symfony/validator": "*",
         "symfony/var-dumper": "*"
     },
     "require-dev": {
+        "mikey179/vfsstream": "^2.0@dev",
+        "phpunit/phpunit": "^7.5",
+        "roave/security-advisories": "dev-disablechecks as dev-master"
     },
     "suggest": {
         "php-http/httplug-bundle": "Required for usage of HTTP/CALL migration steps"
     },
-    "conflict": {
-        "kaliop/ezmigrationbundle": "*"
-    },
     "autoload": {
         "psr-4": { "Kaliop\\eZMigrationBundle\\": "" }
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/kaliop-uk/SecurityAdvisoriesNoConflicts",
+            "no-api": true
+        }
+    ],
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/tanoconsulting"
+        }
+    ]
 }

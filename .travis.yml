@@ -1,0 +1,73 @@
+# A Travis configuration file for a bundle which aims to be compatible with both eZPublish 5 and eZPlatform
+
+language: php
+
+services:
+    - mysql
+
+env:
+  global:
+    - SYMFONY_ENV=behat
+    - DB_HOST=localhost
+    - DB_TYPE=mysql
+    - DB_EZ_USER=ezp
+    - DB_EZ_PASSWORD=ezp
+    - DB_EZ_DATABASE=behattestdb
+
+# NB: see https://support.ibexa.co/Public/Service-Life for EOL dates of eZPublish versions
+#     and http://php.net/supported-versions.php for EOL dates of PHP versions
+# We limit the matrix to one version of eZPublish for each version of PHP
+matrix:
+  # @todo figure out available 'friend' packages
+  include:
+    - php: 7.3
+      env: EZ_PACKAGES='ezsystems/ezplatform:^3.1.5 ezsystems/ezplatform-xmltext-fieldtype:^2.0 ezsystems/behatbundle:^7.0 overblog/graphiql-bundle symfony/web-profiler-bundle symfony/debug-bundle'
+    - php: 7.4
+      env: EZ_PACKAGES='ezsystems/ezplatform:^3.2.4 ezsystems/ezplatform-xmltext-fieldtype:^1.8 ezsystems/ezplatform-matrix-fieldtype:^1.0 netgen/tagsbundle:^3.3 ezsystems/behatbundle:^6.5 sensio/generator-bundle' EZ_BUNDLES='Kaliop\eZMigrationBundle\EzMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
+    # latest version currently available of eZPlatform 2 - currently 2.5, which is an LTS
+    - php: 8.0
+      env: EZ_PACKAGES='ezsystems/ezplatform:^3.3.0-rc2 ezsystems/ezplatform-xmltext-fieldtype:^1.9 netgen/tagsbundle:^3.4 ezsystems/behatbundle:^7.0 sensio/generator-bundle overblog/graphiql-bundle' EZ_BUNDLES='Kaliop\eZMigrationBundle\EzMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle' CODE_COVERAGE=1
+
+before_install:
+  # Note: as of 2020/10/30, composer self-updates to rev. 2.0 for php 5.6-7.2, but not for 7.3 and 7.4... most likely
+  # because the starting revision is >= 1.10.10 for the latter envs (composer changelog for 1.10.10 includes:
+  # `Fixed self-update to avoid automatically upgrading to the next major version once it becomes stable`)
+  # So to make sure we use composer 2 on all envs, we should un comment the following:
+  #- composer --version | grep -q -F ' 1.' && composer self-update --2
+  - sudo apt-get update
+  - sudo apt-get install -y zip unzip
+  # No need for a web server, until we start testing using Selenium
+  #- sudo apt-get install -qq -y --force-yes apache2 libapache2-mod-fastcgi
+  # @todo install memcached, java (for Solr)
+
+install:
+  - git clone --depth 1 --branch 0.1.0 https://github.com/tanoconsulting/euts.git teststack
+  # just in case...
+  - chmod 755 ./teststack/bin/*.sh  ./teststack/bin/setup/*.sh
+  - ./teststack/bin/setup.sh
+
+script:
+  - if [ "$CODE_COVERAGE" = "1" ]; then ./teststack/bin/runtests.sh -c coverage.clover; else ./teststack/bin/runtests.sh; fi
+
+#after_failure:
+  # Display as much info as we can to help developers
+  #- php -i
+  #- cat composer.lock
+
+after_script:
+  # Upload code-coverage to Scrutinizer
+  - if [ "$CODE_COVERAGE" = "1" -a -f coverage.clover ]; then wget https://scrutinizer-ci.com/ocular.phar; fi
+  - if [ "$CODE_COVERAGE" = "1" -a -f coverage.clover ]; then php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
+  # Upload code-coverage to CodeClimate. NB: this works only when the CODECLIMATE_REPO_TOKEN env var has been set (we do it in the Travis config via the GUI)
+  #- if [ "$CODE_COVERAGE" = "1" -a -f coverage.clover ]; then ./vendor/bin/test-reporter --coverage-report=coverage.clover; fi
+  # Upload code-coverage to CodeCov
+  - if [ "$CODE_COVERAGE" = "1" -a -f coverage.clover ]; then bash <(curl -s https://codecov.io/bash); fi
+
+# reduce depth (history) of git checkout
+git:
+    depth: 1
+
+# Try to avoid problems with shared composer caches...
+#cache:
+#    directories:
+#        - $COMPOSER_CACHE_DIR
