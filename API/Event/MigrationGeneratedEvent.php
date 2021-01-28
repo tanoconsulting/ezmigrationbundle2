@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\API\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class MigrationGeneratedEvent extends Event
 {
