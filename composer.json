@@ -32,6 +32,9 @@
         "mikey179/vfsstream": "^2.0@dev",
         "phpunit/phpunit": "^7.5"
     },
+    "conflict": {
+        "kaliop/ezmigrationbundle": "*"
+    },
     "suggest": {
         "php-http/httplug-bundle": "Required for usage of HTTP/CALL migration steps"
     },
