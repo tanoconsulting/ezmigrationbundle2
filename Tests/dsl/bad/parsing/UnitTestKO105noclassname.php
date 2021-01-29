@@ -2,10 +2,9 @@
 
 use Kaliop\eZMigrationBundle\API\MigrationInterface;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
-use \eZ\Publish\Core\Persistence\Database\SelectQuery;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class noclassname implements MigrationInterface
 {

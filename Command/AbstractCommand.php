@@ -31,11 +31,6 @@ abstract class AbstractCommand extends Command
         parent::__construct();
     }
 
-    protected function getContainer()
-    {
-        return $this->container;
-    }
-
     /**
      * @return MigrationService
      */

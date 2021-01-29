@@ -343,7 +343,7 @@ class MigrationService implements ContextProviderInterface
                     $executor = $this->executors[$step->type];
 
                     $beforeStepExecutionEvent = new BeforeStepExecutionEvent($step, $executor);
-                    $this->dispatcher->dispatch($this->eventPrefix . 'before_execution', $beforeStepExecutionEvent);
+                    $this->dispatcher->dispatch($beforeStepExecutionEvent, $this->eventPrefix . 'before_execution');
                     // allow some sneaky trickery here: event listeners can manipulate 'live' the step definition and the executor
                     $executor = $beforeStepExecutionEvent->getExecutor();
                     $step = $beforeStepExecutionEvent->getStep();
@@ -351,7 +351,7 @@ class MigrationService implements ContextProviderInterface
                     try {
                         $result = $executor->execute($step);
 
-                        $this->dispatcher->dispatch($this->eventPrefix . 'step_executed', new StepExecutedEvent($step, $result));
+                        $this->dispatcher->dispatch(new StepExecutedEvent($step, $result), $this->eventPrefix . 'step_executed');
                     } catch (MigrationStepSkippedException $e) {
                         continue;
                     }
@@ -362,14 +362,14 @@ class MigrationService implements ContextProviderInterface
             } catch (MigrationAbortedException $e) {
                 // allow a migration step (or events) to abort the migration via a specific exception
 
-                $this->dispatcher->dispatch($this->eventPrefix . $this->eventEntity . '_aborted', new MigrationAbortedEvent($step, $e));
+                $this->dispatcher->dispatch(new MigrationAbortedEvent($step, $e), $this->eventPrefix . $this->eventEntity . '_aborted');
 
                 $finalStatus = $e->getCode();
                 $finalMessage = "Abort in execution of step $i: " . $e->getMessage();
             } catch (MigrationSuspendedException $e) {
                 // allow a migration step (or events) to suspend the migration via a specific exception
 
-                $this->dispatcher->dispatch($this->eventPrefix . $this->eventEntity . '_suspended', new MigrationSuspendedEvent($step, $e));
+                $this->dispatcher->dispatch(new MigrationSuspendedEvent($step, $e), $this->eventPrefix . $this->eventEntity . '_suspended');
 
                 // let the context handler store our context, along with context data from any other (tagged) service which has some
                 $this->contextHandler->storeCurrentContext($migration->name);
