@@ -19,9 +19,11 @@ class StatusCommand extends AbstractCommand
 {
     const STATUS_INVALID = -1;
 
+    protected static $defaultName = 'kaliop:migration:status';
+
     protected function configure()
     {
-        $this->setName('kaliop:migration:status')
+        $this
             ->setDescription('View the status of all (or a set of) migrations.')
             ->addOption('path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, "The directory or file to load the migration definitions from")
             ->addOption('sort-by', null, InputOption::VALUE_REQUIRED, "Supported sorting order: name, execution", 'name')

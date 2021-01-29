@@ -2,6 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\StorageHandler\Database;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use eZ\Publish\Core\Persistence\Database\QueryException;
 use eZ\Publish\Core\Persistence\Database\DatabaseHandler;
@@ -18,9 +19,9 @@ abstract class TableStorage
     protected $tableName;
 
     /**
-     * @var DatabaseHandler $dbHandler
+     * @var Connection $connection
      */
-    protected $dbHandler;
+    protected $connection;
 
     /**
      * Flag to indicate that the migration table has been created
@@ -33,15 +34,15 @@ abstract class TableStorage
     protected $tableCreationOptions;
 
     /**
-     * @param DatabaseHandler $dbHandler
+     * @param Connection $connection
      * @param string $tableNameParameter name of table when $configResolver is null, name of parameter otherwise
      * @param ConfigResolverInterface $configResolver
      * @param array $tableCreationOptions
      * @throws \Exception
      */
-    public function __construct(DatabaseHandler $dbHandler, $tableNameParameter, ConfigResolverInterface $configResolver = null, $tableCreationOptions = array())
+    public function __construct(Connection $connection, $tableNameParameter, ConfigResolverInterface $configResolver = null, $tableCreationOptions = array())
     {
-        $this->dbHandler = $dbHandler;
+        $this->connection = $connection;
         $this->tableName = $configResolver ? $configResolver->getParameter($tableNameParameter) : $tableNameParameter;
         $this->tableCreationOptions = $tableCreationOptions;
     }
@@ -60,11 +61,11 @@ abstract class TableStorage
     }
 
     /**
-     * @return \Doctrine\DBAL\Connection|mixed
+     * @return Connection
      */
     protected function getConnection()
     {
-        return $this->dbHandler->getConnection();
+        return $this->connection;
     }
 
     /**
@@ -76,7 +77,7 @@ abstract class TableStorage
     protected function tableExist($tableName)
     {
         /** @var \Doctrine\DBAL\Schema\AbstractSchemaManager $sm */
-        $sm = $this->dbHandler->getConnection()->getSchemaManager();
+        $sm = $this->getConnection()->getSchemaManager();
         foreach ($sm->listTables() as $table) {
             if ($table->getName() == $tableName) {
                 return true;
@@ -118,7 +119,7 @@ abstract class TableStorage
     protected function drop()
     {
         if ($this->tableExist($this->tableName)) {
-            $this->dbHandler->exec('DROP TABLE ' . $this->tableName);
+            $this->connection->exec('DROP TABLE ' . $this->tableName);
         }
     }
 
@@ -129,7 +130,7 @@ abstract class TableStorage
     public function truncate()
     {
         if ($this->tableExist($this->tableName)) {
-            $this->dbHandler->exec('TRUNCATE ' . $this->tableName);
+            $this->connection->exec('TRUNCATE ' . $this->tableName);
         }
     }
 }

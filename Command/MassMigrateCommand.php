@@ -17,7 +17,7 @@ use Kaliop\eZMigrationBundle\Core\Process\ProcessBuilder;
 
 class MassMigrateCommand extends MigrateCommand
 {
-    const COMMAND_NAME = 'kaliop:migration:mass_migrate';
+    protected static $defaultName = 'kaliop:migration:mass_migrate';
 
     // Note: in this array, we lump together in STATUS_DONE everything which is not failed or suspended
     protected $migrationsDone = array(Migration::STATUS_DONE => 0, Migration::STATUS_FAILED => 0, Migration::STATUS_SKIPPED => 0);
@@ -31,7 +31,6 @@ class MassMigrateCommand extends MigrateCommand
         parent::configure();
 
         $this
-            ->setName(self::COMMAND_NAME)
             ->setAliases(array())
             ->setDescription('Executes available migration definitions, using parallelism.')
             ->addOption('concurrency', 'r', InputOption::VALUE_REQUIRED, "The number of executors to run in parallel", 2)
@@ -43,8 +42,7 @@ The maximum number of processes to run in parallel is specified via the 'concurr
 <info>NB: the rule that each migration filename has to be unique still applies, even if migrations are spread across different directories.</info>
 Unlike for the 'normal' migration command, it is not recommended to use the <info>--separate-process</info> option, as it will make execution slower if you have many migrations
 EOT
-            )
-        ;
+            );
     }
 
     /**

@@ -15,6 +15,8 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 class ResumeCommand extends AbstractCommand
 {
+    protected static $defaultName = 'kaliop:migration:resume';
+
     /**
      * Set up the command.
      *
@@ -25,7 +27,6 @@ class ResumeCommand extends AbstractCommand
         parent::configure();
 
         $this
-            ->setName('kaliop:migration:resume')
             ->setDescription('Restarts any suspended migrations.')
             ->addOption('ignore-failures', 'i', InputOption::VALUE_NONE, "Keep resuming migrations even if one fails")
             ->addOption('no-interaction', 'n', InputOption::VALUE_NONE, "Do not ask any interactive question.")

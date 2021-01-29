@@ -2,6 +2,8 @@
 
 namespace Kaliop\eZMigrationBundle\Core\StorageHandler\Database;
 
+
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Schema\Schema;
 use eZ\Publish\Core\Persistence\Database\QueryException;
 use Kaliop\eZMigrationBundle\API\ContextStorageHandlerInterface;
@@ -14,14 +16,11 @@ class Context extends TableStorage implements ContextStorageHandlerInterface
     {
         $this->createTableIfNeeded();
 
-        /** @var \eZ\Publish\Core\Persistence\Database\SelectQuery $q */
-        $q = $this->dbHandler->createSelectQuery();
-        $q->select($this->fieldList)
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select($this->fieldList)
             ->from($this->tableName)
-            ->where($q->expr->eq('migration', $q->bindValue($migrationName)));
-        $stmt = $q->prepare();
-        $stmt->execute();
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            ->where($qb->expr()->eq('migration', $qb->createPositionalParameter($migrationName)));
+        $result = $qb->execute()->fetch(FetchMode::ASSOCIATIVE);
 
         if (is_array($result) && !empty($result)) {
             return $this->stringToContext($result['context']);
@@ -55,7 +54,7 @@ class Context extends TableStorage implements ContextStorageHandlerInterface
         $conn->beginTransaction();
 
         $stmt = $conn->executeQuery($sql, array($migrationName));
-        $existingMigrationData = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $existingMigrationData = $stmt->fetch(FetchMode::ASSOCIATIVE);
 
         if (is_array($existingMigrationData)) {
             // context exists
@@ -111,7 +110,7 @@ class Context extends TableStorage implements ContextStorageHandlerInterface
     public function createTable()
     {
         /** @var \Doctrine\DBAL\Schema\AbstractSchemaManager $sm */
-        $sm = $this->dbHandler->getConnection()->getSchemaManager();
+        $sm = $this->connection->getSchemaManager();
         $dbPlatform = $sm->getDatabasePlatform();
 
         $schema = new Schema();
@@ -126,13 +125,13 @@ class Context extends TableStorage implements ContextStorageHandlerInterface
 
         foreach ($schema->toSql($dbPlatform) as $sql) {
             try {
-                $this->dbHandler->exec($sql);
+                $this->connection->exec($sql);
             } catch(QueryException $e) {
                 // work around limitations in both Mysql and Doctrine
                 // @see https://github.com/kaliop-uk/ezmigrationbundle/issues/176
                 if (strpos($e->getMessage(), '1071 Specified key was too long; max key length is 767 bytes') !== false &&
                     strpos($sql, 'PRIMARY KEY(migration)') !== false) {
-                    $this->dbHandler->exec(str_replace('PRIMARY KEY(migration)', 'PRIMARY KEY(migration(191))', $sql));
+                    $this->connection->exec(str_replace('PRIMARY KEY(migration)', 'PRIMARY KEY(migration(191))', $sql));
                 } else {
                     throw $e;
                 }

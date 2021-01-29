@@ -27,7 +27,7 @@ class MigrateCommand extends AbstractCommand
     protected $subProcessTimeout = 86400;
     protected $subProcessErrorString = '';
 
-    const COMMAND_NAME = 'kaliop:migration:migrate';
+    protected static $defaultName = 'kaliop:migration:migrate';
 
     /**
      * Set up the command.
@@ -39,7 +39,7 @@ class MigrateCommand extends AbstractCommand
         parent::configure();
 
         $this
-            ->setName(self::COMMAND_NAME)
+/// @todo remove the alias ?
             ->setAliases(array('kaliop:migration:update'))
             ->setDescription('Execute available migration definitions.')
             // nb: when adding options, remember to forward them to sub-commands executed in 'separate-process' mode

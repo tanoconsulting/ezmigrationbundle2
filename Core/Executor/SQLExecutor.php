@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
-use eZ\Publish\Core\Persistence\Database\DatabaseHandler;
+use Doctrine\DBAL\Connection;
 use Kaliop\eZMigrationBundle\API\EmbeddedReferenceResolverBagInterface;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchResultsNumberException;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
@@ -16,9 +16,9 @@ class SQLExecutor extends AbstractExecutor
     protected $scalarReferences = array('count');
 
     /**
-     * @var DatabaseHandler $connection
+     * @var Connection $connection
      */
-    protected $dbHandler;
+    protected $connection;
 
     protected $supportedStepTypes = array('sql');
     protected $supportedActions = array('exec', 'query');
@@ -29,12 +29,12 @@ class SQLExecutor extends AbstractExecutor
     protected $queryRequiresFetching = false;
 
     /**
-     * @param DatabaseHandler $dbHandler
+     * @param Connection $connection
      * @param EmbeddedReferenceResolverBagInterface $referenceResolver
      */
-    public function __construct(DatabaseHandler $dbHandler, EmbeddedReferenceResolverBagInterface $referenceResolver)
+    public function __construct(Connection $connection, EmbeddedReferenceResolverBagInterface $referenceResolver)
     {
-        $this->dbHandler = $dbHandler;
+        $this->connection = $connection;
         $this->referenceResolver = $referenceResolver;
     }
 
@@ -65,7 +65,7 @@ class SQLExecutor extends AbstractExecutor
 
     protected function exec($step)
     {
-        $conn = $this->dbHandler->getConnection();
+        $conn = $this->connection;
         // @see http://doctrine-orm.readthedocs.io/projects/doctrine-dbal/en/latest/reference/platforms.html
         $dbType = strtolower(preg_replace('/([0-9]+|Platform)/', '', $conn->getDatabasePlatform()->getName()));
 
@@ -87,7 +87,7 @@ class SQLExecutor extends AbstractExecutor
 
     protected function query($step)
     {
-        $conn = $this->dbHandler->getConnection();
+        $conn = $this->connection;
         // @see http://doctrine-orm.readthedocs.io/projects/doctrine-dbal/en/latest/reference/platforms.html
         $dbType = strtolower(preg_replace('/([0-9]+|Platform)/', '', $conn->getDatabasePlatform()->getName()));
 

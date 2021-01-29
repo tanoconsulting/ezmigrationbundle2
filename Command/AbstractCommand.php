@@ -23,14 +23,12 @@ abstract class AbstractCommand extends Command
     /** @var OutputInterface $output */
     protected $errOutput;
     protected $verbosity = OutputInterface::VERBOSITY_NORMAL;
-    /** @var ContainerInterface $container */
-    protected $container;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(MigrationService $migrationService)
     {
-        $this->container = $container;
+        $this->migrationService = $migrationService;
 
-        parent::__construct($this->getName());
+        parent::__construct();
     }
 
     protected function getContainer()
@@ -43,10 +41,6 @@ abstract class AbstractCommand extends Command
      */
     public function getMigrationService()
     {
-        if (!$this->migrationService) {
-            $this->migrationService = $this->getContainer()->get('ez_migration_bundle.migration_service');
-        }
-
         return $this->migrationService;
     }
 

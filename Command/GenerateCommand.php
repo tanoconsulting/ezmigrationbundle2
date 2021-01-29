@@ -20,6 +20,8 @@ class GenerateCommand extends AbstractCommand
 {
     const DIR_CREATE_PERMISSIONS = 0755;
 
+    protected static $defaultName = 'kaliop:migration:generate';
+
     private $availableMigrationFormats = array('yml', 'php', 'sql', 'json');
     private $availableModes = array('create', 'update', 'delete');
     private $availableTypes = array('content', 'content_type', 'content_type_group', 'language', 'object_state', 'object_state_group', 'role', 'section', 'generic', 'db', 'php', '...');
@@ -32,7 +34,7 @@ class GenerateCommand extends AbstractCommand
      */
     protected function configure()
     {
-        $this->setName('kaliop:migration:generate')
+        $this
             ->setDescription('Generate a blank migration definition file.')
             ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The format of migration file to generate (' . implode(', ', $this->availableMigrationFormats) . ')', 'yml')
             ->addOption('type', null, InputOption::VALUE_REQUIRED, 'The type of migration to generate (' . implode(', ', $this->availableTypes) . ')', '')
@@ -346,7 +348,7 @@ EOT
         }
 
         $bundle = $this->getApplication()->getKernel()->getBundle($bundleName);
-        $migrationDirectory = $bundle->getPath() . '/' . $this->getContainer()->get('ez_migration_bundle.helper.config.resolver')->getParameter('kaliop_bundle_migration.version_directory');
+        $migrationDirectory = $bundle->getPath() . '/' . $this->getContainer()->get('ez_migration_bundle.helper.config.resolver')->getParameter('ez_migration_bundle.version_directory');
 
         return $migrationDirectory;
     }

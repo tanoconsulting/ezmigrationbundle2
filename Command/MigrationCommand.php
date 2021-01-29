@@ -15,6 +15,8 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 class MigrationCommand extends AbstractCommand
 {
+    protected static $defaultName = 'kaliop:migration:migration';
+
     /**
      * Set up the command.
      *
@@ -25,7 +27,6 @@ class MigrationCommand extends AbstractCommand
         parent::configure();
 
         $this
-            ->setName('kaliop:migration:migration')
             ->setDescription('Manually modify or get info about migrations in the database table.')
             ->addOption('delete', null, InputOption::VALUE_NONE, "Delete the specified migration.")
             ->addOption('info', null, InputOption::VALUE_NONE, "Get info about the specified migration.")

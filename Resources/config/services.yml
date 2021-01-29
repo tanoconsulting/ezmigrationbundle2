@@ -3,10 +3,9 @@ parameters:
     ez_migration_bundle.enable_debug_output: true
 
     # The directory (inside each bundle) where to look for migrations definitions
-    # NB: this parameter will be renamed in the future
     # NB: supports per-siteaccess configuration as an override of global configuration. For that, just define parameters:
-    #     kaliop_bundle_migration.<siteaccess_group>.version_directory
-    kaliop_bundle_migration.version_directory: 'MigrationVersions'
+    #     ez_migration_bundle.<siteaccess_group>.version_directory
+    ez_migration_bundle.version_directory: 'MigrationVersions'
     # The database tables used to store migration information. Will be created automatically
     # NB: supports per-siteaccess configuration as an override of global configuration. For that, just define parameters:
     #     ez_migration_bundle.<siteaccess_group>.table_name
@@ -40,9 +39,6 @@ parameters:
     # However, in multi-core configurations, you have to divide this most likely by the number of cores, or you will get
     # an 'java.lang.NegativeArraySizeException' error
     ez_migration_bundle.query_limit: 2147483647
-
-    # Deprecated parameter. Left in for the v1-to-v2 migration to work.
-    kaliop_bundle_migration.table_name: 'kaliop_versions'
 
     ez_migration_bundle.migration_service.class: Kaliop\eZMigrationBundle\Core\MigrationService
 
@@ -163,14 +159,14 @@ services:
         class: '%ez_migration_bundle.loader.filesystem.class%'
         arguments:
             - '@kernel'
-            - 'kaliop_bundle_migration.version_directory'
+            - 'ez_migration_bundle.version_directory'
             - '@ez_migration_bundle.helper.config.resolver'
 
     ez_migration_bundle.loader.filesystem_recursive:
         class: '%ez_migration_bundle.loader.filesystem_recursive.class%'
         arguments:
             - '@kernel'
-            - 'kaliop_bundle_migration.version_directory'
+            - 'ez_migration_bundle.version_directory'
             - '@ez_migration_bundle.helper.config.resolver'
 
     ### parsers
@@ -861,40 +857,11 @@ services:
             - '@ezpublish.config.resolver'
             - '@service_container'
 
-    Kaliop\eZMigrationBundle\Command\AbstractCommand: ~
+    Kaliop\eZMigrationBundle\Command\:
+        resource: '../../Command'
+        autowire: true
+        autoconfigure: true
 
-    Kaliop\eZMigrationBundle\Command\GenerateCommand:
-        arguments:
-            - '@service_container'
-        tags:
-            - { name: 'console.command', command: 'kaliop:migration:generate' }
+    ### Aliases
 
-    Kaliop\eZMigrationBundle\Command\MassMigrateCommand:
-        arguments:
-            - '@service_container'
-        tags:
-            - { name: 'console.command', command: 'kaliop:migration:mass_migrate' }
-
-    Kaliop\eZMigrationBundle\Command\MigrateCommand:
-        arguments:
-            - '@service_container'
-        tags:
-            - { name: 'console.command', command: 'kaliop:migration:migrate' }
-
-    Kaliop\eZMigrationBundle\Command\MigrationCommand:
-        arguments:
-            - '@service_container'
-        tags:
-            - { name: 'console.command', command: 'kaliop:migration:migration' }
-
-    Kaliop\eZMigrationBundle\Command\ResumeCommand:
-        arguments:
-            - '@service_container'
-        tags:
-            - { name: 'console.command', command: 'kaliop:migration:resume' }
-
-    Kaliop\eZMigrationBundle\Command\StatusCommand:
-        arguments:
-            - '@service_container'
-        tags:
-            - { name: 'console.command', command: 'kaliop:migration:status' }
+    Kaliop\eZMigrationBundle\Core\MigrationService: '@ez_migration_bundle.migration_service'
