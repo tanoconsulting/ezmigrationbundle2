@@ -2,16 +2,20 @@
 
 namespace Kaliop\eZMigrationBundle\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\Yaml\Yaml;
+use Kaliop\eZMigrationBundle\API\ConfigResolverInterface;
 use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
 use Kaliop\eZMigrationBundle\API\MatcherInterface;
 use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
 use Kaliop\eZMigrationBundle\API\Event\MigrationGeneratedEvent;
+use Kaliop\eZMigrationBundle\Core\MigrationService;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\Yaml\Yaml;
+use Twig\Environment;
 
 /**
  * @todo allow passing in more context options, esp. for content/generate migrations
@@ -28,6 +32,18 @@ class GenerateCommand extends AbstractCommand
     private $thisBundle = 'eZMigrationBundle';
 
     protected $eventName = 'ez_migration.migration_generated';
+    protected $eventDispatcher;
+    protected $twig;
+    protected $configResolver;
+
+    public function __construct(MigrationService $migrationService, EventDispatcherInterface $eventDispatcher,
+        Environment $twig, ConfigResolverInterface $configResolver)
+    {
+        parent::__construct($migrationService);
+        $this->eventDispatcher = $eventDispatcher;
+        $this->twig = $twig;
+        $this->configResolver = $configResolver;
+    }
 
     /**
      * Configure the console command
@@ -256,11 +272,11 @@ EOT
                     throw new \Exception("The combination of migration type '$migrationType' is not supported with format '$fileType'");
                 }
 
-                $code = $this->getContainer()->get('twig')->render($this->thisBundle . ':MigrationTemplate:' . $template, $parameters);
+                $code = $this->twig->render($this->thisBundle . ':MigrationTemplate:' . $template, $parameters);
 
                 // allow event handlers to replace data
                 $event = new MigrationGeneratedEvent($migrationType, $migrationMode, $fileType, $code, $filePath);
-                $this->getContainer()->get('event_dispatcher')->dispatch($event, $this->eventName);
+                $this->eventDispatcher->dispatch($event, $this->eventName);
                 $code = $event->getData();
                 $filePath = $event->getFile();
 
@@ -285,7 +301,7 @@ EOT
 
                 // allow event handlers to replace data
                 $event = new MigrationGeneratedEvent($migrationType, $migrationMode, $fileType, $data, $filePath, $matchCondition, $context);
-                $this->getContainer()->get('event_dispatcher')->dispatch($event, $this->eventName);
+                $this->eventDispatcher->dispatch($event, $this->eventName);
                 $data = $event->getData();
                 $filePath = $event->getFile();
 
@@ -348,7 +364,7 @@ EOT
         }
 
         $bundle = $this->getApplication()->getKernel()->getBundle($bundleName);
-        $migrationDirectory = $bundle->getPath() . '/' . $this->getContainer()->get('ez_migration_bundle.helper.config.resolver')->getParameter('ez_migration_bundle.version_directory');
+        $migrationDirectory = $bundle->getPath() . '/' . $this->configResolver->getParameter('ez_migration_bundle.version_directory');
 
         return $migrationDirectory;
     }

@@ -3,10 +3,13 @@
 namespace Kaliop\eZMigrationBundle\Command;
 
 use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Kaliop\eZMigrationBundle\Core\EventListener\TracingStepExecutedListener;
+use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+
 /**
  * Command to resume suspended migrations.
  *
@@ -16,6 +19,14 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 class ResumeCommand extends AbstractCommand
 {
     protected static $defaultName = 'kaliop:migration:resume';
+
+    protected $stepExecutedListener;
+
+    public function __construct(MigrationService $migrationService, TracingStepExecutedListener $stepExecutedListener)
+    {
+        parent::__construct($migrationService);
+        $this->stepExecutedListener = $stepExecutedListener;
+    }
 
     /**
      * Set up the command.
@@ -54,7 +65,7 @@ EOT
         $this->setOutput($output);
         $this->setVerbosity($output->getVerbosity());
 
-        $this->getContainer()->get('ez_migration_bundle.step_executed_listener.tracing')->setOutput($output);
+        $this->stepExecutedListener->setOutput($output);
 
         $migrationService = $this->getMigrationService();
         $migrationService->setOutput($output);
@@ -97,7 +108,6 @@ EOT
 
         $forcedRefs = array();
         if ($input->getOption('set-reference') /*&& !$input->getOption('separate-process')*/) {
-            $refResolver = $this->getContainer()->get('ez_migration_bundle.reference_resolver.customreference');
             foreach($input->getOption('set-reference') as $refSpec) {
                 $ref = explode(':', $refSpec, 2);
                 if (count($ref) < 2 || $ref[0] === '') {

@@ -3,17 +3,22 @@
 namespace Kaliop\eZMigrationBundle\Command;
 
 use Kaliop\eZMigrationBundle\API\Exception\AfterMigrationExecutionException;
+use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
+use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
+use Kaliop\eZMigrationBundle\Core\EventListener\TracingStepExecutedListener;
+use Kaliop\eZMigrationBundle\Core\Helper\ProcessManager;
+use Kaliop\eZMigrationBundle\Core\Loader\FilesystemRecursive;
+use Kaliop\eZMigrationBundle\Core\MigrationService;
+use Kaliop\eZMigrationBundle\Core\Process\Process;
+use Kaliop\eZMigrationBundle\Core\Process\ProcessBuilder;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
-use Kaliop\eZMigrationBundle\API\Value\Migration;
-use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
-use Kaliop\eZMigrationBundle\Core\Helper\ProcessManager;
-use Kaliop\eZMigrationBundle\Core\Process\Process;
-use Kaliop\eZMigrationBundle\Core\Process\ProcessBuilder;
 
 class MassMigrateCommand extends MigrateCommand
 {
@@ -22,6 +27,14 @@ class MassMigrateCommand extends MigrateCommand
     // Note: in this array, we lump together in STATUS_DONE everything which is not failed or suspended
     protected $migrationsDone = array(Migration::STATUS_DONE => 0, Migration::STATUS_FAILED => 0, Migration::STATUS_SKIPPED => 0);
     protected $migrationsAlreadyDone = array();
+    protected $loader;
+
+    public function __construct(MigrationService $migrationService, TracingStepExecutedListener $stepExecutedListener,
+        KernelInterface $kernel, ReferenceBagInterface $customReferenceResolver, FilesystemRecursive $loader)
+    {
+        parent::__construct($migrationService, $stepExecutedListener, $kernel, $customReferenceResolver);
+        $this->loader = $loader;
+    }
 
     /**
      * @todo (!important) can we rename the option --separate-process ?
@@ -65,11 +78,11 @@ EOT
             $this->setVerbosity(self::VERBOSITY_CHILD);
         }
 
-        $this->getContainer()->get('ez_migration_bundle.step_executed_listener.tracing')->setOutput($output);
+        $this->stepExecutedListener->setOutput($output);
 
         // q: is it worth declaring a new, dedicated migration service ?
         $migrationService = $this->getMigrationService();
-        $migrationService->setLoader($this->getContainer()->get('ez_migration_bundle.loader.filesystem_recursive'));
+        $migrationService->setLoader($this->loader);
 
         $force = $input->getOption('force');
 
@@ -430,7 +443,7 @@ EOT
      */
     protected function createChildProcessArgs(InputInterface $input)
     {
-        $kernel = $this->getContainer()->get('kernel');
+        $kernel = $this->kernel;
 
         // mandatory args and options
         $builderArgs = array(

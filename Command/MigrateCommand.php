@@ -2,19 +2,22 @@
 
 namespace Kaliop\eZMigrationBundle\Command;
 
+use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
+use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
+use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Kaliop\eZMigrationBundle\API\Exception\AfterMigrationExecutionException;
+use Kaliop\eZMigrationBundle\Core\EventListener\TracingStepExecutedListener;
+use Kaliop\eZMigrationBundle\Core\MigrationService;
+use Kaliop\eZMigrationBundle\Core\Process\Process;
+use Kaliop\eZMigrationBundle\Core\Process\ProcessBuilder;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
-use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
-use Kaliop\eZMigrationBundle\API\Value\Migration;
-use Kaliop\eZMigrationBundle\API\Exception\AfterMigrationExecutionException;
-use Kaliop\eZMigrationBundle\Core\MigrationService;
-use Kaliop\eZMigrationBundle\Core\Process\Process;
-use Kaliop\eZMigrationBundle\Core\Process\ProcessBuilder;
 
 /**
  * Command to execute the available migration definitions.
@@ -24,10 +27,22 @@ class MigrateCommand extends AbstractCommand
     // in between QUIET and NORMAL
     const VERBOSITY_CHILD = 0.5;
 
+    protected static $defaultName = 'kaliop:migration:migrate';
+
     protected $subProcessTimeout = 86400;
     protected $subProcessErrorString = '';
+    protected $stepExecutedListener;
+    protected $kernel;
+    protected $customReferenceResolver;
 
-    protected static $defaultName = 'kaliop:migration:migrate';
+    public function __construct(MigrationService $migrationService, TracingStepExecutedListener $stepExecutedListener,
+        KernelInterface $kernel, ReferenceBagInterface $customReferenceResolver)
+    {
+        parent::__construct($migrationService);
+        $this->stepExecutedListener = $stepExecutedListener;
+        $this->kernel = $kernel;
+        $this->customReferenceResolver = $customReferenceResolver;
+    }
 
     /**
      * Set up the command.
@@ -88,7 +103,7 @@ EOT
             $this->setVerbosity(self::VERBOSITY_CHILD);
         }
 
-        $this->getContainer()->get('ez_migration_bundle.step_executed_listener.tracing')->setOutput($output);
+        $this->stepExecutedListener->setOutput($output);
 
         $migrationService = $this->getMigrationService();
         $migrationService->setOutput($output);
@@ -131,13 +146,12 @@ EOT
         }
 
         if ($input->getOption('set-reference') && !$input->getOption('separate-process')) {
-            $refResolver = $this->getContainer()->get('ez_migration_bundle.reference_resolver.customreference');
             foreach($input->getOption('set-reference') as $refSpec) {
                 $ref = explode(':', $refSpec, 2);
                 if (count($ref) < 2 || $ref[0] === '') {
                     throw new \Exception("Invalid reference specification: '$refSpec'");
                 }
-                $refResolver->addReference($ref[0], $ref[1], true);
+                $this->customReferenceResolver->addReference($ref[0], $ref[1], true);
             }
         }
 
@@ -452,7 +466,7 @@ EOT
      */
     protected function createChildProcessArgs(InputInterface $input)
     {
-        $kernel = $this->getContainer()->get('kernel');
+        $kernel = $this->kernel;
 
         // mandatory args and options
         $builderArgs = array(
@@ -513,7 +527,7 @@ EOT
     protected function getConsoleFile()
     {
         if (strpos($_SERVER['argv'][0], 'phpunit') !== false) {
-            $kernelDir = $this->getContainer()->get('kernel')->getRootDir();
+            $kernelDir = $this->kernel->getRootDir();
             if (is_file("$kernelDir/console")) {
                 return "$kernelDir/console";
             }

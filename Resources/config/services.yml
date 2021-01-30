@@ -864,4 +864,9 @@ services:
 
     ### Aliases
 
+    Kaliop\eZMigrationBundle\API\ConfigResolverInterface: '@ez_migration_bundle.helper.config.resolver'
     Kaliop\eZMigrationBundle\Core\MigrationService: '@ez_migration_bundle.migration_service'
+    Kaliop\eZMigrationBundle\Core\EventListener\TracingStepExecutedListener: '@ez_migration_bundle.step_executed_listener.tracing'
+    Kaliop\eZMigrationBundle\Core\Loader\FilesystemRecursive: '@ez_migration_bundle.loader.filesystem_recursive'
+    Kaliop\eZMigrationBundle\API\ReferenceBagInterface: '@ez_migration_bundle.reference_resolver.customreference'
+    Kaliop\eZMigrationBundle\API\ReferenceResolverBagInterface: '@ez_migration_bundle.reference_resolver.customreference'
