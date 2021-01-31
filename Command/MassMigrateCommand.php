@@ -11,7 +11,6 @@ use Kaliop\eZMigrationBundle\Core\Helper\ProcessManager;
 use Kaliop\eZMigrationBundle\Core\Loader\FilesystemRecursive;
 use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\Core\Process\Process;
-use Kaliop\eZMigrationBundle\Core\Process\ProcessBuilder;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -132,9 +131,9 @@ EOT
             Process::forceSigchildEnabled(true);
         }
 
-        $builder = new ProcessBuilder();
         $executableFinder = new PhpExecutableFinder();
         if (false !== ($php = $executableFinder->find())) {
+/// @todo
             $builder->setPrefix($php);
         }
 
@@ -146,9 +145,7 @@ EOT
         foreach($paths as $path => $count) {
             $this->writeln("<info>Queueing processing of: $path ($count migrations)</info>", OutputInterface::VERBOSITY_VERBOSE);
 
-            $process = $builder
-                ->setArguments(array_merge($builderArgs, array('--path=' . $path)))
-                ->getProcess();
+            $process = new Process(array_merge($builderArgs, array('--path=' . $path)));
 
             $this->writeln('<info>Command: ' . $process->getCommandLine() . '</info>', OutputInterface::VERBOSITY_VERBOSE);
 
@@ -216,9 +213,9 @@ EOT
         // @todo disable signal slots that are harmful during migrations, if any
 
         if ($input->getOption('separate-process')) {
-            $builder = new ProcessBuilder();
             $executableFinder = new PhpExecutableFinder();
             if (false !== $php = $executableFinder->find()) {
+/// @todo
                 $builder->setPrefix($php);
             }
 
@@ -249,7 +246,7 @@ EOT
             if ($input->getOption('separate-process')) {
 
                 try {
-                    $this->executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builder, $builderArgs);
+                    $this->executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builderArgs);
 
                     $executed++;
                 } catch (\Exception $e) {

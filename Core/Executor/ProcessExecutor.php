@@ -3,10 +3,9 @@
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
-use Symfony\Component\Process\Process;
 use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
 use Kaliop\eZMigrationBundle\API\ReferenceResolverBagInterface;
-use Kaliop\eZMigrationBundle\Core\Process\ProcessBuilder;
+use Kaliop\eZMigrationBundle\Core\Process\Process;
 
 class ProcessExecutor extends AbstractExecutor
 {
@@ -55,7 +54,7 @@ class ProcessExecutor extends AbstractExecutor
     /**
      * @param $dsl
      * @param array|null $context
-     * @return \Symfony\Component\Process\Process
+     * @return Process
      * @throws \Exception
      * @todo add more options supported by Sf Process
      */
@@ -64,8 +63,6 @@ class ProcessExecutor extends AbstractExecutor
         if (!isset($dsl['command'])) {
             throw new InvalidStepDefinitionException("Can not run process: command missing");
         }
-
-        $builder = new ProcessBuilder();
 
         // mandatory args and options
         $builderArgs = array($this->referenceResolver->resolveReference($dsl['command']));
@@ -76,9 +73,7 @@ class ProcessExecutor extends AbstractExecutor
             }
         }
 
-        $process = $builder
-            ->setArguments($builderArgs)
-            ->getProcess();
+        $process = new Process($builderArgs);
 
         // allow long migrations processes by default
         $timeout = $this->defaultTimeout;

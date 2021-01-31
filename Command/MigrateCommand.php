@@ -9,7 +9,6 @@ use Kaliop\eZMigrationBundle\API\Exception\AfterMigrationExecutionException;
 use Kaliop\eZMigrationBundle\Core\EventListener\TracingStepExecutedListener;
 use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\Core\Process\Process;
-use Kaliop\eZMigrationBundle\Core\Process\ProcessBuilder;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -127,9 +126,9 @@ EOT
         }
 
         if ($input->getOption('separate-process')) {
-            $builder = new ProcessBuilder();
             $executableFinder = new PhpExecutableFinder();
             if (false !== $php = $executableFinder->find()) {
+/// @todo
                 $builder->setPrefix($php);
             }
             $builderArgs = $this->createChildProcessArgs($input);
@@ -180,7 +179,7 @@ EOT
             if ($input->getOption('separate-process')) {
 
                 try {
-                    $this->executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builder, $builderArgs);
+                    $this->executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builderArgs);
 
                     $executed++;
                 } catch (\Exception $e) {
@@ -274,15 +273,12 @@ EOT
     /**
      * @param MigrationDefinition $migrationDefinition
      * @param MigrationService $migrationService
-     * @param ProcessBuilder $builder
      * @param array $builderArgs
      * @param bool $feedback
      */
-    protected function executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builder, $builderArgs, $feedback = true)
+    protected function executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builderArgs, $feedback = true)
     {
-        $process = $builder
-            ->setArguments(array_merge($builderArgs, array('--path=' . $migrationDefinition->path)))
-            ->getProcess();
+        $process = new Process(array_merge($builderArgs, array('--path=' . $migrationDefinition->path)));
 
         if ($feedback) {
             $this->writeln('<info>Executing: ' . $process->getCommandLine() . '</info>', OutputInterface::VERBOSITY_VERBOSE);

@@ -30,7 +30,7 @@
     },
     "require-dev": {
         "mikey179/vfsstream": "^2.0@dev",
-        "phpunit/phpunit": "^7.5"
+        "phpunit/phpunit": "^8.5.12"
     },
     "conflict": {
         "kaliop/ezmigrationbundle": "*"

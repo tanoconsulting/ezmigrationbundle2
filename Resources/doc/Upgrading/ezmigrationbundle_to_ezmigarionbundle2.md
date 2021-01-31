@@ -12,4 +12,5 @@ eZMigrationBundle2 deprecations and backwards compatibility breaks
   - class `Core\ComplexField\AbstractComplexField`
   - class `Core\ComplexField\ComplexFieldManager`
   - class `Core\Matcher\ContentMatcher\ContentResolver`
+  - class `Core\ProcessBuilder`
   - class `Core\StorageHandler\Database`

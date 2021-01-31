@@ -20,7 +20,7 @@ abstract class CommandExecutingTest extends KernelTestCase
     protected $backupGlobalsBlacklist = array('eZCurrentAccess');
 
     /// @todo if we want to be compatible with phpunit >= 8.0, we should do something akin to https://github.com/symfony/framework-bundle/blob/4.3/Test/ForwardCompatTestTrait.php
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->_container = $this->bootContainer();
 
@@ -53,7 +53,7 @@ abstract class CommandExecutingTest extends KernelTestCase
         return $out;
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         foreach ($this->leftovers as $file) {
             unlink($file);
@@ -78,21 +78,21 @@ abstract class CommandExecutingTest extends KernelTestCase
     {
         static::ensureKernelShutdown();
 
-        if (!isset($_SERVER['SYMFONY_ENV'])) {
-            throw new \Exception("Please define the environment variable SYMFONY_ENV to specify the environment to use for the tests");
+        if (!isset($_SERVER['APP_ENV'])) {
+            throw new \Exception("Please define the environment variable APP_ENV to specify the environment to use for the tests");
         }
         // Run in our own test environment. Sf by default uses the 'test' one. We let phpunit.xml set it...
         // We also allow to disable debug mode
         $options = array(
-            'environment' => $_SERVER['SYMFONY_ENV']
+            'environment' => $_SERVER['APP_ENV']
         );
-        if (isset($_SERVER['SYMFONY_DEBUG'])) {
-            $options['debug'] = $_SERVER['SYMFONY_DEBUG'];
+        if (isset($_SERVER['APP_DEBUG'])) {
+            $options['debug'] = $_SERVER['APP_DEBUG'];
         }
         try {
             static::bootKernel($options);
         } catch (\RuntimeException $e) {
-            throw new \RuntimeException($e->getMessage() . " Did you forget to define the environment variable KERNEL_DIR?", $e->getCode(), $e->getPrevious());
+            throw new \RuntimeException($e->getMessage() . " Did you forget to define the environment variable KERNEL_CLASS?", $e->getCode(), $e->getPrevious());
         }
 
         // In Sf4 we do have the container available, in Sf3 we do not
