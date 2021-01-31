@@ -105,7 +105,7 @@ EOT
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return null|int null or 0 if everything went fine, or an error code
+     * @return int 0 if everything went fine, or an error code
      * @throws \InvalidArgumentException When an unsupported file type is selected
      *
      * @todo for type=db, we could fold 'dbserver' option into 'mode'
