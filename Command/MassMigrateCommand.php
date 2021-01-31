@@ -131,14 +131,14 @@ EOT
             Process::forceSigchildEnabled(true);
         }
 
+        $prefix = array();
         $executableFinder = new PhpExecutableFinder();
         if (false !== ($php = $executableFinder->find())) {
-/// @todo
-            $builder->setPrefix($php);
+            $prefix[] = $php;
         }
 
         // mandatory args and options
-        $builderArgs = $this->createChildProcessArgs($input);
+        $builderArgs = $this->createChildProcessArgs($input, $prefix);
 
         $processes = array();
         /** @var MigrationDefinition $migrationDefinition */
@@ -213,13 +213,13 @@ EOT
         // @todo disable signal slots that are harmful during migrations, if any
 
         if ($input->getOption('separate-process')) {
+            $prefix = array();
             $executableFinder = new PhpExecutableFinder();
             if (false !== $php = $executableFinder->find()) {
-/// @todo
-                $builder->setPrefix($php);
+                $prefix[] = $php;
             }
 
-            $builderArgs = parent::createChildProcessArgs($input);
+            $builderArgs = parent::createChildProcessArgs($input, $prefix);
         }
 
         // allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
@@ -434,21 +434,22 @@ EOT
      * Returns the command-line arguments needed to execute a separate subprocess that will run a set of migrations
      * (except path, which should be added after this call)
      * @param InputInterface $input
+     * @param array $prefix command elements that go before `console`
      * @return array
      * @todo check if it is a good idea to pass on the current verbosity
      * @todo shall we pass to child processes the `survive-disconnected-tty` flag?
      */
-    protected function createChildProcessArgs(InputInterface $input)
+    protected function createChildProcessArgs(InputInterface $input, $prefix = [])
     {
         $kernel = $this->kernel;
 
         // mandatory args and options
-        $builderArgs = array(
+        $builderArgs = array_merge( $prefix, array(
             $this->getConsoleFile(), // sf console
             self::COMMAND_NAME, // name of sf command. Can we get it from the Application instead of hardcoding?
             '--env=' . $kernel->getEnvironment(), // sf env
             '--child'
-        );
+        ));
         // sf/ez env options
         if (!$kernel->isDebug()) {
             $builderArgs[] = '--no-debug';

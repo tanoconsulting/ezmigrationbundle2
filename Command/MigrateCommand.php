@@ -126,12 +126,12 @@ EOT
         }
 
         if ($input->getOption('separate-process')) {
+            $prefix = array();
             $executableFinder = new PhpExecutableFinder();
             if (false !== $php = $executableFinder->find()) {
-/// @todo
-                $builder->setPrefix($php);
+                $prefix[] = $php;
             }
-            $builderArgs = $this->createChildProcessArgs($input);
+            $builderArgs = $this->createChildProcessArgs($input, $prefix);
         }
 
         // For cli scripts, this means: do not die if anyone yanks out our stdout.
