@@ -271,8 +271,7 @@ EOT
                 if (!is_file($templatePath . $template)) {
                     throw new \Exception("The combination of migration type '$migrationType' is not supported with format '$fileType'");
                 }
-
-                $code = $this->twig->render($this->thisBundle . ':MigrationTemplate:' . $template, $parameters);
+                $code = $this->twig->render('@' . preg_replace('/Bundle$/', '', $this->thisBundle) . '/MigrationTemplate/' . $template, $parameters);
 
                 // allow event handlers to replace data
                 $event = new MigrationGeneratedEvent($migrationType, $migrationMode, $fileType, $code, $filePath);
