@@ -5,6 +5,8 @@ eZMigrationBundle2 deprecations and backwards compatibility breaks
 
 * service `ez_migration_bundle.complex_field.ezpage` has been removed, as upstream has dropped the ezpage field type
 
+* ditto for `ez_migration_bundle.complex_field.matrix`
+
 * config parameter `ez_migration_bundle.version_directory` was renamed to `ez_migration_bundle.version_directory`
 
 * removed long-deprecated elements:
