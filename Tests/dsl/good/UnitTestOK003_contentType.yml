@@ -205,11 +205,6 @@
                 selectionMethod: 1
                 selectionDefaultLocation: 2
                 selectionContentTypes: [ folder ]
-        # @todo we should make sure that at least one layout type exists in order to create an ezpage attribute...
-        #-
-        #    type: ezpage
-        #    name: ezpage
-        #    identifier: ezpage
         -
             type: ezselection
             name: ezselection

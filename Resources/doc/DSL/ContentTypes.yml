@@ -36,11 +36,9 @@
 #
 # ezmatrix
 #    field-settings:
-#        minimum_rows: 0 # only supported by the EzPlatformMatrixFieldtype field type, not the ezcommunity one
-#        columns: # only supported by the EzPlatformMatrixFieldtype field type, not the ezcommunity one
+#        minimum_rows: 0
+#        columns:
 #            - { identifier: colName }
-#        columnList: # only supported by the ezcommunity field type, not the EzPlatformMatrixFieldtype one
-#            - { name: colname, identifier: colId, index: colIdx }
 #
 # ezmedia
 #    field-settings:

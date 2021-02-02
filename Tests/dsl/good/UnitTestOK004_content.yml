@@ -81,11 +81,6 @@
             type: ezobjectrelationlist
             name: ezobjectrelationlist
             identifier: ezobjectrelationlist
-        # @todo we should make sure that at least one layout type exists in order to create an ezpage attribute...
-        #-
-        #    type: ezpage
-        #    name: ezpage
-        #    identifier: ezpage
         -
             type: ezrichtext
             name: ezrichtext
