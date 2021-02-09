@@ -2,10 +2,9 @@
 
 namespace Kaliop\eZMigrationBundle\Core\StorageHandler\Database;
 
-
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Schema\Schema;
-use eZ\Publish\Core\Persistence\Database\QueryException;
 use Kaliop\eZMigrationBundle\API\ContextStorageHandlerInterface;
 
 class Context extends TableStorage implements ContextStorageHandlerInterface
@@ -105,7 +104,7 @@ class Context extends TableStorage implements ContextStorageHandlerInterface
     }
 
     /**
-     * @throws QueryException
+     * @throws DriverException
      */
     public function createTable()
     {
@@ -125,13 +124,13 @@ class Context extends TableStorage implements ContextStorageHandlerInterface
 
         foreach ($schema->toSql($dbPlatform) as $sql) {
             try {
-                $this->connection->exec($sql);
-            } catch(QueryException $e) {
+                $this->connection->executeStatement($sql);
+            } catch(DriverException $e) {
                 // work around limitations in both Mysql and Doctrine
                 // @see https://github.com/kaliop-uk/ezmigrationbundle/issues/176
                 if (strpos($e->getMessage(), '1071 Specified key was too long; max key length is 767 bytes') !== false &&
                     strpos($sql, 'PRIMARY KEY(migration)') !== false) {
-                    $this->connection->exec(str_replace('PRIMARY KEY(migration)', 'PRIMARY KEY(migration(191))', $sql));
+                    $this->connection->executeStatement(str_replace('PRIMARY KEY(migration)', 'PRIMARY KEY(migration(191))', $sql));
                 } else {
                     throw $e;
                 }

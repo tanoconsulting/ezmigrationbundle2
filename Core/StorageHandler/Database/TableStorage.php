@@ -4,8 +4,7 @@ namespace Kaliop\eZMigrationBundle\Core\StorageHandler\Database;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
-use eZ\Publish\Core\Persistence\Database\QueryException;
-use eZ\Publish\Core\Persistence\Database\DatabaseHandler;
+use Doctrine\DBAL\Exception as QueryException;
 use Kaliop\eZMigrationBundle\API\ConfigResolverInterface;
 
 abstract class TableStorage
@@ -119,7 +118,7 @@ abstract class TableStorage
     protected function drop()
     {
         if ($this->tableExist($this->tableName)) {
-            $this->connection->exec('DROP TABLE ' . $this->tableName);
+            $this->connection->executeStatement('DROP TABLE ' . $this->tableName);
         }
     }
 
@@ -130,7 +129,7 @@ abstract class TableStorage
     public function truncate()
     {
         if ($this->tableExist($this->tableName)) {
-            $this->connection->exec('TRUNCATE ' . $this->tableName);
+            $this->connection->executeStatement('TRUNCATE ' . $this->tableName);
         }
     }
 }

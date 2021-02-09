@@ -23,10 +23,10 @@ matrix:
     - php: 7.3
       env: EZ_PACKAGES='ezsystems/ezplatform:^3.1.5 ezsystems/ezplatform-xmltext-fieldtype:^2.0 ezsystems/behatbundle:^8.0 overblog/graphiql-bundle symfony/web-profiler-bundle symfony/debug-bundle'
     - php: 7.4
-      env: EZ_PACKAGES='ezsystems/ezplatform:^3.2.4 ezsystems/ezplatform-xmltext-fieldtype:^2.0 ezsystems/ezplatform-matrix-fieldtype:^1.0 netgen/tagsbundle:^3.3 ezsystems/behatbundle:^6.5 sensio/generator-bundle' EZ_BUNDLES='Kaliop\eZMigrationBundle\EzMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
+      env: EZ_PACKAGES='ezsystems/ezplatform:^3.2.4 ezsystems/ezplatform-xmltext-fieldtype:^2.0 ezsystems/ezplatform-matrix-fieldtype:^1.0 netgen/tagsbundle:^3.3 lolautruche/ez-core-extra-bundle:^3.0 ezsystems/behatbundle:^6.5 sensio/generator-bundle' EZ_BUNDLES='Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
     # latest version currently available of eZPlatform 2 - currently 2.5, which is an LTS
     - php: 8.0
-      env: EZ_PACKAGES='ezsystems/ezplatform:^3.3.0-rc2 ezsystems/ezplatform-xmltext-fieldtype:^2.0 netgen/tagsbundle:^4.0 ezsystems/behatbundle:^7.0 sensio/generator-bundle overblog/graphiql-bundle' EZ_BUNDLES='Kaliop\eZMigrationBundle\EzMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle' CODE_COVERAGE=1
+      env: EZ_PACKAGES='ezsystems/ezplatform:^3.3.0-rc2 ezsystems/ezplatform-xmltext-fieldtype:^2.0 netgen/tagsbundle:^4.0 ezsystems/behatbundle:^7.0 sensio/generator-bundle overblog/graphiql-bundle' EZ_BUNDLES='Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle' CODE_COVERAGE=1
 
 before_install:
   # Note: as of 2020/10/30, composer self-updates to rev. 2.0 for php 5.6-7.2, but not for 7.3 and 7.4... most likely
