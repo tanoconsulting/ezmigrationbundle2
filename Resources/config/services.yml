@@ -477,7 +477,7 @@ services:
         class: '%ez_migration_bundle.executor.tag_manager.class%'
         arguments:
             - '@ez_migration_bundle.tag_matcher'
-            - '@?ezpublish.api.service.tags'
+            - '@?eztags.api.service.tags'
         calls:
             - ['setReferenceMatcher', ['@ez_migration_bundle.reference_matcher']]
         tags:

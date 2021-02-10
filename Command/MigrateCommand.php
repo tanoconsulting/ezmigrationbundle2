@@ -131,7 +131,7 @@ EOT
             if (false !== $php = $executableFinder->find()) {
                 $prefix[] = $php;
             }
-            $builderArgs = $this->createChildProcessArgs($input, $prefix);
+            $builderArgs = array_merge($prefix, $this->createChildProcessArgs($input));
         }
 
         // For cli scripts, this means: do not die if anyone yanks out our stdout.
@@ -467,7 +467,7 @@ EOT
         // mandatory args and options
         $builderArgs = array(
             $this->getConsoleFile(), // sf console
-            self::COMMAND_NAME, // name of sf command. Can we get it from the Application instead of hardcoding?
+            static::$defaultName, // name of sf command
             '--env=' . $kernel->getEnvironment(), // sf env
             '--child'
         );
@@ -523,12 +523,9 @@ EOT
     protected function getConsoleFile()
     {
         if (strpos($_SERVER['argv'][0], 'phpunit') !== false) {
-            $kernelDir = $this->kernel->getRootDir();
-            if (is_file("$kernelDir/console")) {
-                return "$kernelDir/console";
-            }
-            if (is_file("$kernelDir/../bin/console")) {
-                return "$kernelDir/../bin/console";
+            $projectDir = $this->kernel->getProjectDir(); //getRootDir();
+            if (is_file("$projectDir/bin/console")) {
+                return "$projectDir/bin/console";
             }
             throw new \Exception("Can not determine the name of the symfony console file in use for running as separate process");
         }

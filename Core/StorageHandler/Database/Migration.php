@@ -3,9 +3,9 @@
 namespace Kaliop\eZMigrationBundle\Core\StorageHandler\Database;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Schema\Schema;
 use Kaliop\eZMigrationBundle\API\StorageHandlerInterface;
 use Kaliop\eZMigrationBundle\API\Collection\MigrationCollection;
@@ -87,9 +87,9 @@ class Migration extends TableStorage implements StorageHandlerInterface
 /// @todo check if this is correct wrt escaping
                     $pexps[] = $qb->expr()->like('path', $qb->createPositionalParameter(str_replace(array('_', '%'), array('\_', '\%'), $path).'%'));
                 }
-                $exps[] = $qb->expr()->or($pexps);
+                $exps[] = new CompositeExpression(CompositeExpression::TYPE_OR, $pexps);
             }
-            $qb->where($qb->expr()->and($exps));
+            $qb->where(new CompositeExpression(CompositeExpression::TYPE_AND, $exps));
         }
         if ($limit > 0) {
             $qb->setMaxResults($limit);
@@ -97,7 +97,7 @@ class Migration extends TableStorage implements StorageHandlerInterface
         if ($offset > 0) {
             $qb->setFirstResult($offset);
         }
-        $results = $qb->execute()->fetchAll(FetchMode::ASSOCIATIVE);
+        $results = $qb->execute()->fetchAllAssociative();
 
         $migrations = array();
         foreach ($results as $result) {
@@ -119,7 +119,7 @@ class Migration extends TableStorage implements StorageHandlerInterface
         $qb->select($this->fieldList)
             ->from($this->tableName)
             ->where($qb->expr()->eq('migration', $qb->createPositionalParameter($migrationName)));
-        $result = $qb->execute()->fetch(FetchMode::ASSOCIATIVE);
+        $result = $qb->execute()->fetchAssociative();
 
         if (is_array($result) && !empty($result)) {
             return $this->arrayToMigration($result);
@@ -207,7 +207,7 @@ class Migration extends TableStorage implements StorageHandlerInterface
         $conn->beginTransaction();
 
         $stmt = $conn->executeQuery($sql, array($migration->name));
-        $existingMigrationData = $stmt->fetch(FetchMode::ASSOCIATIVE);
+        $existingMigrationData = $stmt->fetchAssociative();
 
         // fail if it was not executing
 
@@ -288,7 +288,7 @@ class Migration extends TableStorage implements StorageHandlerInterface
         $conn->beginTransaction();
 
         $stmt = $conn->executeQuery($sql, array($migrationDefinition->name));
-        $existingMigrationData = $stmt->fetch(FetchMode::ASSOCIATIVE);
+        $existingMigrationData = $stmt->fetchAssociative();
 
         if (is_array($existingMigrationData)) {
             // migration exists
@@ -370,7 +370,7 @@ class Migration extends TableStorage implements StorageHandlerInterface
         $conn->beginTransaction();
 
         $stmt = $conn->executeQuery($sql, array($migration->name));
-        $existingMigrationData = $stmt->fetch(FetchMode::ASSOCIATIVE);
+        $existingMigrationData = $stmt->fetchAssociative();
 
         if (!is_array($existingMigrationData)) {
             // commit immediately, to release the lock and avoid deadlocks

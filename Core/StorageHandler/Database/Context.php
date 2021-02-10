@@ -3,7 +3,6 @@
 namespace Kaliop\eZMigrationBundle\Core\StorageHandler\Database;
 
 use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Schema\Schema;
 use Kaliop\eZMigrationBundle\API\ContextStorageHandlerInterface;
 
@@ -19,7 +18,7 @@ class Context extends TableStorage implements ContextStorageHandlerInterface
         $qb->select($this->fieldList)
             ->from($this->tableName)
             ->where($qb->expr()->eq('migration', $qb->createPositionalParameter($migrationName)));
-        $result = $qb->execute()->fetch(FetchMode::ASSOCIATIVE);
+        $result = $qb->execute()->fetchAssociative();
 
         if (is_array($result) && !empty($result)) {
             return $this->stringToContext($result['context']);
@@ -53,7 +52,7 @@ class Context extends TableStorage implements ContextStorageHandlerInterface
         $conn->beginTransaction();
 
         $stmt = $conn->executeQuery($sql, array($migrationName));
-        $existingMigrationData = $stmt->fetch(FetchMode::ASSOCIATIVE);
+        $existingMigrationData = $stmt->fetchAssociative();
 
         if (is_array($existingMigrationData)) {
             // context exists

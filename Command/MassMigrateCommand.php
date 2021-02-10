@@ -219,7 +219,7 @@ EOT
                 $prefix[] = $php;
             }
 
-            $builderArgs = parent::createChildProcessArgs($input, $prefix);
+            $builderArgs = array_merge($prefix, parent::createChildProcessArgs($input));
         }
 
         // allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
@@ -339,7 +339,7 @@ EOT
     }
 
     /**
-     * @param string $paths
+     * @param string[] $paths
      * @param $migrationService
      * @param bool $force
      * @param bool $isChild when not in child mode, do not waste time parsing migrations
@@ -446,7 +446,7 @@ EOT
         // mandatory args and options
         $builderArgs = array_merge( $prefix, array(
             $this->getConsoleFile(), // sf console
-            self::COMMAND_NAME, // name of sf command. Can we get it from the Application instead of hardcoding?
+            static::$defaultName, // name of sf command
             '--env=' . $kernel->getEnvironment(), // sf env
             '--child'
         ));
