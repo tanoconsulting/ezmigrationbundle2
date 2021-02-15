@@ -81,7 +81,7 @@
     type: user
     mode: delete
     match:
-        usergroup_id: reference:kmb_test_32_g
+        user_group_id: reference:kmb_test_32_g
     references:
         -
             identifier: kmb_test_32_count_2

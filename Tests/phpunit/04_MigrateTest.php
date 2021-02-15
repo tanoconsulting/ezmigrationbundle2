@@ -2,6 +2,7 @@
 
 include_once(__DIR__.'/MigrationExecutingTest.php');
 
+use eZ\Publish\Core\Repository\Values\User\UserReference;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\Tests\helper\BeforeStepExecutionListener;
 use Kaliop\eZMigrationBundle\Tests\helper\StepExecutedListener;
@@ -138,7 +139,7 @@ class MigrateTest extends MigrationExecutingTest
             array('--path' => array($filePath), '-n' => true, '-u' => true, '--set-reference' => array('yo:lo', 'kmb_test_31_ref:hello'))
         );
 
-        $this->assertContains('hello', $output);
+        $this->assertStringContainsString('hello', $output);
 
         $this->deleteMigration($filePath);
     }
@@ -156,7 +157,7 @@ class MigrateTest extends MigrationExecutingTest
         $this->prepareMigration($filePath2);
         $output = $this->runCommand('kaliop:migration:migrate', array('--path' => array($filePath2), '-n' => true, '-u' => true));
 
-        $this->assertContains('kmb_038_matched_objs', $output);
+        $this->assertStringContainsString('kmb_038_matched_objs', $output);
 
         // this one we can not execute - we only parse for correctness
         $this->prepareMigration($filePath3);
@@ -361,14 +362,17 @@ class MigrateTest extends MigrationExecutingTest
     /**
      * Get the eZ repository
      * @param int $loginUserId
-     * @return \eZ\Publish\Core\SignalSlot\Repository
+     * @return \eZ\Publish\API\Repository\Repository
      */
     protected function getRepository($loginUserId = \Kaliop\eZMigrationBundle\Core\MigrationService::ADMIN_USER_ID)
     {
         // q: do we need bootContainer() here or would getContainer() do ?
         $repository = $this->bootContainer()->get('ezpublish.api.repository');
-        if ($loginUserId !== false && (is_null($repository->getCurrentUser()) || $repository->getCurrentUser()->id != $loginUserId)) {
-            $repository->setCurrentUser($repository->getUserService()->loadUser($loginUserId));
+        $permissionResolver = $repository->getPermissionResolver();
+        $currentUserId = $permissionResolver->getCurrentUserReference()->getUserId();
+        if ($loginUserId !== false && ($currentUserId != $loginUserId)) {
+            $permissionResolver->setCurrentUserReference(new UserReference($loginUserId));
+            //$repository->setCurrentUser($repository->getUserService()->loadUser($loginUserId));
         }
 
         return $repository;

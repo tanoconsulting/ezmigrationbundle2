@@ -136,7 +136,7 @@
     type: content_type
     mode: delete
     match:
-        contenttype_identifier: kmb_test_8_ct
+        content_type_identifier: kmb_test_8_ct
 
 -
     type: role

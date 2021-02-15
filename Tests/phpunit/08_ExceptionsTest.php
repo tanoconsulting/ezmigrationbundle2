@@ -27,7 +27,7 @@ class ExceptionsTest extends MigrationExecutingTest implements ExecutorInterface
 
         $m = $ms->getMigration('exception_test.json');
         $this->assertEquals(Migration::STATUS_DONE, $m->status, 'Migration in unexpected state');
-        $this->assertContains('Willfully cancelled', $m->executionError, 'Migration cancelled but its exception message lost');
+        $this->assertStringContainsString('Willfully cancelled', $m->executionError, 'Migration cancelled but its exception message lost');
 
         $this->deleteMigration('exception_test.json');
     }
@@ -46,7 +46,7 @@ class ExceptionsTest extends MigrationExecutingTest implements ExecutorInterface
 
         $m = $ms->getMigration('exception_test.json');
         $this->assertEquals(Migration::STATUS_FAILED, $m->status, 'Migration in unexpected state');
-        $this->assertContains('Willfully failed', $m->executionError, 'Migration failed but its exception message lost');
+        $this->assertStringContainsString('Willfully failed', $m->executionError, 'Migration failed but its exception message lost');
 
         $this->deleteMigration('exception_test.json');
     }
@@ -64,12 +64,12 @@ class ExceptionsTest extends MigrationExecutingTest implements ExecutorInterface
         try {
             $ms->executeMigration($md);
         } catch (\Exception $e) {
-            $this->assertContains('Willfully crashed', $e->getMessage());
+            $this->assertStringContainsString('Willfully crashed', $e->getMessage());
         }
 
         $m = $ms->getMigration('exception_test.json');
         $this->assertEquals(Migration::STATUS_FAILED, $m->status, 'Migration in unexpected state');
-        $this->assertContains('Willfully crashed', $m->executionError, 'Migration threw but its exception message lost');
+        $this->assertStringContainsString('Willfully crashed', $m->executionError, 'Migration threw but its exception message lost');
 
         $this->deleteMigration('exception_test.json');
     }
@@ -90,7 +90,7 @@ class ExceptionsTest extends MigrationExecutingTest implements ExecutorInterface
         $exitCode = $this->app->run($input, $this->output);
         $output = $this->fetchOutput();
         $this->assertNotEquals(0, $exitCode, 'CLI Command succeeded instead of failing. Output: ' . $output);
-        $this->assertContains('Could not find the required user account to be used for logging in', $output, 'Migration aborted but its exception message lost');
+        $this->assertStringContainsString('Could not find the required user account to be used for logging in', $output, 'Migration aborted but its exception message lost');
 
         $m = $ms->getMigration(basename($filePath));
         $this->assertEquals($m->status, Migration::STATUS_FAILED, 'Migration supposed to be failed but in unexpected state');

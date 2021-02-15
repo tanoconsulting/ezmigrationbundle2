@@ -4,7 +4,7 @@
     type: content_type
     mode: load
     match:
-        contenttype_identifier: not_quite_exist_kmb_test_034_ok
+        content_type_identifier: not_quite_exist_kmb_test_034_ok
     match_tolerate_misses: true
     references:
         kmb_test_034_c: count

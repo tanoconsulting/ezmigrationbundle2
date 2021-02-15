@@ -6,6 +6,6 @@
     mode: load
     match:
         not:
-            contenttype_identifier: not_quite_exist_kmb_test_035_ok
+            content_type_identifier: not_quite_exist_kmb_test_035_ok
     # disable unit-test check for null step results
     #allow_null_results: true

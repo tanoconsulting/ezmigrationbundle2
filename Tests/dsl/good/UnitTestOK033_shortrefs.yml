@@ -3,7 +3,7 @@
     type: content_type
     mode: load
     match:
-        contenttype_identifier: folder
+        content_type_identifier: folder
     references:
         kmb_test_033_n: content_type_identifier
         kmb_test_033_c: count

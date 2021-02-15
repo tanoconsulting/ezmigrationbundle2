@@ -63,15 +63,15 @@ class StatusTest extends MigrationExecutingTest
         $this->deleteMigration($filePath, false);
 
         $output = $this->runCommand('kaliop:migration:status');
-        $this->assertNotContains(basename($filePath), $output);
+        $this->assertStringNotContainsString(basename($filePath), $output);
 
         $output = $this->runCommand('kaliop:migration:status', array('--path' => array($filePath)));
-        $this->assertContains(basename($filePath), $output);
-        $this->assertNotContains('20100101000200_MigrateV1ToV2.php', $output);
+        $this->assertStringContainsString(basename($filePath), $output);
+        $this->assertStringNotContainsString('20100101000200_MigrateV1ToV2.php', $output);
 
         $this->addMigration($filePath);
         $output = $this->runCommand('kaliop:migration:status');
-        $this->assertContains(basename($filePath), $output);
+        $this->assertStringContainsString(basename($filePath), $output);
 
         $this->deleteMigration($filePath);
     }
@@ -82,11 +82,11 @@ class StatusTest extends MigrationExecutingTest
         $this->deleteMigration($filePath, false);
 
         $output = $this->runCommand('kaliop:migration:status', array('--show-path' => true, '--path' => array($filePath)));
-        $this->assertContains($filePath, $output);
+        $this->assertStringContainsString($filePath, $output);
 
         $this->addMigration($filePath);
         $output = $this->runCommand('kaliop:migration:status', array('--show-path' => true));
-        $this->assertContains($filePath, $output);
+        $this->assertStringContainsString($filePath, $output);
 
         $this->deleteMigration($filePath);
     }

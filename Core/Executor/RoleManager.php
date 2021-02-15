@@ -438,7 +438,9 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             }
         }
 
-        $roleService->addPolicy($role, $policyCreateStruct);
+        $roleDraft = $roleService->createRoleDraft($role);
+        $roleService->addPolicyByRoleDraft($roleDraft, $policyCreateStruct);
+        $roleService->publishRoleDraft($roleDraft);
     }
 
     protected function sortPolicyLimitationsDefinitions(array &$limitations)

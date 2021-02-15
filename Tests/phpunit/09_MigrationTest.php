@@ -13,8 +13,8 @@ class MigrationTest extends MigrationExecutingTest
         $this->prepareMigration($filePath);
 
         $output = $this->runCommand('kaliop:migration:migration', array('--info' => true, 'migration' => basename($filePath)));
-        $this->assertContains('Migration: '.basename($filePath), $output);
-        $this->assertContains('Status: not executed', $output);
+        $this->assertStringContainsString('Migration: '.basename($filePath), $output);
+        $this->assertStringContainsString('Status: not executed', $output);
 
         $this->deleteMigration($filePath);
     }
@@ -27,11 +27,11 @@ class MigrationTest extends MigrationExecutingTest
         $output = $this->runCommand('kaliop:migration:migration', array('--skip' => true, '-n' => true, 'migration' => $filePath));
 
         $output = $this->runCommand('kaliop:migration:migration', array('--info' => true, 'migration' => basename($filePath)));
-        $this->assertContains('Migration: '.basename($filePath), $output);
-        $this->assertContains('Status: skipped', $output);
+        $this->assertStringContainsString('Migration: '.basename($filePath), $output);
+        $this->assertStringContainsString('Status: skipped', $output);
 
         $output = $this->runCommand('kaliop:migration:migrate', array('--path' => array($filePath)));
-        $this->assertContains('No migrations to execute', $output);
+        $this->assertStringContainsString('No migrations to execute', $output);
 
         $this->deleteMigration($filePath);
     }
@@ -42,12 +42,12 @@ class MigrationTest extends MigrationExecutingTest
         $this->prepareMigration($filePath);
 
         $output = $this->runCommand('kaliop:migration:status');
-        $this->assertContains(basename($filePath), $output);
+        $this->assertStringContainsString(basename($filePath), $output);
 
         $output = $this->runCommand('kaliop:migration:migration', array('--delete' => true, '-n' => true, 'migration' => basename($filePath)));
 
         $output = $this->runCommand('kaliop:migration:status');
-        $this->assertNotContains(basename($filePath), $output);
+        $this->assertStringNotContainsString(basename($filePath), $output);
     }
 
     /// @todo move to ExceptionTests ?
@@ -59,7 +59,7 @@ class MigrationTest extends MigrationExecutingTest
         $exitCode = $this->app->run($this->buildInput('kaliop:migration:migration', array('--add' => true, '-n' => true, 'migration' => $filePath)), $this->output);
         $output = $this->fetchOutput();
         $this->assertNotEquals(0, $exitCode);
-        $this->assertContains('already exists', $output);
+        $this->assertStringContainsString('already exists', $output);
 
         $this->deleteMigration($filePath);
     }

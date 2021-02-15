@@ -361,7 +361,7 @@
     type: content_type
     mode: load
     match:
-        contenttype_identifier: kmb_test_1_1
+        content_type_identifier: kmb_test_1_1
     references:
         -
             identifier: dear

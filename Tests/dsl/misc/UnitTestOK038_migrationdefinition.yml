@@ -39,7 +39,7 @@
     migration_type: content_type
     migration_mode: update
     match:
-        type: contenttype_identifier
+        type: content_type_identifier
         value: folder
     references:
         -
