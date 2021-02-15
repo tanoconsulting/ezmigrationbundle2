@@ -121,10 +121,8 @@ class ContentManager extends RepositoryExecutor implements MigrationGeneratorInt
         }
 
         // instantiate a location create struct from the parent location:
-        // BC
-        $locationId = isset($step->dsl['parent_location']) ? $step->dsl['parent_location'] : (
-            isset($step->dsl['main_location']) ? $step->dsl['main_location'] : null
-        );
+        $locationId = isset($step->dsl['parent_location']) ? $step->dsl['parent_location'] : null;
+
         // 1st resolve references
         $locationId = $this->referenceResolver->resolveReference($locationId);
         // 2nd allow to specify the location via remote_id
@@ -157,10 +155,7 @@ class ContentManager extends RepositoryExecutor implements MigrationGeneratorInt
 
         $locations = array($locationCreateStruct);
 
-        // BC
-        $other_locations = isset($step->dsl['other_parent_locations']) ? $step->dsl['other_parent_locations'] : (
-            isset($step->dsl['other_locations']) ? $step->dsl['other_locations'] : null
-        );
+        $other_locations = isset($step->dsl['other_parent_locations']) ? $step->dsl['other_parent_locations'] : null;
         if (isset($other_locations)) {
             foreach ($other_locations as $locationId) {
                 $locationId = $this->referenceResolver->resolveReference($locationId);
@@ -298,8 +293,8 @@ class ContentManager extends RepositoryExecutor implements MigrationGeneratorInt
 
             if (isset($step->dsl['main_location'])) {
                 $this->setMainLocation($content, $step->dsl['main_location']);
-
             }
+
             $contentCollection[$key] = $content;
         }
 

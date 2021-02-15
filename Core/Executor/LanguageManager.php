@@ -72,11 +72,6 @@ class LanguageManager extends RepositoryExecutor implements MigrationGeneratorIn
      */
     protected function update($step)
     {
-        if (isset($step->dsl['lang'])) {
-            // BC
-            $step->dsl['match'] = array('language_code' => $step->dsl['lang']);
-        }
-
         $languageCollection = $this->matchLanguages('delete', $step);
 
         $this->validateResultsCount($languageCollection, $step);
@@ -110,11 +105,6 @@ class LanguageManager extends RepositoryExecutor implements MigrationGeneratorIn
      */
     protected function delete($step)
     {
-        if (isset($step->dsl['lang'])) {
-            // BC
-            $step->dsl['match'] = array('language_code' => $step->dsl['lang']);
-        }
-
         $languageCollection = $this->matchLanguages('delete', $step);
 
         $this->validateResultsCount($languageCollection, $step);

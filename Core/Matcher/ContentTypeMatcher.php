@@ -25,8 +25,6 @@ class ContentTypeMatcher extends RepositoryMatcher implements KeyMatcherInterfac
         self::MATCH_CONTENTTYPE_ID, self::MATCH_CONTENTTYPE_IDENTIFIER, //self::MATCH_CONTENTTYPE_REMOTE_ID,
         // aliases
         'id', 'identifier', // 'remote_id'
-        // BC
-        'contenttype_id', 'contenttype_identifier',
     );
     protected $returns = 'ContentType';
 

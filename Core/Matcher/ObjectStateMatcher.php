@@ -21,8 +21,6 @@ class ObjectStateMatcher extends RepositoryMatcher implements KeyMatcherInterfac
         self::MATCH_OBJECTSTATE_ID, self::MATCH_OBJECTSTATE_IDENTIFIER,
         // aliases
         'id', 'identifier',
-        // BC
-        'objectstate_id', 'objectstate_identifier',
     );
     protected $returns = 'ObjectState';
 

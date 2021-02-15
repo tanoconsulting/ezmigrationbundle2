@@ -29,8 +29,6 @@ class ContentMatcher extends QueryBasedMatcher implements SortingMatcherInterfac
         self::MATCH_SUBTREE, self::MATCH_VISIBILITY,
         // aliases
         'content_type',
-        // BC
-        'contenttype_id', 'contenttype_identifier',
         // content-only
         self::MATCH_RELATES_TO, self::MATCH_RELATED_FROM
     );

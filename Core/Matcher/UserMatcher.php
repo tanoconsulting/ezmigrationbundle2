@@ -25,8 +25,6 @@ class UserMatcher extends RepositoryMatcher implements KeyMatcherInterface
         self::MATCH_USERGROUP_ID,
         // aliases
         'id',
-        // BC
-        'usergroup_id'
     );
     protected $returns = 'User';
 

@@ -20,8 +20,6 @@ class ContentTypeGroupMatcher extends RepositoryMatcher implements KeyMatcherInt
         self::MATCH_CONTENTTYPEGROUP_ID, self::MATCH_CONTENTTYPEGROUP_IDENTIFIER,
         // aliases
         'id', 'identifier',
-        // BC
-        'contenttypegroup_id', 'contenttypegroup_identifier',
     );
     protected $returns = 'ContentTypeGroup';
 
