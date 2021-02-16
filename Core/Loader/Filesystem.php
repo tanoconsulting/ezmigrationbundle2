@@ -64,11 +64,7 @@ class Filesystem implements LoaderInterface
         // if no paths defined, we look in default paths
         if (empty($paths)) {
             $paths = array(
-                sprintf(
-                    '%s/src/%s',
-                    $this->kernel->getProjectDir(),
-                    $this->versionDirectory
-                )
+                $this->kernel->getProjectDir() . '/src/' . $this->versionDirectory
             );
 
             /** @var $bundle \Symfony\Component\HttpKernel\Bundle\BundleInterface */

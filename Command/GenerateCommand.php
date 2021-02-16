@@ -346,11 +346,7 @@ EOT
     protected function getMigrationDirectory($bundleName)
     {
         if (!$bundleName) {
-            return sprintf(
-                '%s/src/%s',
-                $this->getApplication()->getKernel()->getProjectDir(),
-                $this->configResolver->getParameter('ez_migration_bundle.version_directory')
-            );
+            return $this->getApplication()->getKernel()->getProjectDir() . '/src/' . $this->configResolver->getParameter('ez_migration_bundle.version_directory');
         }
 
         // Allow direct usage of a directory path instead of a bundle name
