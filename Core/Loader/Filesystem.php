@@ -61,9 +61,12 @@ class Filesystem implements LoaderInterface
      */
     protected function getDefinitions(array $paths = array(), $returnFilename = false)
     {
-        // if no paths defined, we look in all bundles
+        // if no paths defined, we look in default paths
         if (empty($paths)) {
-            $paths = array();
+            $paths = array(
+                $this->kernel->getProjectDir() . '/src/' . $this->versionDirectory
+            );
+
             /** @var $bundle \Symfony\Component\HttpKernel\Bundle\BundleInterface */
             foreach ($this->kernel->getBundles() as $bundle)
             {

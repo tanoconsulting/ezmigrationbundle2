@@ -5,7 +5,7 @@ parameters:
     # The directory (inside each bundle) where to look for migrations definitions
     # NB: supports per-siteaccess configuration as an override of global configuration. For that, just define parameters:
     #     ez_migration_bundle.<siteaccess_group>.version_directory
-    ez_migration_bundle.version_directory: 'MigrationVersions'
+    ez_migration_bundle.version_directory: 'MigrationsDefinitions'
     # The database tables used to store migration information. Will be created automatically
     # NB: supports per-siteaccess configuration as an override of global configuration. For that, just define parameters:
     #     ez_migration_bundle.<siteaccess_group>.table_name
