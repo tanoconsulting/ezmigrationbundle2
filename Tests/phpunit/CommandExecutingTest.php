@@ -19,7 +19,6 @@ abstract class CommandExecutingTest extends KernelTestCase
     // tell to phpunit not to mess with ezpublish legacy global vars...
     protected $backupGlobalsBlacklist = array('eZCurrentAccess');
 
-    /// @todo if we want to be compatible with phpunit >= 8.0, we should do something akin to https://github.com/symfony/framework-bundle/blob/4.3/Test/ForwardCompatTestTrait.php
     protected function setUp(): void
     {
         $this->_container = $this->bootContainer();
@@ -95,8 +94,7 @@ abstract class CommandExecutingTest extends KernelTestCase
             throw new \RuntimeException($e->getMessage() . " Did you forget to define the environment variable KERNEL_CLASS?", $e->getCode(), $e->getPrevious());
         }
 
-        // In Sf4 we do have the container available, in Sf3 we do not
-        return isset(static::$container) ? static::$container : static::$kernel->getContainer();
+        return static::$container;
     }
 
     protected function getContainer()

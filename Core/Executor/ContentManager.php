@@ -110,7 +110,7 @@ class ContentManager extends RepositoryExecutor implements MigrationGeneratorInt
         if (isset($step->dsl['version_creator'])) {
             $realContentOwnerId = $contentCreateStruct->ownerId;
             if ($realContentOwnerId == null) {
-                $realContentOwnerId = $this->repository->getCurrentUser()->id;
+                $realContentOwnerId = $this->getCurrentUser()->getUserId();
             }
             $versionCreator = $this->getUser($step->dsl['version_creator']);
             $contentCreateStruct->ownerId = $versionCreator->id;

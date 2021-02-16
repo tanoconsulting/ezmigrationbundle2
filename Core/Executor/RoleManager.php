@@ -97,6 +97,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
                 $update = $roleService->newRoleUpdateStruct();
                 $newRoleName = $this->referenceResolver->resolveReference($step->dsl['new_name']);
                 $update->identifier = $this->referenceResolver->resolveReference($newRoleName);
+/// @todo fix!
                 $role = $roleService->updateRole($role, $update);
             }
 
@@ -107,6 +108,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
                 // TODO: Check and update policies instead of remove and add.
                 $policies = $role->getPolicies();
                 foreach ($policies as $policy) {
+/// @todo fix!
                     $roleService->deletePolicy($policy);
                 }
 
@@ -400,18 +402,25 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
                 case 'user':
                     foreach ($assign['ids'] as $userId) {
                         $userId = $this->referenceResolver->resolveReference($userId);
-
                         $user = $userService->loadUser($userId);
-
-                        $roleService->unassignRoleFromUser($role, $user);
+                        $userRoleAssignments = $roleService->getRoleAssignmentsForUser($user);
+                        foreach($userRoleAssignments as $assignment) {
+                            if ($assignment->role->id == $role->id) {
+                                $roleService->removeRoleAssignment($assignment);
+                            }
+                        }
                     }
                     break;
                 case 'group':
                     foreach ($assign['ids'] as $groupId) {
                         $groupId = $this->referenceResolver->resolveReference($groupId);
-
                         $group = $userService->loadUserGroup($groupId);
-                        $roleService->unassignRoleFromUserGroup($role, $group);
+                        $groupRoleAssignments = $roleService->getRoleAssignmentsForUserGroup($group);
+                        foreach($groupRoleAssignments as $assignment) {
+                            if ($assignment->role->id == $role->id) {
+                                $roleService->removeRoleAssignment($assignment);
+                            }
+                        }
                     }
                     break;
                 default:
@@ -473,6 +482,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             }
             // ugly: sort by comparing limitations identifiers
             return $this->compareArraysForSorting($p1['limitations'], $p2['limitations']);
+
             $p1LimIds = array();
             $p2LimIds = array();
             foreach($p1['limitations'] as $lim) {

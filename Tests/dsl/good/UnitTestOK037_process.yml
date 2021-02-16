@@ -39,7 +39,7 @@
     target: reference
     identifier: reference:kmb_test_37_out
     test:
-        contains: PHP
+        StringContainsString: PHP
 
 -
     type: process
@@ -54,7 +54,7 @@
     target: reference
     identifier: reference:kmb_test_37_out2
     test:
-        contains: /tmp
+        StringContainsString: /tmp
 
 -
     type: process
@@ -70,4 +70,4 @@
     target: reference
     identifier: reference:kmb_test_37_out3
     test:
-        contains: 'HELLO=world'
+        StringContainsString: 'HELLO=world'

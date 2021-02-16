@@ -592,7 +592,7 @@ services:
         class: '%ez_migration_bundle.tag_matcher.class%'
         arguments:
             - '@ezpublish.translation_helper'
-            - '@?ezpublish.api.service.tags'
+            - '@?eztags.api.service.tags'
 
     ez_migration_bundle.trash_matcher:
         class: '%ez_migration_bundle.trash_matcher.class%'

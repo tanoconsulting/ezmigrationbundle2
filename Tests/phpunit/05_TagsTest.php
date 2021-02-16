@@ -43,17 +43,6 @@ class TagsTest extends MigrationExecutingTest
     {
         $dslDir = $this->dslDir.'/eztags';
 
-        // try to make this work across phpunit versions, which run this before/after calling setUp()
-        $container = $this->getContainer() == null ? $this->bootContainer() : $this->getContainer();
-        $tagsFieldType = $container->get('ezpublish.fieldType.eztags');
-        $settingsSchema = $tagsFieldType->getSettingsSchema();
-        if (isset($settingsSchema['subTreeLimit'])) {
-            $dslDir .= '/v2';
-        } else {
-
-            $dslDir .= '/v3';
-        }
-
         if (!is_dir($dslDir)) {
             return array();
         }

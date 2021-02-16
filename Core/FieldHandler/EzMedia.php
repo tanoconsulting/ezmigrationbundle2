@@ -31,6 +31,7 @@ class EzMedia extends FileFieldHandler implements FieldValueConverterInterface
         } else if (is_string($fieldValue)) {
             $filePath = $fieldValue;
         } else {
+            $filePath = $fieldValue['path'];
             if (isset($fieldValue['filename'])) {
                 $fileName = $fieldValue['filename'];
             }

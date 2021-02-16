@@ -15,13 +15,10 @@ class FilesystemRecursive extends Filesystem
     {
         // if no paths defined, we look in default paths
         if (empty($paths)) {
-            $paths = array(
-                sprintf(
-                    '%s/src/%s',
-                    $this->kernel->getProjectDir(),
-                    $this->versionDirectory
-                )
-            );
+            $path = $this->kernel->getProjectDir() . '/src/' . $this->versionDirectory;
+            if (is_dir($path)) {
+                $paths[] = $path;
+            }
 
             /** @var $bundle \Symfony\Component\HttpKernel\Bundle\BundleInterface */
             foreach ($this->kernel->getBundles() as $bundle)
