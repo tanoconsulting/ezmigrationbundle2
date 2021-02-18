@@ -53,8 +53,6 @@ class MigrateCommand extends AbstractCommand
         parent::configure();
 
         $this
-/// @todo remove the alias ?
-            ->setAliases(array('kaliop:migration:update'))
             ->setDescription('Execute available migration definitions.')
             // nb: when adding options, remember to forward them to sub-commands executed in 'separate-process' mode
             ->addOption('admin-login', 'a', InputOption::VALUE_REQUIRED, "Login of admin account used whenever elevated privileges are needed (user id 14 used by default)")
