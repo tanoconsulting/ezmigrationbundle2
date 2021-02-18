@@ -53,7 +53,7 @@ EOT
         $migrationDefinitions = $migrationsService->getMigrationsDefinitions($input->getOption('path'));
         $migrations = $migrationsService->getMigrationsByPaths($input->getOption('path'));
 
-        if (!count($migrationDefinitions) && !count($migrations)) {
+        if (!count($migrationDefinitions) && !count($migrations) && !$input->getOption('summary')) {
             $output->writeln('<info>No migrations found</info>');
             return 0;
         }
