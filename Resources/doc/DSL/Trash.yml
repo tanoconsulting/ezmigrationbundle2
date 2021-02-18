@@ -11,7 +11,10 @@
     type: trash
     mode: recover
     match:
-        xxx # See the conditions for content/update. NB: the migration will not fail if nothing is matched
+        xxx # Unlike in eZPlatform 1 and 2, not all conditions for content/update are accepted.
+            # See the criterion_handlers tagged `ezplatform.trash.search.legacy.gateway.criterion_handler` to find out
+            # which ones are supported. section and content_type should be supported...
+            # NB: the migration will not fail if nothing is matched
     references: # Optional
         # short syntax:
         referenceId: attributeId # (possible values and meaning are explained for the 'long syntax')
@@ -34,7 +37,7 @@
     type: trash
     mode: delete
     match:
-        xxx # See the conditions for content/update. NB: the migration will not fail if nothing is matched
+        xxx # See above. NB: the migration will not fail if nothing is matched
     references: # Optional
         # short syntax:
         referenceId: attributeId # (possible values and meaning are explained for the 'long syntax')
@@ -56,7 +59,7 @@
 -
     type: trash
     mode: load
-    match: # See docs above for update and delete
+    match: # See docs above for recover and delete
     match_tolerate_misses: # Optional. See above for allowed values
     references: # Optional. See above for allowed values
     expect: # Optional. See above for allowed values

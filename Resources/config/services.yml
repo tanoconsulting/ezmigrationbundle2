@@ -2,7 +2,7 @@ parameters:
     # Set to false to disable completely the debug output of executed migration steps in verbose mode
     ez_migration_bundle.enable_debug_output: true
 
-    # The directory (inside each bundle) where to look for migrations definitions
+    # The directory (inside each bundle, and in src/) where to look for migrations definitions
     # NB: supports per-siteaccess configuration as an override of global configuration. For that, just define parameters:
     #     ez_migration_bundle.<siteaccess_group>.version_directory
     ez_migration_bundle.version_directory: 'MigrationsDefinitions'
@@ -30,7 +30,7 @@ parameters:
     # Due to the Doctrine DB Schema Manager in use, this can not be set to null to mean 'use the default charset of the database').
     # It is a good idea to set it to the same character set used by eZP tables, even though at the moment there are no
     # queries doing joins between migration tables and eZP tables.
-    # eZPlatform uses utf8mb4 charset as default, whereas eZPublish used utf8
+    # eZPlatform uses utf8mb4 charset as default
     ez_migration_bundle.database_charset: 'utf8mb4'
     ez_migration_bundle.database_collation: 'utf8mb4_general_ci'
 
