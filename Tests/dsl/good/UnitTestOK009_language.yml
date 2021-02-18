@@ -213,6 +213,7 @@
     name: Klingon
     enabled: false
 
+# NB: known to fail with ezplatform 3.2.4 and earlier...
 -
     type: language
     mode: delete
