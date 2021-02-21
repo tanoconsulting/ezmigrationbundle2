@@ -3,6 +3,7 @@
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
 use eZ\Publish\API\Repository\Values\User\Role;
+use eZ\Publish\API\Repository\Values\User\RoleDraft;
 use eZ\Publish\API\Repository\RoleService;
 use eZ\Publish\API\Repository\UserService;
 use Kaliop\eZMigrationBundle\API\Collection\RoleCollection;
@@ -42,19 +43,20 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
         $roleCreateStruct = $roleService->newRoleCreateStruct($roleName);
 
         // Publish new role
-        $role = $roleService->createRole($roleCreateStruct);
-        if (is_callable(array($roleService, 'publishRoleDraft'))) {
-            $roleService->publishRoleDraft($role);
-        }
+        $roleDraft = $roleService->createRole($roleCreateStruct);
 
         if (isset($step->dsl['policies'])) {
             foreach ($step->dsl['policies'] as $key => $ymlPolicy) {
-                $this->addPolicy($role, $roleService, $ymlPolicy);
+                $this->addPolicy($roleDraft, $roleService, $ymlPolicy);
             }
         }
 
+        $roleService->publishRoleDraft($roleDraft);
+
+        $role = $roleDraft;
+
         if (isset($step->dsl['assign'])) {
-            $this->assignRole($role, $roleService, $userService, $step->dsl['assign']);
+            $this->assignRole($roleDraft, $roleService, $userService, $step->dsl['assign']);
         }
 
         $this->setReferences($role, $step);
@@ -92,13 +94,15 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
         /** @var \eZ\Publish\API\Repository\Values\User\Role $role */
         foreach ($roleCollection as $key => $role) {
 
+            $roleDraft = $roleService->createRoleDraft($role);
+
             // Updating role name
             if (isset($step->dsl['new_name'])) {
                 $update = $roleService->newRoleUpdateStruct();
                 $newRoleName = $this->referenceResolver->resolveReference($step->dsl['new_name']);
                 $update->identifier = $this->referenceResolver->resolveReference($newRoleName);
-/// @todo fix!
-                $role = $roleService->updateRole($role, $update);
+
+                $roleDraft = $roleService->updateRoleDraft($roleDraft, $update);
             }
 
             if (isset($step->dsl['policies'])) {
@@ -106,16 +110,19 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
 
                 // Removing all policies so we can add them back.
                 // TODO: Check and update policies instead of remove and add.
-                $policies = $role->getPolicies();
-                foreach ($policies as $policy) {
-/// @todo fix!
-                    $roleService->deletePolicy($policy);
+                $policies = $roleDraft->getPolicies();
+                foreach ($policies as $policyDraft) {
+                    $roleDraft = $roleService->removePolicyByRoleDraft($roleDraft, $policyDraft);
                 }
 
                 foreach ($ymlPolicies as $ymlPolicy) {
-                    $this->addPolicy($role, $roleService, $ymlPolicy);
+                    $this->addPolicy($roleDraft, $roleService, $ymlPolicy);
                 }
             }
+
+            $roleService->publishRoleDraft($roleDraft);
+            // q: is this necessary? Sadly, we don't get back a role from publishRoleDraft...
+            $role = $roleService->loadRole($role->id);
 
             if (isset($step->dsl['assign'])) {
                 $this->assignRole($role, $roleService, $userService, $step->dsl['assign']);
@@ -436,7 +443,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
      * @param \eZ\Publish\API\Repository\RoleService $roleService
      * @param array $policy
      */
-    protected function addPolicy(Role $role, RoleService $roleService, array $policy)
+    protected function addPolicy(RoleDraft $roleDraft, RoleService $roleService, array $policy)
     {
         $policyCreateStruct = $roleService->newPolicyCreateStruct($policy['module'], $policy['function']);
 
@@ -447,9 +454,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             }
         }
 
-        $roleDraft = $roleService->createRoleDraft($role);
         $roleService->addPolicyByRoleDraft($roleDraft, $policyCreateStruct);
-        $roleService->publishRoleDraft($roleDraft);
     }
 
     protected function sortPolicyLimitationsDefinitions(array &$limitations)

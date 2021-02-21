@@ -11,7 +11,7 @@ You can think of it as the great-grandson of the legacy [ezxmlinstaller](https:/
 
 *WORK IN PROGRESS*
 
-Community participation is welcome...
+Please read [WHATSNEW.md](WHATSNEW.md) for details!
 
 
 ## Requirements
