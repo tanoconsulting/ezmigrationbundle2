@@ -1,3 +1,11 @@
+Version 1.0-alpha2
+==================
+
+* Fixed one php warning
+
+* Fixed composer dependencies: we need doctrine/dbal 2.11 or later
+
+
 Version 1.0-alpha
 =================
 
