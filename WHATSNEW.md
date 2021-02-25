@@ -1,3 +1,8 @@
+Veersion: unreleased
+====================
+
+* Fixed: one php exception upon throwing an exception (for bad content_type/create steps)
+
 Version 1.0-alpha2
 ==================
 
