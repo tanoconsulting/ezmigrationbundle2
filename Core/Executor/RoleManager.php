@@ -485,16 +485,14 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             if (($fComp = strcmp($p1['function'], $p2['function'])) != 0) {
                 return $fComp;
             }
-            // ugly: sort by comparing limitations identifiers
-            return $this->compareArraysForSorting($p1['limitations'], $p2['limitations']);
 
             $p1LimIds = array();
             $p2LimIds = array();
             foreach($p1['limitations'] as $lim) {
-                $p1LimIds = $lim['identifier'];
+                $p1LimIds[] = $lim['identifier'];
             }
             foreach($p2['limitations'] as $lim) {
-                $p2LimIds = $lim['identifier'];
+                $p2LimIds[] = $lim['identifier'];
             }
             /// @todo if limitations identifier are the same, sort by lim. values...
             return $this->compareArraysForSorting($p1LimIds, $p2LimIds);
