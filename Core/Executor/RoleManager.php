@@ -512,7 +512,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
     {
         $len = min(count($a1), count($a2));
         for ($i = 0; $i < $len; $i++) {
-            if ($cmp = strcmp($a1[$i], $a2[$i]) != 0) {
+            if (($cmp = strcmp($a1[$i], $a2[$i])) != 0) {
                 return $cmp;
             }
         }
