@@ -485,19 +485,19 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             if (($fComp = strcmp($p1['function'], $p2['function'])) != 0) {
                 return $fComp;
             }
-            // ugly: sort by comparing limitations identifiers
-            return $this->compareArraysForSorting($p1['limitations'], $p2['limitations']);
 
-            $p1LimIds = array();
-            $p2LimIds = array();
-            foreach($p1['limitations'] as $lim) {
-                $p1LimIds = $lim['identifier'];
+            $len = min(count($p1['limitations']), count($p2['limitations']));
+            for ($i = 0; $i < $len; $i++) {
+                if (($lComp = strcmp($p1['limitations'][$i]['identifier'], $p2['limitations'][$i]['identifier'])) != 0) {
+                    return $lComp;
+                }
+
+                $vComp = $this->compareArraysForSorting($p1['limitations'][$i]['values'], $p2['limitations'][$i]['values']);
+
+                if ($vComp != 0) {
+                    return $vComp;
+                }
             }
-            foreach($p2['limitations'] as $lim) {
-                $p2LimIds = $lim['identifier'];
-            }
-            /// @todo if limitations identifier are the same, sort by lim. values...
-            return $this->compareArraysForSorting($p1LimIds, $p2LimIds);
         });
     }
 
@@ -512,7 +512,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
     {
         $len = min(count($a1), count($a2));
         for ($i = 0; $i < $len; $i++) {
-            if ($cmp = strcmp($a1[$i], $a2[$i]) != 0) {
+            if (($cmp = strcmp($a1[$i], $a2[$i])) != 0) {
                 return $cmp;
             }
         }
