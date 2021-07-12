@@ -631,6 +631,9 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
                 case 'disable-translation':
                     $fieldDefinition->isTranslatable = !$value;
                     break;
+                case 'is-thumbnail':
+                    $fieldDefinition->isThumbnail = $value;
+                    break;
                 case 'category':
                     $fieldDefinition->fieldGroup = $value == 'default' ? 'content' : $value;
                     break;
@@ -697,6 +700,9 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
                     break;
                 case 'disable-translation':
                     $fieldDefinitionUpdateStruct->isTranslatable = !$value;
+                    break;
+                case 'is-thumbnail':
+                    $fieldDefinitionUpdateStruct->isThumbnail = $value;
                     break;
                 case 'category':
                     $fieldDefinitionUpdateStruct->fieldGroup = $value == 'default' ? 'content' : $value;
