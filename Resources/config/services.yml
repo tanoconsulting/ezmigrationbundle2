@@ -140,15 +140,15 @@ services:
         arguments:
             - '@ez_migration_bundle.loader'
             - '@ez_migration_bundle.storage_handler'
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
             - '@event_dispatcher'
             - '@ez_migration_bundle.context_handler'
             - '@ez_migration_bundle.reference_resolver.customreference'
         tags:
             - { name: ez_migration_bundle.context_provider, label: migration_service }
         calls:
-            - ['setPermissionResolver', ['@eZ\Publish\API\Repository\PermissionResolver']]
-            - ['setUserService', ['@eZ\Publish\API\Repository\UserService']]
+            - ['setPermissionResolver', ['@Ibexa\Contracts\Core\Repository\PermissionResolver']]
+            - ['setUserService', ['@Ibexa\Contracts\Core\Repository\UserService']]
 
     ### loaders
 
@@ -205,7 +205,7 @@ services:
         class: '%ez_migration_bundle.storage_handler.database.class%'
         arguments:
             # @todo review - is this the best way to get a handle on this ?
-            - '@ezpublish.api.storage_engine.legacy.connection'
+            - '@ibexa.api.storage_engine.legacy.connection'
             - 'ez_migration_bundle.table_name'
             - '@ez_migration_bundle.helper.config.resolver'
             - { charset: '%ez_migration_bundle.database_charset%', collate: '%ez_migration_bundle.database_collation%'}
@@ -216,7 +216,7 @@ services:
     ez_migration_bundle.context_storage_handler.database:
         class: '%ez_migration_bundle.context_storage_handler.database.class%'
         arguments:
-            - '@ezpublish.api.storage_engine.legacy.connection'
+            - '@ibexa.api.storage_engine.legacy.connection'
             - 'ez_migration_bundle.context_table_name'
             - '@ez_migration_bundle.helper.config.resolver'
             - { charset: '%ez_migration_bundle.database_charset%', collate: '%ez_migration_bundle.database_collation%' }
@@ -330,7 +330,7 @@ services:
     ez_migration_bundle.executor.sql:
         class: '%ez_migration_bundle.executor.sql.class%'
         arguments:
-            - '@ezpublish.api.storage_engine.legacy.connection'
+            - '@ibexa.api.storage_engine.legacy.connection'
             - '@ez_migration_bundle.reference_resolver.customreference'
         calls:
             - ['setReferenceMatcher', ['@ez_migration_bundle.reference_matcher']]
@@ -341,13 +341,13 @@ services:
         abstract: true
         class: '%ez_migration_bundle.executor.repository.class%'
         calls:
-            - ['setRepository', ['@ezpublish.api.repository']]
+            - ['setRepository', ['@ibexa.api.repository']]
             - ['setReferenceResolver', ['@ez_migration_bundle.reference_resolver.customreference']]
-            - ['setConfigResolver', ['@ezpublish.config.resolver']]
+            - ['setConfigResolver', ['@ibexa.config.resolver']]
             # SF bug? this method is not called for child srevices as it belongs to a trait instead of teh base class...
             - ['setReferenceMatcher', ['@ez_migration_bundle.reference_matcher']]
-            - ['setPermissionResolver', ['@eZ\Publish\API\Repository\PermissionResolver']]
-            - ['setUserService', ['@eZ\Publish\API\Repository\UserService']]
+            - ['setPermissionResolver', ['@Ibexa\Contracts\Core\Repository\PermissionResolver']]
+            - ['setUserService', ['@Ibexa\Contracts\Core\Repository\UserService']]
 
     ez_migration_bundle.executor.content_manager:
         parent: ez_migration_bundle.executor.repository
@@ -522,7 +522,7 @@ services:
     ez_migration_bundle.content_matcher:
         class: '%ez_migration_bundle.content_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
             - '@ez_migration_bundle.user_group_matcher'
             - '@ez_migration_bundle.section_matcher'
             - '@ez_migration_bundle.object_state_matcher'
@@ -533,28 +533,28 @@ services:
     ez_migration_bundle.content_type_matcher:
         class: '%ez_migration_bundle.content_type_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ez_migration_bundle.content_type_group_matcher:
         class: '%ez_migration_bundle.content_type_group_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ez_migration_bundle.content_version_matcher:
         class: '%ez_migration_bundle.content_version_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
             - '@ez_migration_bundle.content_matcher'
 
     ez_migration_bundle.language_matcher:
         class: '%ez_migration_bundle.language_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ez_migration_bundle.location_matcher:
         class: '%ez_migration_bundle.location_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
             - '@ez_migration_bundle.user_group_matcher'
             - '@ez_migration_bundle.section_matcher'
             - '@ez_migration_bundle.object_state_matcher'
@@ -565,12 +565,12 @@ services:
     ez_migration_bundle.object_state_matcher:
         class: '%ez_migration_bundle.object_state_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ez_migration_bundle.object_state_group_matcher:
         class: '%ez_migration_bundle.object_state_group_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ez_migration_bundle.reference_matcher:
         class: '%ez_migration_bundle.reference_matcher.class%'
@@ -581,23 +581,23 @@ services:
     ez_migration_bundle.role_matcher:
         class: '%ez_migration_bundle.role_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ez_migration_bundle.section_matcher:
         class: '%ez_migration_bundle.section_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ez_migration_bundle.tag_matcher:
         class: '%ez_migration_bundle.tag_matcher.class%'
         arguments:
-            - '@ezpublish.translation_helper'
+            - '@Ibexa\Contracts\Core\SiteAccess\ConfigResolverInterface'
             - '@?eztags.api.service.tags'
 
     ez_migration_bundle.trash_matcher:
         class: '%ez_migration_bundle.trash_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
             - '@ez_migration_bundle.user_group_matcher'
             - '@ez_migration_bundle.section_matcher'
             - '@ez_migration_bundle.object_state_matcher'
@@ -607,19 +607,19 @@ services:
     ez_migration_bundle.user_matcher:
         class: '%ez_migration_bundle.user_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ez_migration_bundle.user_group_matcher:
         class: '%ez_migration_bundle.user_group_matcher.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
 
     ### field handlers
 
     ez_migration_bundle.complex_field_manager:
         class: '%ez_migration_bundle.complex_field_manager.class%'
         arguments:
-             - '@ezpublish.api.service.field_type'
+             - '@ibexa.api.service.field_type'
 
     ez_migration_bundle.complex_field:
         abstract: true
@@ -655,8 +655,8 @@ services:
         parent: ez_migration_bundle.complex_field
         class: '%ez_migration_bundle.complex_field.country.class%'
         arguments:
-            - '@ezpublish.api.service.content_type'
-            - '@ezpublish.api.service.field_type'
+            - '@ibexa.api.service.content_type'
+            - '@ibexa.api.service.field_type'
         tags:
             - { name: ez_migration_bundle.complex_field, fieldtype: ezcountry, priority: 0 }
 
@@ -706,7 +706,7 @@ services:
     #    parent: ez_migration_bundle.complex_field
     #    class: '%ez_migration_bundle.complex_field.ezpage.class%'
     #    arguments:
-    #        - '@ezpublish.fieldType.ezpage.pageService'
+    #        - '@ibexa.fieldType.ezpage.pageService'
     #    tags:
     #        - { name: ez_migration_bundle.complex_field, fieldtype: ezpage, priority: 0 }
 
@@ -740,7 +740,7 @@ services:
         parent: ez_migration_bundle.complex_field
         class: '%ez_migration_bundle.complex_field.ezselection.class%'
         arguments:
-            - '@ezpublish.api.repository'
+            - '@ibexa.api.repository'
         tags:
             - { name: ez_migration_bundle.complex_field, fieldtype: ezselection, priority: 0 }
 
@@ -838,7 +838,7 @@ services:
     ez_migration_bundle.helper.limitation_converter:
         class: '%ez_migration_bundle.helper.limitation_converter.class%'
         arguments:
-            - '%ezpublish.siteaccess.list%'
+            - '%ibexa.site_access.list%'
             - '@ez_migration_bundle.location_matcher'
             - '@ez_migration_bundle.section_matcher'
             - '@ez_migration_bundle.content_type_matcher'
@@ -854,7 +854,7 @@ services:
     ez_migration_bundle.helper.config.resolver:
         class: '%ez_migration_bundle.helper.config.resolver%'
         arguments:
-            - '@ezpublish.config.resolver'
+            - '@ibexa.config.resolver'
             - '@service_container'
 
     Kaliop\eZMigrationBundle\Command\:

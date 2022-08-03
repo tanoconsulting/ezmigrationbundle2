@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class LocationCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\Content\Location';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\Content\Location';
 }

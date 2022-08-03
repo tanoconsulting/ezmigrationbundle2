@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\API\Value;
 
-use eZ\Publish\API\Repository\Exceptions\PropertyNotFoundException;
+use Ibexa\Contracts\Core\Repository\Exceptions\PropertyNotFoundException;
 
 abstract class AbstractValue
 {
@@ -14,7 +14,7 @@ abstract class AbstractValue
      * @ignore This method is for internal use
      * @access private
      *
-     * @throws \eZ\Publish\API\Repository\Exceptions\PropertyNotFoundException exception on all reads to undefined properties so typos are not silently accepted.
+     * @throws \Ibexa\Contracts\Core\Repository\Exceptions\PropertyNotFoundException exception on all reads to undefined properties so typos are not silently accepted.
      *
      * @param string $property Name of the property
      *

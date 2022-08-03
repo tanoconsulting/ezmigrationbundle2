@@ -228,28 +228,28 @@ class TracingStepExecutedListener
         switch (gettype($objOrCollection)) {
 
             case 'object':
-                if ($objOrCollection instanceof \eZ\Publish\API\Repository\Values\Content\Content ||
-                    $objOrCollection instanceof \eZ\Publish\API\Repository\Values\User\UserGroup
+                if ($objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\Content\Content ||
+                    $objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\User\UserGroup
                 ) {
                     return "'" . $objOrCollection->contentInfo->name . "'";
                 }
-                if ($objOrCollection instanceof \eZ\Publish\API\Repository\Values\ContentType\ContentType ||
-                    $objOrCollection instanceof \eZ\Publish\API\Repository\Values\ContentType\ContentTypeGroup ||
-                    $objOrCollection instanceof \eZ\Publish\API\Repository\Values\ObjectState\ObjectState ||
-                    $objOrCollection instanceof \eZ\Publish\API\Repository\Values\ObjectState\ObjectStateGroup ||
-                    $objOrCollection instanceof \eZ\Publish\API\Repository\Values\User\Role ||
-                    $objOrCollection instanceof \eZ\Publish\API\Repository\Values\Content\Section
+                if ($objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\ContentType\ContentType ||
+                    $objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\ContentType\ContentTypeGroup ||
+                    $objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\ObjectState\ObjectState ||
+                    $objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\ObjectState\ObjectStateGroup ||
+                    $objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\User\Role ||
+                    $objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\Content\Section
                 ) {
                     return "'" . $objOrCollection->identifier . "'";
                 }
-                if ($objOrCollection instanceof \eZ\Publish\API\Repository\Values\Content\Location ||
-                    $objOrCollection instanceof \eZ\Publish\API\Repository\Values\Content\TrashItem) {
+                if ($objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\Content\Location ||
+                    $objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\Content\TrashItem) {
                     return "'" . $objOrCollection->pathString . "'";
                 }
-                if ($objOrCollection instanceof \eZ\Publish\API\Repository\Values\Content\Language) {
+                if ($objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\Content\Language) {
                     return "'" . $objOrCollection->languageCode . "'";
                 }
-                if ($objOrCollection instanceof \eZ\Publish\API\Repository\Values\User\User) {
+                if ($objOrCollection instanceof \Ibexa\Contracts\Core\Repository\Values\User\User) {
                     return "'" . $objOrCollection->login . "'";
                 }
                 // unknown objects - we can't know what the desired identifier is...

@@ -2,7 +2,7 @@
 
 include_once(__DIR__.'/MigrationExecutingTest.php');
 
-use eZ\Publish\SPI\FieldType\ValidationError;
+use Ibexa\Contracts\Core\Repository\Translatable\ValidationError;
 use Kaliop\eZMigrationBundle\Tests\helper\BeforeStepExecutionListener;
 use Kaliop\eZMigrationBundle\Tests\helper\StepExecutedListener;
 

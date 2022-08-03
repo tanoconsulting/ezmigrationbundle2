@@ -2,8 +2,8 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
-use eZ\Publish\API\Repository\Values\Content\Content;
-use eZ\Publish\API\Repository\Values\User\UserGroup;
+use Ibexa\Contracts\Core\Repository\Values\Content\Content;
+use Ibexa\Contracts\Core\Repository\Values\User\UserGroup;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
 use Kaliop\eZMigrationBundle\Core\Matcher\UserGroupMatcher;
 use Kaliop\eZMigrationBundle\API\Collection\UserGroupCollection;
@@ -103,10 +103,10 @@ class UserGroupManager extends RepositoryExecutor
 
         foreach ($userGroupCollection as $key => $userGroup) {
 
-            /** @var $updateStruct \eZ\Publish\API\Repository\Values\User\UserGroupUpdateStruct */
+            /** @var $updateStruct \Ibexa\Contracts\Core\Repository\Values\User\UserGroupUpdateStruct */
             $updateStruct = $userService->newUserGroupUpdateStruct();
 
-            /** @var $contentUpdateStruct \eZ\Publish\API\Repository\Values\Content\ContentUpdateStruct */
+            /** @var $contentUpdateStruct \Ibexa\Contracts\Core\Repository\Values\Content\ContentUpdateStruct */
             $contentUpdateStruct = $contentService->newContentUpdateStruct();
 
             if (isset($step->dsl['name'])) {

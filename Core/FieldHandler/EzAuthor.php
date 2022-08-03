@@ -2,8 +2,8 @@
 
 namespace Kaliop\eZMigrationBundle\Core\FieldHandler;
 
-use eZ\Publish\Core\FieldType\Author\Value as AuthorValue;
-use eZ\Publish\Core\FieldType\Author\Author;
+use Ibexa\Core\FieldType\Author\Value as AuthorValue;
+use Ibexa\Core\FieldType\Author\Author;
 use Kaliop\eZMigrationBundle\API\FieldValueImporterInterface;
 
 /**

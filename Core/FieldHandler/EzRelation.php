@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\FieldHandler;
 
-use eZ\Publish\Core\FieldType\Relation\Value;
+use Ibexa\Core\FieldType\Relation\Value;
 use Kaliop\eZMigrationBundle\API\FieldValueImporterInterface;
 use Kaliop\eZMigrationBundle\API\FieldDefinitionConverterInterface;
 use Kaliop\eZMigrationBundle\Core\Matcher\ContentMatcher;

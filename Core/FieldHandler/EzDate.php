@@ -19,7 +19,7 @@ class EzDate extends AbstractFieldHandler implements FieldValueConverterInterfac
     }
 
     /**
-     * @param \eZ\Publish\Core\FieldType\Date\Value $fieldValue
+     * @param \Ibexa\Core\FieldType\Date\Value $fieldValue
      * @param array $context
      * @return int|null timestamp
      */

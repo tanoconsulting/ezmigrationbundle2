@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class SectionCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\Content\Section';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\Content\Section';
 }

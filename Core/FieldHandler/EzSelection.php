@@ -2,10 +2,10 @@
 
 namespace Kaliop\eZMigrationBundle\Core\FieldHandler;
 
-use eZ\Publish\Core\FieldType\Selection\Value as SelectionValue;
+use Ibexa\Core\FieldType\Selection\Value as SelectionValue;
 use Kaliop\eZMigrationBundle\API\FieldValueImporterInterface;
 use Kaliop\eZMigrationBundle\API\FieldDefinitionConverterInterface;
-use \eZ\Publish\API\Repository\Repository;
+use \Ibexa\Contracts\Core\Repository\Repository;
 
 class EzSelection extends AbstractFieldHandler implements FieldValueImporterInterface, FieldDefinitionConverterInterface
 {

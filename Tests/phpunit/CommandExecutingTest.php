@@ -1,6 +1,6 @@
 <?php
 
-use eZ\Bundle\EzPublishCoreBundle\Console\Application;
+use Symfony\Component\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -11,7 +11,7 @@ abstract class CommandExecutingTest extends KernelTestCase
 
     /** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
     private $_container;
-    /** @var \eZ\Bundle\EzPublishCoreBundle\Console\Application $app */
+    /** @var \Symfony\Component\Console\Application $app */
     protected $app;
     /** @var StreamOutput $output */
     protected $output;

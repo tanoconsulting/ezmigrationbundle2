@@ -2,10 +2,10 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Matcher;
 
-use eZ\Publish\API\Repository\Exceptions\UnauthorizedException ;
-use eZ\Publish\API\Repository\Repository;
-use eZ\Publish\API\Repository\Values\Content\Content;
-use \eZ\Publish\API\Repository\Values\Content\VersionInfo;
+use Ibexa\Contracts\Core\Repository\Exceptions\UnauthorizedException ;
+use Ibexa\Contracts\Core\Repository\Repository;
+use Ibexa\Contracts\Core\Repository\Values\Content\Content;
+use \Ibexa\Contracts\Core\Repository\Values\Content\VersionInfo;
 use Kaliop\eZMigrationBundle\API\MatcherInterface;
 use Kaliop\eZMigrationBundle\API\Collection\VersionInfoCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchResultsNumberException;

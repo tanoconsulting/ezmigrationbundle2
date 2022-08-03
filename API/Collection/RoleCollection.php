@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class RoleCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\User\Role';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\User\Role';
 }

@@ -2,9 +2,9 @@
 
 namespace Kaliop\eZMigrationBundle\Core\FieldHandler;
 
-use eZ\Publish\API\Repository\ContentTypeService;
-use eZ\Publish\API\Repository\FieldTypeService;
-use eZ\Publish\Core\FieldType\Country\Value as CountryValue;
+use Ibexa\Contracts\Core\Repository\ContentTypeService;
+use Ibexa\Contracts\Core\Repository\FieldTypeService;
+use Ibexa\Core\FieldType\Country\Value as CountryValue;
 use Kaliop\eZMigrationBundle\API\FieldValueImporterInterface;
 
 class EzCountry extends AbstractFieldHandler implements FieldValueImporterInterface

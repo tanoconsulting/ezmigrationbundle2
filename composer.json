@@ -1,10 +1,15 @@
 {
-    "name": "tanoconsulting/ezmigrationbundle2",
+    "name": "wizhippo/ibexa-migration-bundle",
     "type": "symfony-bundle",
-    "description": "The port of Kaliop eZ-Migration Bundle to eZPlatorm 3 aka Ibexa",
-    "keywords": ["migrations", "database", "ezplatform"],
+    "description": "The port of Kaliop eZ-Migration Bundle to Ibexa 4",
+    "keywords": ["migrations", "database", "ibexa"],
     "license": "GPL-2.0",
     "authors": [
+        {
+            "name": "Douglas Hammond",
+            "email": "wizhippo@gmail.com",
+            "role": "Original author"
+        },
         {
             "name": "Gaetano Giunta",
             "email": "ggiunta@tanoconsulting.com",
@@ -17,12 +22,12 @@
         }
     ],
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^7.4|^8.0",
         "ext-ctype": "*",
         "ext-json": "*",
         "ext-pdo": "*",
         "doctrine/dbal": "^2.11|^3.0",
-        "ezsystems/ezplatform-kernel": "^1.0",
+        "ibexa/core": "^4.0",
         "mtdowling/jmespath.php": "^2.0.0",
         "nikic/php-parser": "^4.2.2",
         "symfony/process": "*",
@@ -35,18 +40,13 @@
         "phpunit/phpunit": "^8.5.12"
     },
     "conflict": {
-        "kaliop/ezmigrationbundle": "*"
+        "kaliop/ezmigrationbundle": "*",
+        "tanoconsulting/ezmigrationbundle2": "*"
     },
     "suggest": {
         "php-http/httplug-bundle": "Required for usage of HTTP/CALL migration steps"
     },
     "autoload": {
         "psr-4": { "Kaliop\\eZMigrationBundle\\": "" }
-    },
-    "funding": [
-        {
-            "type": "github",
-            "url": "https://github.com/sponsors/tanoconsulting"
-        }
-    ]
+    }
 }

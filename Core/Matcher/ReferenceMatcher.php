@@ -3,7 +3,7 @@
 namespace Kaliop\eZMigrationBundle\Core\Matcher;
 
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use eZ\Publish\API\Repository\Values\Content\Query\Criterion\Operator;
+use Ibexa\Contracts\Core\Repository\Values\Content\Query\Criterion\Operator;
 use Kaliop\eZMigrationBundle\API\ReferenceResolverInterface;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchConditionsException;
 

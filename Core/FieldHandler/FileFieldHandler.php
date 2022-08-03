@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\FieldHandler;
 
-use eZ\Publish\Core\IO\UrlDecorator;
+use Ibexa\Core\IO\UrlDecorator;
 
 class FileFieldHandler extends AbstractFieldHandler
 {

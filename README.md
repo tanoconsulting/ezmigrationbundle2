@@ -1,9 +1,9 @@
-TanoConsulting eZ-Migration-2 Bundle
+Wizhippo Ibexa-Migration-Bundle
 ====================================
 
-The replacement of [kaliop/ezmigrationbundle](https://github.com/kaliop-uk/ezmigrationbundle) for eZPlatform 3.
+The replacement of [kaliop/ezmigrationbundle](https://github.com/kaliop-uk/ezmigrationbundle) for Ibexa 4.
 
-This bundle makes it easy to programmatically deploy changes to eZPlatform database structure and contents.
+This bundle makes it easy to programmatically deploy changes to Ibexa database structure and contents.
 
 It is inspired by the [DoctrineMigrationsBundle](http://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html)
 
@@ -16,16 +16,16 @@ Please read [WHATSNEW.md](WHATSNEW.md) for details!
 
 ## Requirements
 
-* PHP 7.3 or later.
+* PHP 7.4 or later.
 
-* eZPlatform 3 (aka. Ibexa DXP).
+* Ibexa 4.0 (aka. Ibexa DXP).
 
 
 ## Installation
 
 ATM there is no stable release. The `master` branch is now `main`, so you have to run:
 
-    composer require 'tanoconsulting/ezmigrationbundle2:dev-main'
+    composer require 'wizhippo/ibexa-migration-bundle:dev-main'
 
 Then make sure that the bundle is active, generally by editing `config/bundles.php`
 
@@ -47,7 +47,7 @@ This indicates that the bundle has been installed and registered correctly.
 
 To get the latest version, you can update the bundle to the latest available version by using `composer`
 
-    composer update tanoconsulting/ezmigrationbundle2
+    composer update wizhippo/ibexa-migration-bundle
 
 ## Getting started
 
@@ -383,7 +383,7 @@ To run the tests:
     export KERNEL_CLASS=App\Kernel (or whatever you renamed it to)
     export APP_ENV=behat (or whatever your environment is)
 
-    bin/phpunit --stderr -c vendor/tanoconsulting/ezmigrationbundle2/phpunit.xml.dist
+    bin/phpunit --stderr -c vendor/wizhippo/ibexa-migration-bundle/phpunit.xml.dist
 
 *NB* the tests do *not* mock interaction with the database, but create/modify/delete many types of data in it.
 As such, there are good chances that running tests will leave stale/broken data.
@@ -439,6 +439,6 @@ You can even keep multiple test stacks available in parallel, by using different
 - run the tests via: `./teststack/teststack -e .euts.env.local runtests`
 
 
-[![License](https://poser.pugx.org/tanoconsulting/ezmigrationbundle2/license)](https://packagist.org/packages/tanoconsulting/ezmigrationbundle2)
-[![Latest Stable Version](https://poser.pugx.org/tanoconsulting/ezmigrationbundle2/v/stable)](https://packagist.org/packages/tanoconsulting/ezmigrationbundle2)
-[![Total Downloads](https://poser.pugx.org/tanoconsulting/ezmigrationbundle2/downloads)](https://packagist.org/packages/tanoconsulting/ezmigrationbundle2)
+[![License](https://poser.pugx.org/wizhippo/ibexa-migration-bundle/license)](https://packagist.org/packages/wizhippo/ibexa-migration-bundle)
+[![Latest Stable Version](https://poser.pugx.org/wizhippo/ibexa-migration-bundle/v/stable)](https://packagist.org/packages/wizhippo/ibexa-migration-bundle)
+[![Total Downloads](https://poser.pugx.org/wizhippo/ibexa-migration-bundle/downloads)](https://packagist.org/packages/wizhippo/ibexa-migration-bundle)

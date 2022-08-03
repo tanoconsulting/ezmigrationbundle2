@@ -2,11 +2,11 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Matcher;
 
-use eZ\Publish\API\Repository\Values\Content\Query;
-use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
-use eZ\Publish\API\Repository\Values\Content\Query\Criterion\Operator;
-use eZ\Publish\API\Repository\Repository;
-use eZ\Publish\Core\QueryType\QueryTypeRegistry;
+use Ibexa\Contracts\Core\Repository\Values\Content\Query;
+use Ibexa\Contracts\Core\Repository\Values\Content\Query\SortClause;
+use Ibexa\Contracts\Core\Repository\Values\Content\Query\Criterion\Operator;
+use Ibexa\Contracts\Core\Repository\Repository;
+use Ibexa\Core\QueryType\QueryTypeRegistry;
 use Kaliop\eZMigrationBundle\API\KeyMatcherInterface;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidSortConditionsException;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchConditionsException;
@@ -113,7 +113,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
     /**
      * @param $key
      * @param $values
-     * @return mixed should it be \eZ\Publish\API\Repository\Values\Content\Query\CriterionInterface ?
+     * @return mixed should it be \Ibexa\Contracts\Core\Repository\Values\Content\Query\CriterionInterface ?
      * @throws InvalidMatchConditionsException for unsupported keys
      */
     protected function getQueryCriterion($key, $values)
@@ -357,7 +357,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
 
     /**
      * @todo investigate how to better return the 'legacy' (db based) search engine even when a Solr-based one is available
-     * @return \eZ\Publish\API\Repository\SearchService
+     * @return \Ibexa\Contracts\Core\Repository\SearchService
      */
     protected function getSearchService()
     {

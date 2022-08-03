@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
-use eZ\Publish\API\Repository\Values\ContentType\ContentTypeGroup;
+use Ibexa\Contracts\Core\Repository\Values\ContentType\ContentTypeGroup;
 use Kaliop\eZMigrationBundle\API\Collection\ContentTypeGroupCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
 use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
@@ -29,7 +29,7 @@ class ContentTypeGroupManager extends RepositoryExecutor implements MigrationGen
     }
 
     /**
-     * @return \eZ\Publish\API\Repository\Values\ContentType\ContentTypeGroup
+     * @return \Ibexa\Contracts\Core\Repository\Values\ContentType\ContentTypeGroup
      * @throws \Exception
      * @todo add support for setting creator id
      */
@@ -177,7 +177,7 @@ class ContentTypeGroupManager extends RepositoryExecutor implements MigrationGen
         $contentTypeGroupCollection = $this->contentTypeGroupMatcher->match($matchCondition);
         $data = array();
 
-        /** @var \eZ\Publish\API\Repository\Values\ContentType\ContentTypeGroup $contentTypeGroup */
+        /** @var \Ibexa\Contracts\Core\Repository\Values\ContentType\ContentTypeGroup $contentTypeGroup */
         foreach ($contentTypeGroupCollection as $contentTypeGroup) {
 
             $contentTypeGroupData = array(

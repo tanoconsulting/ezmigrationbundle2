@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
-use eZ\Publish\API\Repository\Values\Content\Location;
+use Ibexa\Contracts\Core\Repository\Values\Content\Location;
 use Kaliop\eZMigrationBundle\API\Collection\ContentCollection;
 use Kaliop\eZMigrationBundle\API\Collection\LocationCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
@@ -471,7 +471,7 @@ class LocationManager extends RepositoryExecutor
     /**
      * Get the sort order based on the current value and the value in the DSL definition.
      *
-     * @see \eZ\Publish\API\Repository\Values\Content\Location::SORT_ORDER_*
+     * @see \Ibexa\Contracts\Core\Repository\Values\Content\Location::SORT_ORDER_*
      *
      * @param int $newValue
      * @param int $currentValue

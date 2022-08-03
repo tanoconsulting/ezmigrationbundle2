@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class TrashedItemCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\Content\TrashItem';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\Content\TrashItem';
 }

@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Helper;
 
-use eZ\Publish\API\Repository\Values\Content\Location;
+use Ibexa\Contracts\Core\Repository\Values\Content\Location;
 
 class SortConverter
 {
@@ -24,7 +24,7 @@ class SortConverter
             }
             $sortFieldId = "SORT_FIELD_" . strtoupper($value);
 
-            $ref = new \ReflectionClass('eZ\Publish\API\Repository\Values\Content\Location');
+            $ref = new \ReflectionClass('Ibexa\Contracts\Core\Repository\Values\Content\Location');
 
             $sortField = $ref->getConstant($sortFieldId);
         }
@@ -39,7 +39,7 @@ class SortConverter
      */
     public function sortField2Hash($value)
     {
-        $ref = new \ReflectionClass('eZ\Publish\API\Repository\Values\Content\Location');
+        $ref = new \ReflectionClass('Ibexa\Contracts\Core\Repository\Values\Content\Location');
         foreach($ref->getConstants() as $key => $val) {
             if (strpos($key, 'SORT_FIELD_') === 0 && $val == $value) {
                 $out = strtolower(substr($key, 11));
@@ -59,7 +59,7 @@ class SortConverter
     /**
      * Get the sort order based on the current value and the value in the DSL definition.
      *
-     * @see \eZ\Publish\API\Repository\Values\Content\Location::SORT_ORDER_*
+     * @see \Ibexa\Contracts\Core\Repository\Values\Content\Location::SORT_ORDER_*
      *
      * @param string $value ASC|DESC
      * @return int

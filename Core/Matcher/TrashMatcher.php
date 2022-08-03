@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Matcher;
 
-use eZ\Publish\API\Repository\Values\Content\Query;
+use Ibexa\Contracts\Core\Repository\Values\Content\Query;
 use Kaliop\eZMigrationBundle\API\Collection\TrashedItemCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchConditionsException;
 

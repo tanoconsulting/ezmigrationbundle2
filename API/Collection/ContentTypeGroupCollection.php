@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class ContentTypeGroupCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\ContentType\ContentTypeGroup';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\ContentType\ContentTypeGroup';
 }

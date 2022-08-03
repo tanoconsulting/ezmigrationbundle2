@@ -2,7 +2,7 @@
 
 include_once(__DIR__.'/MigrationExecutingTest.php');
 
-use eZ\Publish\Core\Repository\Values\User\UserReference;
+use Ibexa\Core\Repository\Values\User\UserReference;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\Tests\helper\BeforeStepExecutionListener;
 use Kaliop\eZMigrationBundle\Tests\helper\StepExecutedListener;
@@ -104,12 +104,12 @@ class MigrateTest extends MigrationExecutingTest
 
         // check that the 1st content was created with the yml-specified language
         $content = $contentService->loadContentByRemoteId('kmb_test_18_content_1', null, null, false);
-        $this->assertInstanceOf('eZ\Publish\API\Repository\Values\Content\Content', $content);
+        $this->assertInstanceOf('Ibexa\Contracts\Core\Repository\Values\Content\Content', $content);
         $this->assertSame('eng-GB', $content->contentInfo->mainLanguageCode);
 
         // check that the 2nd content was created with the default language from cli
         $content = $contentService->loadContentByRemoteId('kmb_test_18_content_2', [$defaultLanguage], null, false);
-        $this->assertInstanceOf('eZ\Publish\API\Repository\Values\Content\Content', $content);
+        $this->assertInstanceOf('Ibexa\Contracts\Core\Repository\Values\Content\Content', $content);
         $this->assertSame($defaultLanguage, $content->contentInfo->mainLanguageCode);
 
         // cleanup
@@ -362,7 +362,7 @@ class MigrateTest extends MigrationExecutingTest
     /**
      * Get the eZ repository
      * @param int $loginUserId
-     * @return \eZ\Publish\API\Repository\Repository
+     * @return \Ibexa\Contracts\Core\Repository\Repository
      */
     protected function getRepository($loginUserId = \Kaliop\eZMigrationBundle\Core\MigrationService::ADMIN_USER_ID)
     {

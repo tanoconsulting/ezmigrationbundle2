@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class ObjectStateCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\ObjectState\ObjectState';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\ObjectState\ObjectState';
 }

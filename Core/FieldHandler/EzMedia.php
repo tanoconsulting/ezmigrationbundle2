@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\FieldHandler;
 
-use eZ\Publish\Core\FieldType\Media\Value as MediaValue;
+use Ibexa\Core\FieldType\Media\Value as MediaValue;
 use Kaliop\eZMigrationBundle\API\FieldValueConverterInterface;
 
 class EzMedia extends FileFieldHandler implements FieldValueConverterInterface
@@ -79,7 +79,7 @@ class EzMedia extends FileFieldHandler implements FieldValueConverterInterface
     }
 
     /**
-     * @param \eZ\Publish\Core\FieldType\Media\Value $fieldValue
+     * @param \Ibexa\Core\FieldType\Media\Value $fieldValue
      * @param array $context
      * @return array
      *

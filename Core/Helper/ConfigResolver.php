@@ -3,7 +3,7 @@
 namespace Kaliop\eZMigrationBundle\Core\Helper;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use eZ\Publish\Core\MVC\ConfigResolverInterface;
+use Ibexa\Contracts\Core\SiteAccess\ConfigResolverInterface;
 use Kaliop\eZMigrationBundle\API\ConfigResolverInterface as KMBConfigResolverInterface;
 
 /**

@@ -2,11 +2,11 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Matcher;
 
-use eZ\Publish\API\Repository\Exceptions\InvalidArgumentException;
-use eZ\Publish\API\Repository\Exceptions\NotImplementedException;
-use eZ\Publish\API\Repository\Exceptions\UnauthorizedException;
-use eZ\Publish\API\Repository\Values\Content\Content;
-use eZ\Publish\API\Repository\Values\Content\Query;
+use Ibexa\Contracts\Core\Repository\Exceptions\InvalidArgumentException;
+use Ibexa\Contracts\Core\Repository\Exceptions\NotImplementedException;
+use Ibexa\Contracts\Core\Repository\Exceptions\UnauthorizedException;
+use Ibexa\Contracts\Core\Repository\Values\Content\Content;
+use Ibexa\Contracts\Core\Repository\Values\Content\Query;
 use Kaliop\eZMigrationBundle\API\Collection\ContentCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchConditionsException;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidSortConditionsException;
@@ -356,11 +356,11 @@ class ContentMatcher extends QueryBasedMatcher implements SortingMatcherInterfac
     }
 
     /**
-     * @return false|\eZ\Publish\API\Repository\Values\Content\Query\SortClause[]
+     * @return false|\Ibexa\Contracts\Core\Repository\Values\Content\Query\SortClause[]
      */
     protected function getDefaultSortClauses()
     {
-        if (class_exists('eZ\Publish\API\Repository\Values\Content\Query\SortClause\LocationDepth')) {
+        if (class_exists('Ibexa\Contracts\Core\Repository\Values\Content\Query\SortClause\LocationDepth')) {
             // Work around the fact that, on eZP 5.4 with recent ezplatform-solr-search-engine versions, sort class
             // LocationDepth does exist, but it is not supported by the Solr-based search engine.
             // The best workaround that we found so far: test a dummy query!

@@ -2,9 +2,9 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
-use eZ\Publish\API\Repository\Repository;
-use eZ\Publish\API\Repository\Values\User\UserReference;
-use eZ\Publish\Core\MVC\ConfigResolverInterface;
+use Ibexa\Contracts\Core\Repository\Repository;
+use Ibexa\Contracts\Core\Repository\Values\User\UserReference;
+use Ibexa\Contracts\Core\SiteAccess\ConfigResolverInterface;
 use Kaliop\eZMigrationBundle\API\Collection\AbstractCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
 use Kaliop\eZMigrationBundle\API\ReferenceResolverBagInterface;
@@ -45,7 +45,7 @@ abstract class RepositoryExecutor extends AbstractExecutor
     /**
      * The eZ Publish 5 API repository.
      *
-     * @var \eZ\Publish\API\Repository\Repository
+     * @var \Ibexa\Contracts\Core\Repository\Repository
      */
     protected $repository;
 
@@ -186,7 +186,7 @@ abstract class RepositoryExecutor extends AbstractExecutor
     /**
      * @param array $context
      *
-     * @return \eZ\Publish\API\Repository\Values\User\UserReference previously logged-in user
+     * @return \Ibexa\Contracts\Core\Repository\Values\User\UserReference previously logged-in user
      *
      * @throws \Kaliop\eZMigrationBundle\API\Exception\InvalidUserAccountException
      */

@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class ContentCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\Content\Content';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\Content\Content';
 }

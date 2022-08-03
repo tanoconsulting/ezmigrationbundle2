@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class UserCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\User\User';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\User\User';
 }

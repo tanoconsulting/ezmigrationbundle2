@@ -2,7 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\FieldHandler;
 
-use eZ\Publish\Core\FieldType\Image\Value as ImageValue;
+use Ibexa\Core\FieldType\Image\Value as ImageValue;
 use Kaliop\eZMigrationBundle\API\FieldValueConverterInterface;
 
 class EzImage extends FileFieldHandler implements FieldValueConverterInterface
@@ -54,7 +54,7 @@ class EzImage extends FileFieldHandler implements FieldValueConverterInterface
     }
 
     /**
-     * @param \eZ\Publish\Core\FieldType\Image\Value $fieldValue
+     * @param \Ibexa\Core\FieldType\Image\Value $fieldValue
      * @param array $context
      * @return array
      *

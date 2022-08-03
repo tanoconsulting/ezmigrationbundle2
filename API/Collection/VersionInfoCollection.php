@@ -7,5 +7,5 @@ namespace Kaliop\eZMigrationBundle\API\Collection;
  */
 class VersionInfoCollection extends AbstractCollection
 {
-    protected $allowedClass = 'eZ\Publish\API\Repository\Values\Content\VersionInfo';
+    protected $allowedClass = 'Ibexa\Contracts\Core\Repository\Values\Content\VersionInfo';
 }

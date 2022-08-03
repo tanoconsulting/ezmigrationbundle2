@@ -18,7 +18,7 @@ class EzDateAndTime extends AbstractFieldHandler implements FieldValueConverterI
     }
 
     /**
-     * @param \eZ\Publish\Core\FieldType\DateAndTime\Value $fieldValue
+     * @param \Ibexa\Core\FieldType\DateAndTime\Value $fieldValue
      * @param array $context
      * @return int|null timestamp
      */

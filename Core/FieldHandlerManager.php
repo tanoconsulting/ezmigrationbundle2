@@ -5,7 +5,7 @@ namespace Kaliop\eZMigrationBundle\Core;
 use Kaliop\eZMigrationBundle\API\FieldValueImporterInterface;
 use Kaliop\eZMigrationBundle\API\FieldDefinitionConverterInterface;
 use Kaliop\eZMigrationBundle\API\FieldValueConverterInterface;
-use eZ\Publish\API\Repository\FieldTypeService;
+use Ibexa\Contracts\Core\Repository\FieldTypeService;
 
 class FieldHandlerManager
 {
@@ -96,7 +96,7 @@ class FieldHandlerManager
     /**
      * @param string $fieldTypeIdentifier
      * @param string $contentTypeIdentifier
-     * @param \eZ\Publish\SPI\FieldType\Value $value
+     * @param \Ibexa\Contracts\Core\FieldType\Value $value
      * @param array $context
      * @return mixed
      */
