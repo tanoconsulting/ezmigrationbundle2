@@ -22,15 +22,15 @@ jobs:
                 # @see https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners for available os versions
                 # @todo add some tests running on 'windows-latest'
                 include:
-                    - php: '7.3'
-                      ez_bundles: 'Kaliop\eZMigrationBundle\EzMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
+                    - php: '7.2'
+                      ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
                       ez_packages: 'ezsystems/ezplatform:^3.1.5 ezsystems/ezplatform-xmltext-fieldtype:^2.0 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
                       operating-system: 'ubuntu-20.04'
-                    - php: '7.4'
+                    - php: '7.3'
                       ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
                       ez_packages: 'ezsystems/ezplatform:^3.2.8 ezsystems/ezplatform-xmltext-fieldtype:^2.0.2 netgen/tagsbundle:^4.0.18 lolautruche/ez-core-extra-bundle:^3.0 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
                       operating-system: 'ubuntu-22.04'
-                    - php: '8.0'
+                    - php: '7.4'
                       # We should replace ezsystems/ezplatform:^3.3.0-rc2 with ibexa/content-skeleton for ezplatform 3.3,
                       # alas that one depends on non-public package ibexa/content
                       # Also, ezsystems/ezplatform-xmltext-fieldtype does not support php 8
