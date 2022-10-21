@@ -101,6 +101,7 @@
             searchable: true|false # Optional
             info-collector: true|false # Optional
             disable-translation: true|false # Optional
+            is-thumbnail: true|false # Optional
             category: default|meta # Optional
             default-value: # Optional
             field-settings: array # Optional, can be used for various field type specific settings
@@ -185,6 +186,7 @@
             searchable: true|false # Optional, will be updated if set
             info-collector: true|false # Optional, will be updated if set
             disable-translation: true|false # Optional, will be updated if set
+            is-thumbnail: true|false # Optional, will be updated if set
             category: default|meta # Optional, will be updated if set
             default-value: # Optional, will be updated if set
             field-settings: array # Optional, can be used for various field type specific settings
