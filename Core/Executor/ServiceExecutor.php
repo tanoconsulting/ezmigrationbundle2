@@ -87,7 +87,7 @@ class ServiceExecutor extends AbstractExecutor
         $result = null;
         try {
             $result = call_user_func_array($callable, $args);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $catch = false;
 
             // allow to specify a set of exceptions to tolerate

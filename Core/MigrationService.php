@@ -400,7 +400,7 @@ class MigrationService implements ContextProviderInterface
                 $this->authenticateUserByReference($currentUser);
             }
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             /// @todo shall we emit a signal as well?
 
             $errorMessage = $this->getFullExceptionMessage($e) . ' in file ' . $e->getFile() . ' line ' . $e->getLine();
@@ -417,7 +417,7 @@ class MigrationService implements ContextProviderInterface
                     // there is no need to become admin here, at least in theory
                     $this->repository->rollBack();
 
-                } catch (\Exception $e2) {
+                } catch (\Throwable $e2) {
                     // This check is not rock-solid, but at the moment is all we can do to tell apart 2 cases of
                     // exceptions originating above: the case where the commit was successful but handling of a commit-queue
                     // signal failed, from the case where something failed beforehand.
