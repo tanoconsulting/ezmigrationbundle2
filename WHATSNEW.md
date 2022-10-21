@@ -3,9 +3,8 @@ Version: unreleased
 
 * Fixed: one php exception upon throwing an exception (for bad content_type/create steps)
 
-* Moved from Travis to GitHub Actions fo testing
+* Moved from Travis to GitHub Actions for testing
 
-* Moved principal branch from `master` branch to `main`
 
 Version 1.0-alpha2
 ==================

@@ -31,9 +31,11 @@ jobs:
                       ez_packages: 'ezsystems/ezplatform:^3.2.8 ezsystems/ezplatform-xmltext-fieldtype:^2.0.2 netgen/tagsbundle:^4.0.18 lolautruche/ez-core-extra-bundle:^3.0 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1'
                       operating-system: 'ubuntu-22.04'
                     - php: '8.0'
-                      # we replaced ezsystems/ezplatform:^3.3.0-rc2 with ibexa/content-skeleton for ezplatform 3.3
+                      # We should replace ezsystems/ezplatform:^3.3.0-rc2 with ibexa/content-skeleton for ezplatform 3.3,
+                      # alas that one depends on non-public package ibexa/content
+                      # Also, ezsystems/ezplatform-xmltext-fieldtype does not support php 8
                       ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
-                      ez_packages: 'ibexa/content-skeleton:^3.3.27 ezsystems/ezplatform-xmltext-fieldtype:^2.0 netgen/tagsbundle:^4.0 ezsystems/behatbundle:^7.0 sensio/generator-bundle overblog/graphiql-bundle'
+                      ez_packages: 'ezsystems/ezplatform:^3.3.0-rc2 netgen/tagsbundle:^4.0 ezsystems/behatbundle:^7.0 sensio/generator-bundle overblog/graphiql-bundle'
                       ez_composer_lock: ''
                       operating-system: 'ubuntu-22.04'
 #                    - php: '8.1'
