@@ -3,7 +3,7 @@ eZMigrationBundle2 deprecations and backwards compatibility breaks
 
 Upgrade notes for developers coming from an ezmgrationbundle installation.
 
-* the default migration directory name is now `MigrationsDefinitons`, instead of `MigrationVersions`.
+* the default migration directory name is now `MigrationsDefinitions`, instead of `MigrationVersions`.
   A Symfony parameter is available to tweak that name if you feel the need to.
   Also, the `src/MigrationsDefinitons` directory is searched for migrations, if it exists, besides the
   bundles directories.

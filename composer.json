@@ -12,7 +12,6 @@
         },
         {
             "name": "Peter Halasz",
-            "email": "peter.halasz@kaliop.co.uk",
             "role": "Original author"
         }
     ],
@@ -42,6 +41,13 @@
     },
     "autoload": {
         "psr-4": { "Kaliop\\eZMigrationBundle\\": "" }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "symfony/flex": true,
+            "symfony/thanks": true
+        }
     },
     "funding": [
         {
