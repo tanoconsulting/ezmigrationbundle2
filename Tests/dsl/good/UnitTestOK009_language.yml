@@ -213,9 +213,9 @@
     name: Klingon
     enabled: false
 
-# NB: known to fail with ezplatform 3.2.4 and earlier...
--
-    type: language
-    mode: delete
-    match:
-        language_code: abc-DE
+# NB: known to fail with ezplatform 3.2.4 and earlier... possibly still with 3.2.8 :-(
+#-
+#    type: language
+#    mode: delete
+#    match:
+#        language_code: abc-DE
