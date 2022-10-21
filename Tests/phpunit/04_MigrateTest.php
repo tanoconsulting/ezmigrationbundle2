@@ -119,8 +119,9 @@ class MigrateTest extends MigrationExecutingTest
         $contentTypeService = $repository->getContentTypeService();
         $contentTypeService->deleteContentType($contentTypeService->loadContentTypeByIdentifier('kmb_test_18'));
 
-        $langService = $repository->getContentLanguageService();
-        $langService->deleteLanguage($langService->loadLanguage($defaultLanguage));
+        // commented out while we wait for the fix to EZP-32349
+        //$langService = $repository->getContentLanguageService();
+        //$langService->deleteLanguage($langService->loadLanguage($defaultLanguage));
 
         $this->deleteMigration($filePath);
     }
