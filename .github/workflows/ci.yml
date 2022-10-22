@@ -7,7 +7,7 @@ jobs:
         runs-on: ${{ matrix.operating-system }}
         env:
             SYMFONY_ENV: behat
-            DB_HOST: localhost
+            DB_HOST: 127.0.0.1
             DB_TYPE: mysql
             DB_ROOT_PASSWORD: root
             DB_EZ_USER: ezp
@@ -40,8 +40,9 @@ jobs:
                     #  ez_composer_lock: ''
                     #  operating-system: 'ubuntu-22.04'
         steps:
-            -
+            -   name: checkout code
                 uses: actions/checkout@v2
+
             # Although this action is useful, we prefer to use the same script to set up php that we use for the
             # docker image used for local testing. This allows us to make sure that script is always in good shape
             #-
@@ -53,39 +54,46 @@ jobs:
             #        #tools: phpunit/phpunit:a_version_compatible_with_php_5.3-5.5
             #        # NB: this disables xdebug completely
             #        coverage: none
-            -
+
+            -   name: get the teststack
                 run: |
                     git clone --depth 1 https://github.com/tanoconsulting/euts.git teststack
                     # just in case...
                     chmod 755 ./teststack/bin/*.sh  ./teststack/bin/setup/*.sh
-            # Avoid downloading composer deps on every workflow. Is this useful/working for us?
+
+            # @todo avoid downloading composer deps on every workflow. Is this useful/working for us?
             #-
             #    uses: actions/cache@v2
             #    with:
             #        path: /tmp/composer-cache
             #        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+            # @todo stop any unused service to save ram/cpu
+
             # This sets up php and starts mysql
-            -
+            -   name: set up the test env
                 run: './teststack/bin/setup.sh'
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            -
+
+            -   name: run tests and generate code coverage
                 if: ${{ matrix.php == '7.4' }}
                 run: |
                     ./teststack/bin/runtests.sh -c coverage.clover
                     if [ -f coverage.clover ]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
                     if [ -f coverage.clover ]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -t ${CODECOV_TOKEN} -f coverage.clover; fi
-            -
+            -   name: run tests
                 if: ${{ matrix.php != '7.4' }}
                 run: './teststack/bin/runtests.sh'
-            -
+
+            -   name: troubleshoot
                 if: ${{ failure() }}
                 run: |
-                    #env
-                    #php -i
-                    #ps auxwww
+                    env
+                    php -i
+                    systemctl list-units --all --type=service --no-pager | grep running
+                    ps auxwww
                     #dpkg --list | grep php
-                    #ps auxwww | grep fpm
                     #pwd
                     #sudo env
                     #ls -ltr /var/log
