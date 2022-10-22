@@ -1,5 +1,7 @@
-Version: unreleased
-====================
+Version: 1.0-alpha3 (unreleased)
+================================
+
+* New: support `is-thumbnail` attribute for Content Type Fields
 
 * Fixed: one php exception upon throwing an exception (for bad content_type/create steps)
 
