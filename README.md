@@ -442,3 +442,6 @@ You can even keep multiple test stacks available in parallel, by using different
 [![License](https://poser.pugx.org/tanoconsulting/ezmigrationbundle2/license)](https://packagist.org/packages/tanoconsulting/ezmigrationbundle2)
 [![Latest Stable Version](https://poser.pugx.org/tanoconsulting/ezmigrationbundle2/v/stable)](https://packagist.org/packages/tanoconsulting/ezmigrationbundle2)
 [![Total Downloads](https://poser.pugx.org/tanoconsulting/ezmigrationbundle2/downloads)](https://packagist.org/packages/tanoconsulting/ezmigrationbundle2)
+
+[![Build Status](https://github.com/tanoconsulting/ezmigrationbundle2/actions/workflows/ci.yml/badge.svg)](https://github.com/tanoconsulting/ezmigrationbundle2/actions/workflows/ci.yml)
+[![Code Coverage](https://codecov.io/gh/tanoconsulting/ezmigrationbundle2/branch/main/graph/badge.svg)](https://codecov.io/gh/tanoconsulting/ezmigrationbundle2/tree/main)
