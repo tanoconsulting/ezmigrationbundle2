@@ -20,8 +20,8 @@ jobs:
             fail-fast: false
             matrix:
                 # @see https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners for available os versions
-                # @todo add some tests running on 'windows-latest'
                 include:
+                    # @todo add test for eZPlatform 3.0
                     - php: '7.3'
                       ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
                       ez_packages: 'ezsystems/ezplatform:^3.1.5 ezsystems/ezplatform-xmltext-fieldtype:^2.0 netgen/tagsbundle:^4.0.15 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
