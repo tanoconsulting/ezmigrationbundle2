@@ -21,19 +21,27 @@ jobs:
             matrix:
                 # @see https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners for available os versions
                 include:
-                    # @todo add test for eZPlatform 3.0
+                    - php: '7.3'
+                      ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
+                      ez_packages: 'ezsystems/ezplatform:^3.0.6 ezsystems/ezplatform-xmltext-fieldtype:^2.0 netgen/tagsbundle:^4.0.15 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
+                      operating-system: 'ubuntu-20.04'
+                      code-coverage: ~
                     - php: '7.3'
                       ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
                       ez_packages: 'ezsystems/ezplatform:^3.1.5 ezsystems/ezplatform-xmltext-fieldtype:^2.0 netgen/tagsbundle:^4.0.15 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
                       operating-system: 'ubuntu-20.04'
+                      code-coverage: ~
                     - php: '7.4'
                       ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
                       ez_packages: 'ezsystems/ezplatform:^3.2.8 ezsystems/ezplatform-xmltext-fieldtype:^2.0.2 netgen/tagsbundle:^4.0.18 lolautruche/ez-core-extra-bundle:^3.0 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
                       operating-system: 'ubuntu-22.04'
+                      code-coverage: codecov
+                    # @todo add tests for eZPlatform 3.3
                     #- php: '8.0'
                     #  ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
                     #  ez_packages: 'ibexa/oss:^3.3.13 netgen/tagsbundle:^4.0 ezsystems/behatbundle:^8.3.6 sensio/generator-bundle overblog/graphiql-bundle'
                     #  operating-system: 'ubuntu-22.04'
+                    #  code-coverage: ~
         steps:
             -   name: checkout code
                 uses: actions/checkout@v2
@@ -73,22 +81,24 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: run tests and generate code coverage
-                if: ${{ matrix.php == '7.4' }}
                 run: |
-                    ./teststack/bin/runtests.sh -c coverage.clover
-                    #if [ -f coverage.clover ]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
-                    if [ -f coverage.clover ]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -t ${CODECOV_TOKEN} -f coverage.clover; fi
-            -   name: run tests
-                if: ${{ matrix.php != '7.4' }}
-                run: './teststack/bin/runtests.sh'
+                    if [ -z "${{ matrix.code-coverage }}" ]; then
+                        ./teststack/bin/runtests.sh
+                    else
+                        ./teststack/bin/runtests.sh -c coverage.clover
+                        if [ -f coverage.clover ]; then
+                            if [ "${{ matrix.code-coverage }}" = scrutinizer ]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
+                            if [ "${{ matrix.code-coverage }}" = codecov ]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -t ${CODECOV_TOKEN} -f coverage.clover; fi
+                        fi
+                    fi
 
             -   name: troubleshoot
                 if: ${{ failure() }}
                 run: |
-                    env
-                    php -i
-                    systemctl list-units --all --type=service --no-pager | grep running
-                    ps auxwww
+                    #env
+                    #php -i
+                    #systemctl list-units --all --type=service --no-pager | grep running
+                    #ps auxwww
                     #dpkg --list | grep php
                     #pwd
                     #sudo env
