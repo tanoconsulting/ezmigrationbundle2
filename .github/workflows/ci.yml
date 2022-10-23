@@ -33,16 +33,15 @@ jobs:
                       code-coverage: ~
                     - php: '7.4'
                       ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
-                      ez_packages: 'ezsystems/ezplatform:^3.2.8 ezsystems/ezplatform-xmltext-fieldtype:^2.0.2 netgen/tagsbundle:^4.0.18 lolautruche/ez-core-extra-bundle:^3.0 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
+                      ez_packages: 'ezsystems/ezplatform:^3.2.8 ezsystems/ezplatform-xmltext-fieldtype:^2.0.2 netgen/tagsbundle:^4.0.18 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
                       operating-system: 'ubuntu-22.04'
                       code-coverage: codecov
-                    # @todo add tests for eZPlatform 3.3
-                    #- php: '8.0'
-                    #  # ezxmltext is probably fine with eZPlatform 3.3, but it does not support php 8
-                    #  ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
-                    #  ez_packages: 'ibexa/oss:^3.3.13 netgen/tagsbundle:^4.0 ezsystems/behatbundle:^8.3.6 sensio/generator-bundle overblog/graphiql-bundle'
-                    #  operating-system: 'ubuntu-22.04'
-                    #  code-coverage: ~
+                    - php: '8.0'
+                      # ezxmltext is probably fine with eZPlatform 3.3, but it does not support php 8
+                      ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
+                      ez_packages: 'ibexa/oss-skeleton:^3.3.13 netgen/tagsbundle:^4.0.18 ezsystems/behatbundle:^8.3.6 overblog/graphiql-bundle:^0.2.1'
+                      operating-system: 'ubuntu-22.04'
+                      code-coverage: ~
         steps:
             -   name: checkout code
                 uses: actions/checkout@v2
