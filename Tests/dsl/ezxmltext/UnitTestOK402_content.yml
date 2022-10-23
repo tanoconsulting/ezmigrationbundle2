@@ -22,9 +22,18 @@
         -
             identifier: kmb_test_402
             attribute: identifier
-        -
-            identifier: kmb_test_402_0
-            attribute: id
+
+-
+    type: content
+    mode: create
+    content_type: kmb_test_402
+    parent_location: 2
+    attributes:
+        ezstring: null
+        ezxmltext: null
+    references:
+        -   identifier: kmb_test_402_1
+            attribute: content_id
 
 -
     type: content
@@ -36,17 +45,7 @@
     attributes:
         - ezstring: hello world 4
         - ezxmltext:
-            #content: '<section><paragraph>Hello there! Here is an embedded object: <embed view="embed" size="medium" object_id="[reference:kmb_test_402_1]" /></paragraph></section>'
-          content: '<section><paragraph>Hello there! Here should be an embedded object. The test need to be re-expanded..." /></paragraph></section>'
-
--
-    type: content
-    mode: create
-    content_type: kmb_test_402
-    parent_location: 2
-    attributes:
-        ezstring: null
-        ezxmltext: null
+            content: '<section><paragraph>Hello there! Here is an embedded object: <embed view="embed" size="medium" object_id="[reference:kmb_test_402_1]" /></paragraph></section>'
 
 # @todo add some content loading and assertions checking the xmltext contents
 
