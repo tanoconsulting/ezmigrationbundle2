@@ -36,7 +36,8 @@
     attributes:
         - ezstring: hello world 4
         - ezxmltext:
-            content: '<section><paragraph>Hello there! Here is an embedded object: <embed view="embed" size="medium" object_id="[reference:kmb_test_402_1]" /></paragraph></section>'
+            #content: '<section><paragraph>Hello there! Here is an embedded object: <embed view="embed" size="medium" object_id="[reference:kmb_test_402_1]" /></paragraph></section>'
+          content: '<section><paragraph>Hello there! Here should be an embedded object. The test need to be re-expanded..." /></paragraph></section>'
 
 -
     type: content
