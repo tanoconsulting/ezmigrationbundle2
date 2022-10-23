@@ -1,0 +1,83 @@
+# test  creation / updating / deleting of content. We use a custom content type for that, not to rely on the standard ones...
+
+-
+    type: content_type
+    mode: create
+    content_type_group: 1
+    identifier: kmb_test_402
+    name: Kaliop Migration Bundle Test Class 402
+    name_pattern: '<ezstring>'
+    is_container: true
+    always_available: true
+    attributes:
+        -
+            type: ezstring
+            name: ezstring
+            identifier: ezstring
+        -
+            type: ezxmltext
+            name: ezxmltext
+            identifier: ezxmltext
+    references:
+        -
+            identifier: kmb_test_402
+            attribute: identifier
+        -
+            identifier: kmb_test_402_0
+            attribute: id
+
+-
+    type: content
+    mode: create
+    content_type: reference:kmb_test_402
+    parent_location: 2
+    priority: 1999
+    remote_id: this_is_a_test_remoteid
+    attributes:
+        - ezstring: hello world 4
+        - ezxmltext:
+            content: '<section><paragraph>Hello there! Here is an embedded object: <embed view="embed" size="medium" object_id="[reference:kmb_test_402_1]" /></paragraph></section>'
+
+-
+    type: content
+    mode: create
+    content_type: kmb_test_402
+    parent_location: 2
+    attributes:
+        ezstring: null
+        ezxmltext: null
+
+# @todo add some content loading and assertions checking the xmltext contents
+
+-
+    type: content
+    mode: delete
+    match:
+        content_type: reference:kmb_test_402
+    references:
+        -
+            identifier: kmb_test_402_6_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_402_6_count
+    test:
+        equals: 2
+
+-
+    type: content_type
+    mode: delete
+    identifier: 'reference:kmb_test_402'
+    references:
+        -
+            identifier: kmb_test_402_7_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_402_7_count
+    test:
+        equals: 1

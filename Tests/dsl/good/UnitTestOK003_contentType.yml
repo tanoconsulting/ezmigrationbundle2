@@ -244,10 +244,6 @@
             type: ezuser
             name: ezuser
             identifier: ezuser
-        #-
-        #    type: ezxmltext
-        #    name: ezxmltext
-        #    identifier: ezxmltext
     references:
         -
             identifier: kmb_test_003_6_count

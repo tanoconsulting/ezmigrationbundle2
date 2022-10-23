@@ -5,7 +5,8 @@ Version: 1.0-alpha3 (unreleased)
 
 * Fixed: one php exception upon throwing an exception (for bad content_type/create steps)
 
-* Fixed: support for php 8.0 - replace catching \Exception with \Error in places required to make testsuite pass
+* Fixed: support for php 8.0 - replace catching \Exception with \Error in places required to make testsuite pass, fix
+  a problem with null RelationList fields
 
 * Moved from Travis to GitHub Actions for testing. Test with all eZ versions from 3.0 to 3.3
 

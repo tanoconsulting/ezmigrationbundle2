@@ -1,0 +1,88 @@
+# test creation/updating/deleting of a custom content type
+# NB: assumes that 'folder' ContentType is available
+
+-
+    type: content_type
+    mode: create
+    content_type_group: 1
+    name: Kaliop Migration Bundle Test Class 401
+    identifier: kmb_test_401
+    description: Kaliop Migration Bundle Test Class 401
+    name_pattern: <title>
+    default_always_available: true
+    default_sort_field: priority
+    default_sort_order: asc
+    attributes:
+        -
+            type: ezstring
+            name: Title
+            identifier: title
+            description: Title
+            required: true
+            searchable: true
+        -
+            type: ezxmltext
+            name: ezxmltext
+            identifier: ezxmltext
+    references:
+        -
+            identifier: kmb_test_401_1_identifier
+            attribute: identifier
+        -
+            identifier: kmb_test_401_1_content_type_id
+            attribute: content_type_id
+        -
+            identifier: kmb_test_401_1_creation_date
+            attribute: creation_date
+        -
+            identifier: kmb_test_401_1_default_always_available
+            attribute: default_always_available
+        -
+            identifier: kmb_test_401_1_default_sort_field
+            attribute: default_sort_field
+        -
+            identifier: kmb_test_401_1_default_sort_order
+            attribute: default_sort_order
+        -
+            identifier: kmb_test_401_1_is_container
+            attribute: is_container
+        -
+            identifier: kmb_test_401_1_modification_date
+            attribute: modification_date
+        -
+            identifier: kmb_test_401_1_name_pattern
+            attribute: name_pattern
+        -
+            identifier: kmb_test_401_1_remote_id
+            attribute: remote_id
+        -
+            identifier: kmb_test_401_1_status
+            attribute: status
+        -
+            identifier: kmb_test_401_1_url_name_pattern
+            attribute: url_name_pattern
+        -
+            identifier: kmb_test_401_1_content_type_identifier
+            attribute: content_type_identifier
+        -
+            identifier: kmb_test_401_1_id
+            attribute: id
+
+# @todo add some assertions, eg load the ContentType and set a ref to the attribute
+
+-
+    type: content_type
+    mode: delete
+    match:
+        identifier: 'reference:kmb_test_401_1_identifier'
+    references:
+        -
+            identifier: kmb_test_401_2_count
+            attribute: count
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_401_2_count
+    test:
+        equals: 1

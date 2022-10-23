@@ -108,10 +108,6 @@
         #    type: ezuser
         #    name: ezuser
         #    identifier: ezuser
-        -
-            type: ezxmltext
-            name: ezxmltext
-            identifier: ezxmltext
     references:
         -
             identifier: kmb_test_004
@@ -383,8 +379,6 @@
         - ezmedia:
             path: small.flv
             filename: lol3.flv
-        - ezxmltext:
-            content: '<section><paragraph>Hello there! Here is an embedded object: <embed view="embed" size="medium" object_id="[reference:kmb_test_004_1]" /></paragraph></section>'
         - ezrichtext:
             content: '<?xml version="1.0" encoding="UTF-8"?><section xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ezxhtml="http://ez.no/xmlns/ezpublish/docbook/xhtml" xmlns:ezcustom="http://ez.no/xmlns/ezpublish/docbook/custom" version="5.0-variant ezpublish-1.0"><para><link xlink:href="ezcontent://[reference:kmb_test_004_1]">Content link</link></para></section>'
         - ezauthor:
@@ -444,7 +438,6 @@
         eztime: null
         ezurl: null
         #ezuser: null
-        ezxmltext: null
 
 -
     type: content
