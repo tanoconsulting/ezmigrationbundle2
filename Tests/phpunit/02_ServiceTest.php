@@ -15,7 +15,7 @@ class ServiceTest extends CommandExecutingTest implements ExecutorInterface
 {
     public function testMigrationFetching()
     {
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
         $ms->addExecutor($this);
         $md = new MigrationDefinition(
             'storage_test1.json',

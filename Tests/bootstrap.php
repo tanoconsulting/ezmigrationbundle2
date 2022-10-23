@@ -9,7 +9,9 @@ if (!file_exists($file = __DIR__.'/../vendor/autoload.php') && !file_exists($fil
 
 require $file;
 
-if (!is_dir($configDir = __DIR__.'/../vendor/ezsystems/ezplatform/config') && !is_dir($configDir = __DIR__.'/../../../../config')) {
+if (!is_dir($configDir = __DIR__.'/../vendor/ezsystems/ezplatform/config') &&
+    !is_dir($configDir = __DIR__.'/../vendor/ibexa/oss-skeleton/config') &&
+    !is_dir($configDir = __DIR__.'/../../../../config')) {
     throw new \RuntimeException('Unsupported directory layout.');
 }
 

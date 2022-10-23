@@ -1,6 +1,5 @@
 <?php
 
-use eZ\Bundle\EzPublishCoreBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -11,6 +10,7 @@ abstract class CommandExecutingTest extends KernelTestCase
 
     /** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
     private $_container;
+
     /** @var \eZ\Bundle\EzPublishCoreBundle\Console\Application $app */
     protected $app;
     /** @var StreamOutput $output */
@@ -23,7 +23,11 @@ abstract class CommandExecutingTest extends KernelTestCase
     {
         $this->_container = $this->bootContainer();
 
-        $this->app = new Application(static::$kernel);
+        if (class_exists('\eZ\Bundle\EzPublishCoreBundle\Console\Application'))
+            $class = '\eZ\Bundle\EzPublishCoreBundle\Console\Application';
+        else
+            $class = '\Symfony\Bundle\FrameworkBundle\Console\Application';
+        $this->app = new $class(static::$kernel);
         $this->app->setAutoExit(false);
         $fp = fopen('php://temp', 'r+');
         $this->output = new StreamOutput($fp);
@@ -97,7 +101,7 @@ abstract class CommandExecutingTest extends KernelTestCase
         return static::$container;
     }
 
-    protected function getContainer()
+    protected function getBootedContainer()
     {
         return $this->_container;
     }

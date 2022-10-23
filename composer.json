@@ -47,7 +47,9 @@
     "config": {
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
+            "ibexa/post-install": true,
             "symfony/flex": true,
+            "symfony/runtime": true,
             "symfony/thanks": true
         }
     },

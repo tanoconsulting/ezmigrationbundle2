@@ -130,7 +130,7 @@ class MigrateTest extends MigrationExecutingTest
     {
         $filePath = $this->dslDir.'/misc/UnitTestOK031_helloworld.yml';
 
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
 
         // Make sure migration is not in the db: delete it, ignoring errors
         $this->prepareMigration($filePath);
@@ -175,7 +175,7 @@ class MigrateTest extends MigrationExecutingTest
     {
         $filePath = $this->dslDir.'/misc/UnitTestOK019_cancel.yml';
 
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
 
         // Make sure migration is not in the db: delete it, ignoring errors
         $this->prepareMigration($filePath);
@@ -200,7 +200,7 @@ class MigrateTest extends MigrationExecutingTest
     {
         $filePath = $this->dslDir.'/misc/UnitTestOK020_fail.yml';
 
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
 
         // Make sure migration is not in the db: delete it, ignoring errors
         $this->prepareMigration($filePath);
@@ -230,7 +230,7 @@ class MigrateTest extends MigrationExecutingTest
         $filePath = $this->dslDir . '/misc/UnitTestOK039_querytype.yml';
 
         try {
-            $qtr = $this->getContainer()->get('ezpublish.query_type.registry');
+            $qtr = $this->getBootedContainer()->get('ezpublish.query_type.registry');
         } catch (\Exception $e) {
             $this->markTestSkipped();
             return;
@@ -368,7 +368,7 @@ class MigrateTest extends MigrationExecutingTest
     protected function getRepository($loginUserId = \Kaliop\eZMigrationBundle\Core\MigrationService::ADMIN_USER_ID)
     {
         // q: do we need bootContainer() here or would getContainer() do ?
-        $repository = $this->bootContainer()->get('ezpublish.api.repository');
+        $repository = $this->getBootedContainer()->get('ezpublish.api.repository');
         $permissionResolver = $repository->getPermissionResolver();
         $currentUserId = $permissionResolver->getCurrentUserReference()->getUserId();
         if ($loginUserId !== false && ($currentUserId != $loginUserId)) {

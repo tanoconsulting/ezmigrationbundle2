@@ -15,7 +15,7 @@ class ResumeTest extends MigrationExecutingTest
     {
         $filePath = $this->dslDir.'/resume/UnitTestOK1001_suspend.yml';
 
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
 
         // Make sure migration is not in the db: delete it, ignoring errors
         $this->prepareMigration($filePath);

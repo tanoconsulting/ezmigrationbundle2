@@ -552,10 +552,10 @@ class MigrationService implements ContextProviderInterface
      * Turns eZPublish cryptic exceptions into something more palatable for random devs
      * @todo should this be moved to a lower layer ?
      *
-     * @param \Exception $e
+     * @param \Throwable $e
      * @return string
      */
-    protected function getFullExceptionMessage(\Exception $e)
+    protected function getFullExceptionMessage(\Throwable $e)
     {
         $message = $e->getMessage();
         if (is_a($e, '\eZ\Publish\API\Repository\Exceptions\ContentTypeFieldDefinitionValidationException') ||

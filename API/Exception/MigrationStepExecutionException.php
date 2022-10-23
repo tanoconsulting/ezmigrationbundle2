@@ -4,7 +4,7 @@ namespace Kaliop\eZMigrationBundle\API\Exception;
 
 class MigrationStepExecutionException extends \Exception
 {
-    public function __construct($message = "", $step = 0, \Exception $previous = null)
+    public function __construct($message = "", $step = 0, \Throwable $previous = null)
     {
         $message = "Error in execution of step $step: " . $message;
 

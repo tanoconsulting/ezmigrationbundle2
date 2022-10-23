@@ -15,7 +15,7 @@ class ExceptionsTest extends MigrationExecutingTest implements ExecutorInterface
      */
     public function testMigrationCancelledException()
     {
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
         $ms->addExecutor($this);
 
         $md = new MigrationDefinition(
@@ -34,7 +34,7 @@ class ExceptionsTest extends MigrationExecutingTest implements ExecutorInterface
 
     public function testMigrationFailedException()
     {
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
         $ms->addExecutor($this);
 
         $md = new MigrationDefinition(
@@ -53,7 +53,7 @@ class ExceptionsTest extends MigrationExecutingTest implements ExecutorInterface
 
     public function testMigrationThrowingException()
     {
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
         $ms->addExecutor($this);
 
         $md = new MigrationDefinition(
@@ -79,8 +79,8 @@ class ExceptionsTest extends MigrationExecutingTest implements ExecutorInterface
     /// @todo do a similar test but using Anonymous user
     public function testInvalidUserAccountException()
     {
-        //$bundles = $this->getContainer()->getParameter('kernel.bundles');
-        $ms = $this->getContainer()->get('ez_migration_bundle.migration_service');
+        //$bundles = $this->getBootedContainer()->getParameter('kernel.bundles');
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
 
         $filePath = $this->dslDir . '/misc/UnitTestOK801_loadSomething.yml';
 

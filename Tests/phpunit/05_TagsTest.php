@@ -16,7 +16,7 @@ class TagsTest extends MigrationExecutingTest
      */
     public function testExecuteGoodDSL($filePath = '')
     {
-        $bundles = $this->getContainer()->getParameter('kernel.bundles');
+        $bundles = $this->getBootedContainer()->getParameter('kernel.bundles');
 
         if ($filePath == '' || !isset($bundles['NetgenTagsBundle'])) {
             $this->markTestSkipped();
