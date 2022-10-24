@@ -13,33 +13,21 @@ jobs:
             DB_EZ_USER: ezp
             DB_EZ_PASSWORD: ezp
             DB_EZ_DATABASE: behattestdb
-            PHP_VERSION: ${{ matrix.php }}
-            EZ_BUNDLES: ${{ matrix.ez_bundles }}
-            EZ_PACKAGES: ${{ matrix.ez_packages }}
         strategy:
             fail-fast: false
             matrix:
                 # @see https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners for available os versions
                 include:
-                    - php: '7.3'
-                      ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
-                      ez_packages: 'ezsystems/ezplatform:^3.0.6 ezsystems/ezplatform-xmltext-fieldtype:^2.0 netgen/tagsbundle:^4.0.15 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
+                    - config_file: '.euts.3.0.env'
                       operating-system: 'ubuntu-20.04'
                       code-coverage: ~
-                    - php: '7.3'
-                      ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
-                      ez_packages: 'ezsystems/ezplatform:^3.1.5 ezsystems/ezplatform-xmltext-fieldtype:^2.0 netgen/tagsbundle:^4.0.15 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
+                    - config_file: '.euts.3.1.env'
                       operating-system: 'ubuntu-20.04'
                       code-coverage: ~
-                    - php: '7.4'
-                      ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle EzSystems\EzPlatformXmlTextFieldTypeBundle\EzSystemsEzPlatformXmlTextFieldTypeBundle EzSystems\EzPlatformMatrixFieldtypeBundle\EzPlatformMatrixFieldtypeBundle EzSystems\EzPlatformGraphQL\EzSystemsEzPlatformGraphQLBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
-                      ez_packages: 'ezsystems/ezplatform:^3.2.8 ezsystems/ezplatform-xmltext-fieldtype:^2.0.2 netgen/tagsbundle:^4.0.18 ezsystems/behatbundle:^8.0 symfony/web-profiler-bundle:^5.1 symfony/debug-bundle:^5.1 symfony/maker-bundle:^1.14 overblog/graphiql-bundle'
+                    - config_file: '.euts.3.2.env'
                       operating-system: 'ubuntu-22.04'
                       code-coverage: codecov
-                    - php: '8.0'
-                      # ezxmltext is probably fine with eZPlatform 3.3, but it does not support php 8
-                      ez_bundles: 'Kaliop\eZMigrationBundle\eZMigrationBundle Netgen\TagsBundle\NetgenTagsBundle Lolautruche\EzCoreExtraBundle\EzCoreExtraBundle'
-                      ez_packages: 'ibexa/oss-skeleton:^3.3.13 netgen/tagsbundle:^4.0.18 ezsystems/behatbundle:^8.3.6 overblog/graphiql-bundle:^0.2.1'
+                    - config_file: '.euts.3.3.env'
                       operating-system: 'ubuntu-22.04'
                       code-coverage: ~
         steps:
@@ -76,12 +64,15 @@ jobs:
 
             # This sets up php and starts mysql
             -   name: set up the test env
-                run: './teststack/bin/setup.sh'
+                run: |
+                    set -a && . Tests/environment/${{ matrix.config_file }} && set +a
+                    ./teststack/bin/setup.sh
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: run tests and generate code coverage
                 run: |
+                    set -a && . Tests/environment/${{ matrix.config_file }} && set +a
                     if [ -z "${{ matrix.code-coverage }}" ]; then
                         ./teststack/bin/runtests.sh
                     else
