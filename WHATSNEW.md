@@ -1,5 +1,5 @@
-Version: 1.0-alpha3 (unreleased)
-================================
+Version: 1.0-alpha3
+===================
 
 * New: support `is-thumbnail` attribute for Content Type Fields
 
@@ -7,6 +7,9 @@ Version: 1.0-alpha3 (unreleased)
 
 * Fixed: support for php 8.0 - replace catching \Exception with \Error in places required to make testsuite pass, fix
   a problem with null RelationList fields
+
+* Fixed: when setting references to a ContentType sorting attributes, numeric values were used instead of their string
+  representation
 
 * Moved from Travis to GitHub Actions for testing. Test with all eZ versions from 3.0 to 3.3
 
