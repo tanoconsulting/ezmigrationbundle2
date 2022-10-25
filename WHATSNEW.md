@@ -2,7 +2,7 @@ Version: 1.0-beta1 (unreleased)
 ===============================
 
 * Fixed: when generating contentType migrations, do export the `is-thumbnail` attribute for Content Type Fields, and
-  the Content Type's `default_sort_order` and `default_sort_field`
+  the Content Type's `default_always_available`, `default_sort_order` and `default_sort_field`
 
 
 Version: 1.0-alpha3
