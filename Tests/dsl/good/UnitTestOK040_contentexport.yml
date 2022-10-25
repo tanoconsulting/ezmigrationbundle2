@@ -6,6 +6,8 @@
     name: Test Content
     name_pattern: '<name>'
     is_container: false
+    default_sort_order: ASC
+    default_sort_field: name
     attributes:
         -
             identifier: name
@@ -19,10 +21,71 @@
             identifier: ezimage
             type: ezimage
             name: ezimage
+            is-thumbnail: true
         -
             identifier: ezmedia
             type: ezmedia
             name: ezmedia
+
+-
+    type: migration_definition
+    mode: generate
+    file: /tmp/unit_test_generated_migration_040.json
+    migration_type: content_type
+    migration_mode: create
+    match:
+        type: content_type_identifier
+        value: kmb_test_040_contenttype
+    references:
+        -
+            identifier: kmb_040_thumbnail_1
+            attribute: '[0].attributes[2]."is-thumbnail"'
+        -
+            identifier: kmb_040_sortorder_1
+            attribute: '[0].default_sort_order'
+        -
+            identifier: kmb_040_sortfield_1
+            attribute: '[0].default_sort_field'
+
+-
+    type: file
+    mode: exists
+    file: /tmp/unit_test_generated_migration_040.json
+    references:
+        kmb_0400_file_exists_0: exists
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_0400_file_exists_0
+    test:
+        equals: true
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_040_thumbnail_1
+    test:
+        equals: true
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_040_sortorder_1
+    test:
+        equals: ASC
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_040_sortfield_1
+    test:
+        equals: name
+
+-
+    type: file
+    mode: delete
+    file: /tmp/unit_test_generated_migration_040.json
 
 -   type: content
     mode: create
@@ -66,36 +129,52 @@
             attribute: '[0].attributes.ezmedia.path'
 
 -
-    type: reference
-    mode: dump
-    identifier: reference:kmb_040_filepath_1
+    type: file
+    mode: exists
+    file: /tmp/unit_test_generated_migration_040.json
+    references:
+        kmb_0400_file_exists_01: exists
 
 -
-    type: reference
-    mode: dump
-    identifier: reference:kmb_040_filepath_2
+    type: assert
+    target: reference
+    identifier: reference:kmb_0400_file_exists_01
+    test:
+        equals: true
+
+#-
+#    type: reference
+#    mode: dump
+#    identifier: reference:kmb_040_filepath_1
+
+#-
+#    type: reference
+#    mode: dump
+#    identifier: reference:kmb_040_filepath_2
+
+#-
+#    type: reference
+#    mode: dump
+#    identifier: reference:kmb_040_filepath_3
 
 -
-    type: reference
-    mode: dump
-    identifier: reference:kmb_040_filepath_3
+    type: content
+    mode: delete
+    match:
+        content_type_identifier: kmb_test_040_contenttype
 
-#-
-#    type: content
-#    mode: delete
-#    match:
-#        content_type_identifier: kmb_test_040_contenttype
-
-#-
-#    type: content_type
-#    mode: delete
-#    match:
-#        content_type_identifier: kmb_test_040_contenttype
+-
+    type: content_type
+    mode: delete
+    match:
+        content_type_identifier: kmb_test_040_contenttype
 
 -
     type: file
     mode: delete
     file: /tmp/unit_test_generated_migration_040.json
+
+# @todo fix: we now have partial paths
 
 -
     type: file
@@ -118,22 +197,20 @@
     references:
         kmb_040_file_exists_3: exists
 
--
-    type: reference
-    mode: dump
-    identifier: reference:kmb_040_file_exists_1
+#-
+#    type: reference
+#    mode: dump
+#    identifier: reference:kmb_040_file_exists_1
 
--
-    type: reference
-    mode: dump
-    identifier: reference:kmb_040_file_exists_2
+#-
+#    type: reference
+#    mode: dump
+#    identifier: reference:kmb_040_file_exists_2
 
--
-    type: reference
-    mode: dump
-    identifier: reference:kmb_040_file_exists_3
-
-# @todo fix: we now have partial paths
+#-
+#    type: reference
+#    mode: dump
+#    identifier: reference:kmb_040_file_exists_3
 
 #-
 #    type: assert

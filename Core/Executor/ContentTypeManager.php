@@ -525,6 +525,8 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
                         'url_name_pattern' => $contentType->urlAliasSchema,
                         'is_container' => $contentType->isContainer,
                         'lang' => $this->getLanguageCodeFromContext($context),
+                        'default_sort_field' => $this->sortConverter->sortField2Hash($contentType->defaultSortField),
+                        'default_sort_order' => $this->sortConverter->sortOrder2Hash($contentType->defaultSortOrder),
                         'attributes' => $attributes
                     )
                 );
@@ -565,6 +567,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
             'searchable' => $fieldDefinition->isSearchable,
             'info-collector' => $fieldDefinition->isInfoCollector,
             'disable-translation' => !$fieldDefinition->isTranslatable,
+            'is-thumbnail' => $fieldDefinition->isThumbnail,
             'category' => $fieldDefinition->fieldGroup,
             // Should we cheat and do like the eZ4 Admin Interface and used sequential numbering 1,2,3... ?
             // But what if the end user then edits the 'update' migration and only leaves in it a single

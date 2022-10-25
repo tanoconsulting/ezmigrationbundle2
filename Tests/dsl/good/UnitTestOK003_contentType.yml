@@ -388,6 +388,19 @@
     mode: update
     match:
         identifier: 'reference:kmb_test_003_12_identifier'
+    # add a thubmnail field
+    attributes:
+        -
+            type: ezimage
+            name: ezthumb
+            identifier: ezthumb
+            is-thumbnail: true
+
+-
+    type: content_type
+    mode: update
+    match:
+        identifier: 'reference:kmb_test_003_12_identifier'
     # remove all attributes except the title
     attributes:
         -
