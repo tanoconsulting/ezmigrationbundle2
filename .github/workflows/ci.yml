@@ -47,6 +47,7 @@ jobs:
             #        coverage: none
 
             -   name: get the teststack
+                # @todo make sure we use at least the latest available tag instead of HEAD
                 run: |
                     git clone --depth 1 https://github.com/tanoconsulting/euts.git teststack
                     # just in case...

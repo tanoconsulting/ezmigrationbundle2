@@ -263,6 +263,8 @@ and the corresponding php class:
         }
     }
 
+Event Subscribers are supported as an alternative to Event Listeners, as is standard with Symfony projects.
+
 
 ## Known Issues and limitations
 
@@ -300,6 +302,8 @@ and the corresponding php class:
     - increase the maximum amount of memory allowed for the php script by running it with option '-d memory_limit=-1'
     - execute the migration command using a Symfony environment which has reduced logging and kernel debug disabled:
       the default configuration for the `dev` environment is known to leak memory
+    - transform the migration, where possible, into one which loads and modifies contents one by one in a loop, instead
+        of modifying them all in a single action.
 
 * if you get fatal errors with the message 'You cannot create a service ("request") of an inactive scope ("request")',
   take a look at the following issue for a possible explanation and ideas for workarounds:
@@ -317,6 +321,11 @@ and the corresponding php class:
             type: ezstring
             name: Topbar-hover-color
             identifier: topbar-hover-color
+
+* when eZ is set up in cluster mode, if you are setting references to the path of a content field of type ezimage,
+  ezbinaryfile or ezmedia, or generating a migration for creating/updating it, the value you will get for the path will
+  not be the absolute path on disk, but the path relative to the 'nfsvar' directory, which makes it unsuitable for
+  being used directly in eg. a content/create migration. Check out the example in the Cookbook for how to deal with this.
 
 
 ## Frequently asked questions
@@ -339,6 +348,9 @@ to store a different value for each Symfony environment. For example:
             content_id: "reference:content_id_ref"
         etc: ...
 
+Note that there are many more solutions for this issue, sych as making sure your target Contents and Locations have
+the same Remote_id in all environments, or passing values for references as options to the `migrate` command-line.
+
 ### How to update an existing Role to change its policies?
 
 When using a migration to update a Role, you must define ALL its policies. Any not defined will be removed.
@@ -347,11 +359,16 @@ update migration that has the complete specification of the role as it currently
 
 Example command to create such a migration:
 
-    php ezpublish/console kaliop:migration:generate --type=role --mode=update --match-type=identifier --match-value=Anonymous bundleName
+    php bin/console kaliop:migration:generate --type=role --mode=update --match-type=identifier --match-value=Anonymous bundleName
 
 ### When dumping a Content into a yml migration via the `generate` command, the list of attributes is empty
 
 A: this is most likely due to using a bad language configuration
+
+### Can I run an external tool (command-line script) as part of a migration?
+
+A: sure. Take a look at the [relevant dsl](Resources/doc/DSL/Processes.yml) and [cookbook example](Resources/doc/Cookbook/generate_screenshot_of_video.yml)
+  for details.
 
 
 ## Extending the bundle
@@ -362,7 +379,7 @@ The bundle has been designed to be easily extended in many ways, such as:
 * adding support for custom/complex field-types
 * adding support for completely new actions in the Yml definitions
 * adding support for a new file format for storing migration definitions
-* adding support for a new resolver for the custom references in the migration definitions
+* adding support for new resolvers for the custom references in the migration definitions
 * taking over the way that the migrations definitions are loaded from the filesystem or stored in the database
 * etc...
 
@@ -371,6 +388,9 @@ and give it an appropriate tag (the class implementing service should of course 
 
 To find out the names of the tags that you need to implement, as well as for all the other services which you can
 override, take a look at the [services.yml file](Resources/config/services.yml).
+
+It is also possible to define custom event listeners/subscribers to expand migration execution logic. See the dedicated
+paragraphs above for more details.
 
 ### Running tests
 
@@ -392,16 +412,19 @@ It is recommended to run the tests suite using a dedicated eZPublish installatio
 #### Setting up a dedicated test environment for the bundle
 
 A safer choice to run the tests of the bundle is to set up a dedicated environment, similar to the one used when the test
-suite is run on Travis.
+suite is run on GitHub Actions.
 The advantages are multiple: on one hand you can start with any version of eZPublish you want; on the other you will
-be more confident that any tests you add or modify will also pass on Travis.
+be more confident that any tests you add or modify will also pass on GitHub.
 The disadvantages are that you will need Docker and Docker-compose, and that the environment you will use will look
 quite unlike a standard eZPublish setup! Also, it will take a considerable amount of disk space and time to build.
 
 Steps to set up a dedicated test environment and run the tests in it:
 
-    # if you have a github auth token, it is a good idea to copy it now to Tests/docker/data/.composer/auth.json
-    git clone --depth 1 --branch 0.2.0 https://github.com/tanoconsulting/euts.git teststack
+    git clone --depth 1 https://github.com/tanoconsulting/euts.git teststack
+# if you have a github auth token, it is a good idea to copy it now to teststack/docker/data/.composer/auth.json
+
+    # this config sets up a test environment with eZPlatform 3.3 running on php 8.0 / ubuntu jammy
+    export TESTSTACK_CONFIG_FILE=Tests/environment/.euts.3.3.env
 
     ./teststack/teststack build
     ./teststack/teststack runtests
@@ -427,8 +450,12 @@ Or command-line shell prompt to the Docker container where tests are run:
     ./teststack/teststack shell
 
 The tests in the Docker container run using the version of debian/php/eZPlatform kernel specified in the file
-`.euts.env`.
-If you want to test against a different version, feel free to:
+`Tests/environment/.euts.3.3.env`, as specified in env var `TESTSTACK_CONFIG_FILE`.
+If no value is set for that environment variable, a file named `.euts.env` is looked for.
+If no such file is present, some defaults are used, you can check the documentation in ./teststack/README.md to find out
+what they are.
+If you want to test against a different version of eZ/php/mysql/debian, feel free to:
+- create the `.euts.env` file, if it does not exist
 - add to it any required var (see file `teststack/.euts.env.example` as guidance)
 - rebuild the test stack
 - run tests the usual way
