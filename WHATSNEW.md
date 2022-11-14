@@ -47,7 +47,7 @@ Version 1.0-alpha
 
 - the current yml migration format will be kept stable (possibly parts of it deprecated, though)
 - the cli commands api will be kept stable
-- the php classes and services will surely be heavily refactored. Please no subclassing / injecting them in your code for now
+- the php classes and services might be heavily refactored. Please no subclassing / injecting them in your code for now
 
 *BC with eZMigrationBundle:*
 

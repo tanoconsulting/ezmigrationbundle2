@@ -1,17 +1,13 @@
 TanoConsulting eZ-Migration-2 Bundle
 ====================================
 
-The replacement of [kaliop/ezmigrationbundle](https://github.com/kaliop-uk/ezmigrationbundle) for eZPlatform 3.
+The replacement of [kaliop/ezmigrationbundle](https://github.com/kaliop-uk/ezmigrationbundle) for eZPlatform 3 (aka. Ibexa DXP).
 
 This bundle makes it easy to programmatically deploy changes to eZPlatform database structure and contents.
 
-It is inspired by the [DoctrineMigrationsBundle](http://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html)
+It is inspired by the [DoctrineMigrationsBundle](https://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html)
 
-You can think of it as the great-grandson of the legacy [ezxmlinstaller](https://github.com/ezsystems/ezxmlinstaller) extension.
-
-*WORK IN PROGRESS*
-
-Please read [WHATSNEW.md](WHATSNEW.md) for details!
+*WORK IN PROGRESS* Please read [WHATSNEW.md](WHATSNEW.md) for details!
 
 
 ## Requirements
@@ -20,6 +16,8 @@ Please read [WHATSNEW.md](WHATSNEW.md) for details!
 
 * eZPlatform 3 (aka. Ibexa DXP).
 
+For Ibexa DXP 4, head on to https://github.com/tanoconsulting/ibexa-migration-bundle. For eZPlatform 1-2 and earlier, to
+https://github.com/kaliop-uk/ezmigrationbundle.
 
 ## Installation
 
