@@ -6,15 +6,13 @@ use Kaliop\eZMigrationBundle\Core\Matcher\LocationMatcher;
 
 /**
  * Handles references to locations. At the moment: supports remote Ids.
- *
- * @todo drop support for 'location:' in favour of 'location_remote_id:'
  */
 class LocationResolver extends AbstractResolver
 {
     /**
      * Defines the prefix for all reference identifier strings in definitions
      */
-    protected $referencePrefixes = array('location:' /*, 'location_remote_id:'*/);
+    protected $referencePrefixes = array('location_by_remote_id:');
 
     protected $locationMatcher;
 
@@ -29,7 +27,7 @@ class LocationResolver extends AbstractResolver
     }
 
     /**
-     * @param $stringIdentifier location:<remote_id>
+     * @param string $stringIdentifier location_by_remote_id:<remote_id>
      * @return string Location id
      * @throws \Exception
      */
@@ -37,11 +35,8 @@ class LocationResolver extends AbstractResolver
     {
         $ref = $this->getReferenceIdentifierByPrefix($stringIdentifier);
         switch ($ref['prefix']) {
-            // deprecated tag: 'location:'
-            case 'location:':
+            case 'location_by_remote_id:':
                 return $this->locationMatcher->MatchOne(array(LocationMatcher::MATCH_LOCATION_REMOTE_ID => $ref['identifier']))->id;
-            //case 'location_remote_id:':
-            //    return $this->repository->getLocationService()->loadLocationByRemoteId($ref['identifier'])->id;
         }
     }
 }

@@ -18,8 +18,7 @@ class PHPExecutor extends BasePHPExecutor
     protected $mandatoryInterface = 'Kaliop\eZMigrationBundle\API\MigrationInterface';
     protected $container;
 
-    // we keep the referenceResolver optional for BC
-    public function __construct(ContainerInterface $container, ReferenceResolverBagInterface $referenceResolver = null)
+    public function __construct(ContainerInterface $container, ReferenceResolverBagInterface $referenceResolver)
     {
         $this->container = $container;
         $this->referenceResolver = $referenceResolver;

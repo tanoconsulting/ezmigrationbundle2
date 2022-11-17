@@ -364,13 +364,14 @@ class MigrateTest extends MigrationExecutingTest
      * Get the eZ repository
      * @param int $loginUserId
      * @return \eZ\Publish\API\Repository\Repository
+     * @todo move to usage of ADMIN_USER_LOGIN
      */
     protected function getRepository($loginUserId = \Kaliop\eZMigrationBundle\Core\MigrationService::ADMIN_USER_ID)
     {
         // q: do we need bootContainer() here or would getContainer() do ?
         $repository = $this->getBootedContainer()->get('ezpublish.api.repository');
         $permissionResolver = $repository->getPermissionResolver();
-        $currentUserId = $permissionResolver->getCurrentUserReference()->getUserId();
+        $currentUserId = $permissionResolver->getCurrentUserReference()->gegetUserId();
         if ($loginUserId !== false && ($currentUserId != $loginUserId)) {
             $permissionResolver->setCurrentUserReference(new UserReference($loginUserId));
             //$repository->setCurrentUser($repository->getUserService()->loadUser($loginUserId));

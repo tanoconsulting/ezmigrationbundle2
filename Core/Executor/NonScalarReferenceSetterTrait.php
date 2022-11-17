@@ -158,33 +158,6 @@ trait NonScalarReferenceSetterTrait
     protected abstract function isScalarReference($referenceDefinition);
 
     /**
-     * Verifies compatibility between the definition of the references to be set and the data set to extract them from.
-     * NB: for multivalued/array refs, we assume that the users by default expect at least one value.
-     * NB: for scalar results we do not validate anything, as they are always valid (we do not coerce them to arrays)
-     * @param AbstractCollection|array|mixed $results
-     * @param array $referencesDefinition
-     * @param MigrationStep $step
-     * @return void throws when incompatibility is found
-     * @todo we should encapsulate the whole info about refs to be set in a single data structure, instead of poking inside $step...
-     * @deprecated
-     */
-    /*protected function insureResultsCountCompatibility($results, $referencesDefinition, $step)
-    {
-        if (!$this->hasNonScalarReferences($referencesDefinition)) {
-            return;
-        }
-
-        if (is_array($results) || $results instanceof AbstractCollection) {
-            if (count($results) > 1 && !$this->allowMultipleResults($step)) {
-                throw new \InvalidArgumentException($this->getSelfName() . ' does not support setting references for multiple ' . $this->getResultsName($results) . 's');
-            }
-            if (count($results) == 0 && !$this->allowEmptyResults($step)) {
-                throw new \InvalidArgumentException($this->getSelfName() . ' does not support setting references for no ' . $this->getResultsName($results) . 's');
-            }
-        }
-    }*/
-
-    /**
      * @return string
      */
     protected function getSelfName()

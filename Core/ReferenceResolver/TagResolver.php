@@ -8,6 +8,7 @@ use Kaliop\eZMigrationBundle\Core\Matcher\TagMatcher;
  * Handles references to tags
  *
  * @todo support custom languages
+ * @todo support more matching keys, eg. tag_by_remote_id and tags_by_parent_id
  */
 class TagResolver extends AbstractResolver
 {
@@ -29,7 +30,7 @@ class TagResolver extends AbstractResolver
     }
 
     /**
-     * @param $stringIdentifier format: tag:<tag_identifier>
+     * @param string $stringIdentifier format: tag:<tag_identifier>
      * @return string tag id
      * @throws \Exception
      */

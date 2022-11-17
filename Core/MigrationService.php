@@ -130,7 +130,7 @@ class MigrationService implements ContextProviderInterface
 
     /**
      * @todo we could get rid of this by getting $output passed as argument to self::executeMigration. We are not doing
-     *       that for BC for the moment (self::executeMigration api should be redone, but it is used in WorkfloBundle too)
+     *       that for BC for the moment (self::executeMigration api should be redone, but it is used in WorkflowBundle too)
      */
     public function setOutput(OutputInterface $output)
     {

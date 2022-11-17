@@ -32,6 +32,11 @@ Upgrade notes for developers coming from an ezmgrationbundle installation.
   - ezmedia fieldtype definition: fileName, mimeType, inputUri
   - match by: contenttype_id, contenttype_identifier, contenttypegroup_id, contenttypegroup_identifier,
     objectstate_id, objectstate_identifier, usergroup_id
+  - resolve location ids using the `location: $remote_id` syntax
+  - set references to: exception_text
+
+* services `ez_migration_bundle.reference_resolver.content` and `ez_migration_bundle.reference_resolver.location` now
+  are triggered using a different tag. Respectively, `content_by_remote_id` and `location_by_remote_id`
 
 * the migration steps `trash/delete`, `trash/load` and `trash/recover`, due to limitations of the cms api, now accept a
   smaller set of filters to match items to act upon

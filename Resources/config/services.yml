@@ -812,12 +812,11 @@ services:
         arguments:
             -
                 - '@ez_migration_bundle.reference_resolver.customreference'
-                - '@ez_migration_bundle.reference_resolver.location'
-               # not enabled by default for v3, as it might break v1 migrations that don't expect it to be present
-               #- '@ez_migration_bundle.reference_resolver.content'
+                # Neither location nor content resolving are enabled by default any more
+                #- '@ez_migration_bundle.reference_resolver.location'
+                #- '@ez_migration_bundle.reference_resolver.content'
                 - '@ez_migration_bundle.reference_resolver.tag'
 
-    # @deprecated
     ez_migration_bundle.reference_resolver.content:
         class: '%ez_migration_bundle.reference_resolver.content.class%'
         arguments:
@@ -829,7 +828,6 @@ services:
             - '@ez_migration_bundle.reference_resolver.customreference'
         lazy: true
 
-    # @deprecated
     ez_migration_bundle.reference_resolver.location:
         class: '%ez_migration_bundle.reference_resolver.location.class%'
         arguments:

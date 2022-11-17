@@ -228,9 +228,6 @@ abstract class RepositoryExecutor extends AbstractExecutor
             return true;
         }
 
-        // this check is now done immediately after matching
-        //$this->insureResultsCountCompatibility($item, $referencesDefs, $step);
-
         // NB: there is no valid yml atm which could result in expectedResultsType returning 'unspecified' here, but
         // we should take care in case this changes in the future
         $multivalued = ($this->expectedResultsType($step) == self::$RESULT_TYPE_MULTIPLE);
@@ -311,27 +308,6 @@ abstract class RepositoryExecutor extends AbstractExecutor
 
         return $referencesDefinition;
     }
-
-    /**
-     * Verifies compatibility between the definition of the references to be set and the data set to extract them from,
-     * and returns a single entity
-     *
-     * @param AbstractCollection|mixed $entity
-     * @param array $referencesDefinition
-     * @param MigrationStep $step
-     * @return AbstractCollection|mixed
-     * @deprecated use validateResultsCount instead
-     */
-    /*protected function insureSingleEntity($entity, $referencesDefinition, $step)
-    {
-        $this->insureResultsCountCompatibility($entity, $referencesDefinition, $step);
-
-        if ($entity instanceof AbstractCollection) {
-            return $entity->reset();
-        }
-
-        return $entity;
-    }*/
 
     /**
      * @param array $referenceDefinition
