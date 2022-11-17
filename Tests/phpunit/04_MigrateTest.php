@@ -371,7 +371,7 @@ class MigrateTest extends MigrationExecutingTest
         // q: do we need bootContainer() here or would getContainer() do ?
         $repository = $this->getBootedContainer()->get('ezpublish.api.repository');
         $permissionResolver = $repository->getPermissionResolver();
-        $currentUserId = $permissionResolver->getCurrentUserReference()->gegetUserId();
+        $currentUserId = $permissionResolver->getCurrentUserReference()->getUserId();
         if ($loginUserId !== false && ($currentUserId != $loginUserId)) {
             $permissionResolver->setCurrentUserReference(new UserReference($loginUserId));
             //$repository->setCurrentUser($repository->getUserService()->loadUser($loginUserId));
