@@ -35,7 +35,7 @@
     references:
          -
             identifier: result_ref2
-            attribute: exception_text
+            attribute: exception_message
 
 -
     type: assert
