@@ -46,20 +46,6 @@ jobs:
             #        # NB: this disables xdebug completely
             #        coverage: none
 
-            -   name: set up the test stack and run tests
-                uses: tanoconsulting/euts@0.9.0
-                with:
-                    configuration-file: Tests/environment/${{ matrix.config-file }}
-                    code-coverage-service: ${{ matrix.code-coverage }}
-                    repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-            -   name: get the teststack
-                # @todo make sure we use at least the latest available tag instead of HEAD
-                run: |
-                    git clone --depth 1 https://github.com/tanoconsulting/euts.git teststack
-                    # just in case...
-                    chmod 755 ./teststack/bin/*.sh  ./teststack/bin/setup/*.sh
-
             # @todo avoid downloading composer deps on every workflow. Is this useful/working for us?
             #-
             #    uses: actions/cache@v2
@@ -70,26 +56,12 @@ jobs:
             # @todo stop any unused service and process to save ram/cpu: php-fpm (esp. if a != php version), docker,
             #       containerd, snapd, ModemManager?, pakagekit?, xsp4.exe
 
-            # This sets up php and starts mysql
-            -   name: set up the test env
-                run: |
-                    set -a && . Tests/environment/${{ matrix.config_file }} && set +a
-                    ./teststack/bin/setup.sh
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            -   name: run tests and generate code coverage
-                run: |
-                    set -a && . Tests/environment/${{ matrix.config_file }} && set +a
-                    if [ -z "${{ matrix.code-coverage }}" ]; then
-                        ./teststack/bin/runtests.sh
-                    else
-                        ./teststack/bin/runtests.sh -c coverage.clover
-                        if [ -f coverage.clover ]; then
-                            if [ "${{ matrix.code-coverage }}" = scrutinizer ]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
-                            if [ "${{ matrix.code-coverage }}" = codecov ]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -t ${CODECOV_TOKEN} -f coverage.clover; fi
-                        fi
-                    fi
+            -   name: set up the test stack and run tests
+                uses: tanoconsulting/euts@0.9.0
+                with:
+                    configuration-file: Tests/environment/${{ matrix.config-file }}
+                    code-coverage-service: ${{ matrix.code-coverage }}
+                    repo-token: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: troubleshoot
                 if: ${{ failure() }}
