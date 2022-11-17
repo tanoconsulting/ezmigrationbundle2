@@ -16,8 +16,8 @@ It is inspired by the [DoctrineMigrationsBundle](https://symfony.com/doc/current
 
 * eZPlatform 3 (aka. Ibexa DXP).
 
-For Ibexa DXP 4, head on to https://github.com/tanoconsulting/ibexa-migration-bundle. For eZPlatform 1-2 and earlier, to
-https://github.com/kaliop-uk/ezmigrationbundle.
+For Ibexa DXP 4, head on to [tanoconsulting/ibexa-migration-bundle](https://github.com/tanoconsulting/ibexa-migration-bundle). For eZPlatform 1-2 and earlier, to
+[kaliop-uk/ezmigrationbundle](https://github.com/kaliop-uk/ezmigrationbundle).
 
 ## Installation
 
@@ -433,7 +433,7 @@ quite unlike a standard eZPublish setup! Also, it will take a considerable amoun
 Steps to set up a dedicated test environment and run the tests in it:
 
     git clone --depth 1 https://github.com/tanoconsulting/euts.git teststack
-# if you have a github auth token, it is a good idea to copy it now to teststack/docker/data/.composer/auth.json
+    # if you have a github auth token, it is a good idea to copy it now to teststack/docker/data/.composer/auth.json
 
     # this config sets up a test environment with eZPlatform 3.3 running on php 8.0 / ubuntu jammy
     export TESTSTACK_CONFIG_FILE=Tests/environment/.euts.3.3.env
