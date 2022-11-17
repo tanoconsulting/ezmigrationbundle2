@@ -3,12 +3,12 @@
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
-use Kaliop\eZMigrationBundle\API\Value\Migration;
-use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
-use Kaliop\eZMigrationBundle\API\ExecutorInterface;
 use Kaliop\eZMigrationBundle\API\Exception\MigrationAbortedException;
 use Kaliop\eZMigrationBundle\API\Exception\MigrationSuspendedException;
+use Kaliop\eZMigrationBundle\API\ExecutorInterface;
 use Kaliop\eZMigrationBundle\API\ReferenceResolverInterface;
+use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
 
 class MigrationExecutor extends AbstractExecutor
 {
@@ -16,7 +16,6 @@ class MigrationExecutor extends AbstractExecutor
     protected $supportedActions = array('cancel', 'fail', 'suspend', 'sleep');
 
     protected $referenceMatcher;
-    protected $referenceResolver;
     protected $contentManager;
     protected $locationManager;
     protected $contentTypeManager;
@@ -60,7 +59,7 @@ class MigrationExecutor extends AbstractExecutor
      */
     protected function cancel($dsl, $context)
     {
-        $message = isset($dsl['message']) ? $dsl['message'] : '';
+        $message = isset($dsl['message']) ? $this->resolveReference($dsl['message']) : '';
 
         if (isset($dsl['if'])) {
             if (!$this->matchConditions($dsl['if'])) {
@@ -74,7 +73,7 @@ class MigrationExecutor extends AbstractExecutor
 
     protected function fail($dsl, $context)
     {
-        $message = isset($dsl['message']) ? $dsl['message'] : '';
+        $message = isset($dsl['message']) ? $this->resolveReference($dsl['message']) : '';
 
         if (isset($dsl['if'])) {
             if (!$this->matchConditions($dsl['if'])) {
@@ -91,10 +90,12 @@ class MigrationExecutor extends AbstractExecutor
      * @param array $context
      * @return true
      * @throws \Exception
+     *
+     * @todo should we add support for `if` ?
      */
     protected function suspend($dsl, $context)
     {
-        $message = isset($dsl['message']) ? $dsl['message'] : '';
+        $message = isset($dsl['message']) ? $this->resolveReference($dsl['message']) : '';
 
         if (!isset($dsl['until'])) {
             throw new InvalidStepDefinitionException("An until condition is required to suspend a migration");
@@ -119,7 +120,14 @@ class MigrationExecutor extends AbstractExecutor
             throw new InvalidStepDefinitionException("A 'seconds' element is required when putting a migration to sleep");
         }
 
-        sleep($dsl['seconds']);
+        if (isset($dsl['if'])) {
+            if (!$this->matchConditions($dsl['if'])) {
+                // q: return timestamp, matched condition or ... ?
+                return true;
+            }
+        }
+
+        sleep($this->resolveReference($dsl['seconds']));
         return true;
     }
 
@@ -132,13 +140,13 @@ class MigrationExecutor extends AbstractExecutor
         $dsl['mode'] = 'load';
         // be kind to users and allow them not to specify this explicitly
         if (isset($dsl['references'])) {
-            foreach($dsl['references'] as &$refDef) {
+            foreach ($dsl['references'] as &$refDef) {
                 $refDef['overwrite'] = true;
             }
         }
         $step = new MigrationStep($dsl['type'], $dsl, $context);
 
-        switch($dsl['type']) {
+        switch ($dsl['type']) {
             case 'content':
                 return $this->contentManager->execute($step);
             case 'location':
@@ -163,7 +171,7 @@ class MigrationExecutor extends AbstractExecutor
 
             switch ($key) {
                 case 'date':
-                    return time() >= $this->referenceResolver->resolveReference($values);
+                    return time() >= $this->resolveReference($values);
 
                 case 'match':
                     return $this->matchConditions($values);

@@ -2,13 +2,14 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
+use Kaliop\eZMigrationBundle\API\Collection\TagCollection;
+use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchConditionsException;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
-use Netgen\TagsBundle\API\Repository\Values\Tags\Tag;
-use Kaliop\eZMigrationBundle\Core\Matcher\TagMatcher;
-use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
-use Kaliop\eZMigrationBundle\API\Collection\TagCollection;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
+use Kaliop\eZMigrationBundle\Core\Matcher\TagMatcher;
+use Netgen\TagsBundle\API\Repository\Values\Tags\Tag;
 
 /**
  * Handles tag migrations.
@@ -46,7 +47,7 @@ class TagManager extends RepositoryExecutor implements MigrationGeneratorInterfa
         $parentTagId = 0;
         if (isset($step->dsl['parent_tag_id'])) {
             $parentTagId = $step->dsl['parent_tag_id'];
-            $parentTagId = $this->referenceResolver->resolveReference($parentTagId);
+            $parentTagId = $this->resolveReference($parentTagId);
             // allow remote-ids to be used to reference parent tag
             if (!is_int($parentTagId) && !ctype_digit($parentTagId)) {
                 $parentTag = $this->tagMatcher->matchOneByKey($parentTagId);
@@ -73,12 +74,12 @@ class TagManager extends RepositoryExecutor implements MigrationGeneratorInterfa
         $tagCreateStruct = new \Netgen\TagsBundle\API\Repository\Values\Tags\TagCreateStruct($tagCreateArray);
 
         if (is_string($step->dsl['keywords'])) {
-            $keyword = $this->referenceResolver->resolveReference($step->dsl['keywords']);
+            $keyword = $this->resolveReference($step->dsl['keywords']);
             $tagCreateStruct->setKeyword($keyword);
         } else {
             foreach ($step->dsl['keywords'] as $langCode => $keyword)
             {
-                $keyword = $this->referenceResolver->resolveReference($keyword);
+                $keyword = $this->resolveReference($keyword);
                 $tagCreateStruct->setKeyword($keyword, $langCode);
             }
         }
@@ -133,11 +134,11 @@ class TagManager extends RepositoryExecutor implements MigrationGeneratorInterfa
             $tagUpdateStruct = new \Netgen\TagsBundle\API\Repository\Values\Tags\TagUpdateStruct($tagUpdateArray);
 
             if (is_string($step->dsl['keywords'])) {
-                $keyword = $this->referenceResolver->resolveReference($step->dsl['keywords']);
+                $keyword = $this->resolveReference($step->dsl['keywords']);
                 $tagUpdateStruct->setKeyword($keyword);
             } else {
                 foreach ($step->dsl['keywords'] as $langCode => $keyword) {
-                    $keyword = $this->referenceResolver->resolveReference($keyword);
+                    $keyword = $this->resolveReference($keyword);
                     $tagUpdateStruct->setKeyword($keyword, $langCode);
                 }
             }
@@ -190,7 +191,7 @@ class TagManager extends RepositoryExecutor implements MigrationGeneratorInterfa
         // convert the references passed in the match
         $match = $this->resolveReferencesRecursively($step->dsl['match']);
 
-        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->referenceResolver->resolveReference($step->dsl['match_tolerate_misses']) : false;
+        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->resolveReference($step->dsl['match_tolerate_misses']) : false;
 
         return $this->tagMatcher->match($match, $tolerateMisses);
     }
@@ -240,7 +241,6 @@ class TagManager extends RepositoryExecutor implements MigrationGeneratorInterfa
                 case 'remote_id':
                     $value = $tag->remoteId;
                     break;
-
                 default:
                     throw new InvalidStepDefinitionException('Tag Manager does not support setting references for attribute ' . $reference['attribute']);
             }
@@ -337,7 +337,7 @@ class TagManager extends RepositoryExecutor implements MigrationGeneratorInterfa
                     );
                     break;
                 default:
-                    throw new \Exception("Executor 'tag' doesn't support mode '$mode'");
+                    throw new InvalidStepDefinitionException("Executor 'tag' doesn't support mode '$mode'");
             }
 
             $data[] = $tagData;
@@ -358,7 +358,7 @@ class TagManager extends RepositoryExecutor implements MigrationGeneratorInterfa
     protected function getTagKeywords($tag)
     {
         $out = array();
-        foreach($tag->languageCodes as $languageCode) {
+        foreach ($tag->languageCodes as $languageCode) {
             $out[$languageCode] = $tag->getKeyword($languageCode);
         }
         return $out;
@@ -368,7 +368,7 @@ class TagManager extends RepositoryExecutor implements MigrationGeneratorInterfa
     {
         if (!$this->tagService)
         {
-            throw new \Exception('To manipulate tags you must have NetGen Tags Bundle installed');
+            throw new MigrationBundleException('To manipulate tags you must have NetGen Tags Bundle installed');
         }
     }
 }

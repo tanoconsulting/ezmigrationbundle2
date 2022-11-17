@@ -8,6 +8,7 @@ use eZ\Publish\API\Repository\Values\ContentType\FieldDefinition;
 use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use Kaliop\eZMigrationBundle\API\Collection\ContentTypeCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
 use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
 use Kaliop\eZMigrationBundle\API\ReferenceResolverInterface;
@@ -18,7 +19,7 @@ use Kaliop\eZMigrationBundle\Core\FieldHandlerManager;
 use JmesPath\Env as JmesPath;
 
 /**
- * Handles content type migrations
+ * Handles content type migrations.
  */
 class ContentTypeManager extends RepositoryExecutor implements MigrationGeneratorInterface, EnumerableMatcherInterface
 {
@@ -58,10 +59,10 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
         $lang = $this->getLanguageCode($step);
 
         $contentTypeGroupId = $step->dsl['content_type_group'];
-        $contentTypeGroupId = $this->referenceResolver->resolveReference($contentTypeGroupId);
+        $contentTypeGroupId = $this->resolveReference($contentTypeGroupId);
         $contentTypeGroup = $this->contentTypeGroupMatcher->matchOneByKey($contentTypeGroupId);
 
-        $contentTypeIdentifier = $this->referenceResolver->resolveReference($step->dsl['identifier']);
+        $contentTypeIdentifier = $this->resolveReference($step->dsl['identifier']);
         $contentTypeCreateStruct = $contentTypeService->newContentTypeCreateStruct($contentTypeIdentifier);
         $contentTypeCreateStruct->mainLanguageCode = $lang;
 
@@ -104,7 +105,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
         foreach ($step->dsl['attributes'] as $position => $attribute) {
             // allow easy reuse of attribute defs by storing them in references
             if (is_string($attribute)) {
-                $attribute = $this->referenceResolver->resolveReference($attribute);
+                $attribute = $this->resolveReference($attribute);
             }
             $fieldDefinition = $this->createFieldDefinition($contentTypeService, $attribute, $contentTypeIdentifier, $lang);
             $maxFieldDefinitionPos = $fieldDefinition->position > $maxFieldDefinitionPos ? $fieldDefinition->position : $maxFieldDefinitionPos;
@@ -149,7 +150,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
         $this->validateResultsCount($contentTypeCollection, $step);
 
         if (count($contentTypeCollection) > 1 && array_key_exists('new_identifier', $step->dsl)) {
-            throw new \Exception("Can not execute Content Type update because multiple Content Types match, and a new_identifier is specified in the dsl.");
+            throw new MigrationBundleException("Can not execute Content Type update because multiple Content Types match, and a new_identifier is specified in the dsl.");
         }
 
         $contentTypeService = $this->repository->getContentTypeService();
@@ -171,7 +172,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
 
             $newIdentifier = null;
             if (isset($step->dsl['new_identifier'])) {
-                $newIdentifier = $this->referenceResolver->resolveReference($step->dsl['new_identifier']);
+                $newIdentifier = $this->resolveReference($step->dsl['new_identifier']);
                 $contentTypeUpdateStruct->identifier = $newIdentifier;
             }
 
@@ -217,7 +218,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
 
                     // allow easy reuse of attribute defs by storing them in references
                     if (is_string($attribute)) {
-                        $attribute = $this->referenceResolver->resolveReference($attribute);
+                        $attribute = $this->resolveReference($attribute);
                     }
 
                     $existingFieldDefinition = $this->contentTypeHasFieldDefinition($contentType, $attribute['identifier']);
@@ -247,7 +248,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
                 }
 
                 // Add new attributes
-                foreach($newFieldDefinitions as $newFieldDefinition) {
+                foreach ($newFieldDefinitions as $newFieldDefinition) {
                     if ($newFieldDefinition->position == 0) {
                         $newFieldDefinition->position = ++$maxFieldDefinitionPos;
                     }
@@ -349,7 +350,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
         // convert the references passed in the match
         $match = $this->resolveReferencesRecursively($match);
 
-        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->referenceResolver->resolveReference($step->dsl['match_tolerate_misses']) : false;
+        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->resolveReference($step->dsl['match_tolerate_misses']) : false;
 
         return $this->contentTypeMatcher->match($match, $tolerateMisses);
     }
@@ -384,7 +385,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
                     break;
                 case 'content_type_groups_ids':
                     $value = [];
-                    foreach($contentType->contentTypeGroups as $existingGroup) {
+                    foreach ($contentType->contentTypeGroups as $existingGroup) {
                         $value[] = $existingGroup->id;
                     }
                     break;
@@ -435,6 +436,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
                         $fieldDefinition = $contentType->getFieldDefinition($fieldIdentifier);
                         $hashValue = $this->fieldDefinitionToHash($contentType, $fieldDefinition, $step->context);
                         if (count($parts) == 2 && $fieldIdentifier === $parts[1]) {
+                            /// @todo use a MigrationBundleException ?
                             throw new \InvalidArgumentException('Content Type Manager does not support setting references for attribute ' . $reference['attribute'] . ': please specify an attribute definition sub element');
                         }
                         $value = JmesPath::search(implode('.', array_slice($parts, 1)), array($fieldIdentifier => $hashValue));
@@ -506,7 +508,7 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
                     );
                     break;
                 default:
-                    throw new \Exception("Executor 'content_type' doesn't support mode '$mode'");
+                    throw new InvalidStepDefinitionException("Executor 'content_type' doesn't support mode '$mode'");
             }
 
             if ($mode != 'delete') {
@@ -794,11 +796,11 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
 
     protected function setContentTypeGroup(ContentType $contentType, $contentTypeGroupId)
     {
-        $contentTypeGroupId = $this->referenceResolver->resolveReference($contentTypeGroupId);
+        $contentTypeGroupId = $this->resolveReference($contentTypeGroupId);
         $contentTypeGroup = $this->contentTypeGroupMatcher->matchOneByKey($contentTypeGroupId);
         $contentTypeGroupId = $contentTypeGroup->id;
 
-        foreach($contentType->contentTypeGroups as $existingGroup) {
+        foreach ($contentType->contentTypeGroups as $existingGroup) {
             if ($existingGroup->id === $contentTypeGroupId) {
                 return;
             }
@@ -810,11 +812,11 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
 
     protected function unsetContentTypeGroup(ContentType $contentType, $contentTypeGroupId)
     {
-        $contentTypeGroupId = $this->referenceResolver->resolveReference($contentTypeGroupId);
+        $contentTypeGroupId = $this->resolveReference($contentTypeGroupId);
         $contentTypeGroup = $this->contentTypeGroupMatcher->matchOneByKey($contentTypeGroupId);
         $contentTypeGroupId = $contentTypeGroup->id;
 
-        foreach($contentType->contentTypeGroups as $existingGroup) {
+        foreach ($contentType->contentTypeGroups as $existingGroup) {
             if ($existingGroup->id === $contentTypeGroupId) {
                 $contentTypeService = $this->repository->getContentTypeService();
                 $contentTypeService->unassignContentTypeGroup($contentType, $contentTypeGroup);

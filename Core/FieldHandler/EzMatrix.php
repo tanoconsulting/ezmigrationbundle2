@@ -15,7 +15,7 @@ class EzMatrix extends AbstractFieldHandler implements FieldValueConverterInterf
         /// @todo resolve refs ?
 
         $rows = array();
-        foreach($fieldValue as $data) {
+        foreach ($fieldValue as $data) {
             $rows[] = new \EzSystems\EzPlatformMatrixFieldtype\FieldType\Value\Row($data);
         }
         return new \EzSystems\EzPlatformMatrixFieldtype\FieldType\Value($rows);
@@ -25,7 +25,7 @@ class EzMatrix extends AbstractFieldHandler implements FieldValueConverterInterf
     {
         $data = array();
 
-        foreach($fieldValue->getRows() as $row) {
+        foreach ($fieldValue->getRows() as $row) {
             $data[] = $row->getCells();
         }
 

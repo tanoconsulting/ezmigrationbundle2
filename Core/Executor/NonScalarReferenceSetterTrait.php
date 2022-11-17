@@ -9,7 +9,11 @@ use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
 
 /**
  * A trait used by Executors which allow to set non-scalar values to references.
- * ATM besides scalars we support arrays and collections as reference values
+ * In this context non-scalar means values which will become arrays when the "results" they are taken from are also multiple,
+ * whereas scalar values are the ones which do not change their type, regardles of the number of results.
+ * Example of a scalar reference: the matched items' count. Non scalar reference: the matched items' ids
+ * ATM we only support arrays and collections as results to get reference values from.
+ * NB: requires trait ReferenceSetterTrait to be implemented.
  */
 trait NonScalarReferenceSetterTrait
 {
@@ -33,11 +37,11 @@ trait NonScalarReferenceSetterTrait
      */
     protected function validateResultsCount($results, $step)
     {
-        // q: what if we get a scalar result but we expect an array/collection ?
+        /// @todo what if we get a scalar result but we expect an array/collection (any/many items)?
         // q2: why not just check for Countable interface instead of AbstractCollection? Or at least allow ArrayIterators and ObjectIterators
         if (is_array($results) || $results instanceof AbstractCollection) {
             $expectedResultsCount = $this->expectedResultsCount($step);
-            switch($expectedResultsCount) {
+            switch ($expectedResultsCount) {
                 case self::$EXPECT_UNSPECIFIED:
                 case self::$EXPECT_ANY:
                     break;
@@ -62,7 +66,7 @@ trait NonScalarReferenceSetterTrait
      */
     protected function expectedResultsType($step)
     {
-        switch($this->expectedResultsCount($step)) {
+        switch ($this->expectedResultsCount($step)) {
             case 1:
                 return self::$RESULT_TYPE_SINGLE;
             case 0:
@@ -104,7 +108,7 @@ trait NonScalarReferenceSetterTrait
 
         // BC
         if (isset($step->dsl['references_type'])) {
-            switch($step->dsl['references_type']) {
+            switch ($step->dsl['references_type']) {
                 case 'array':
                     return self::$EXPECT_ANY;
                 case 'scalar':
@@ -116,8 +120,14 @@ trait NonScalarReferenceSetterTrait
 
         // if there are references to set, except the always_scalar ones, then we want a single result
         // (unless the user told us so via the 'expect' tag)
-        if (isset($step->dsl['references']) && $this->hasNonScalarReferences($step->dsl['references'])) {
-            return 1;
+          if (isset($step->dsl['references'])) {
+            if ($this->hasNonScalarReferences($step->dsl['references'])) {
+                return 1;
+            } else {
+                /// @todo what if the only references the user is asking for are the ones which are always scalar? should
+                ///       we presume that in such situation the only reasonable expectde return type is 'any', or is it
+                ///       better to just leave it as unspecified?
+            }
         }
 
         return self::$EXPECT_UNSPECIFIED;
@@ -130,7 +140,7 @@ trait NonScalarReferenceSetterTrait
      */
     protected function hasNonScalarReferences($referencesDefinition)
     {
-        foreach($referencesDefinition as $key => $referenceDefinition) {
+        foreach ($referencesDefinition as $key => $referenceDefinition) {
             $referenceDefinition = $this->parseReferenceDefinition($key, $referenceDefinition);
             if (!$this->isScalarReference($referenceDefinition))
             {

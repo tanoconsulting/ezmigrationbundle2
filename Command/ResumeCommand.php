@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Command to resume suspended migrations.
@@ -22,9 +23,10 @@ class ResumeCommand extends AbstractCommand
 
     protected $stepExecutedListener;
 
-    public function __construct(MigrationService $migrationService, TracingStepExecutedListener $stepExecutedListener)
+    public function __construct(MigrationService $migrationService, TracingStepExecutedListener $stepExecutedListener,
+        KernelInterface $kernel)
     {
-        parent::__construct($migrationService);
+        parent::__construct($migrationService, $kernel);
         $this->stepExecutedListener = $stepExecutedListener;
     }
 
@@ -74,10 +76,10 @@ EOT
         if ($migrationName != null) {
             $suspendedMigration = $migrationService->getMigration($migrationName);
             if (!$suspendedMigration) {
-                throw new \Exception("Migration '$migrationName' not found");
+                throw new \RuntimeException("Migration '$migrationName' not found");
             }
             if ($suspendedMigration->status != Migration::STATUS_SUSPENDED) {
-                throw new \Exception("Migration '$migrationName' is not suspended, can not resume it");
+                throw new \RuntimeException("Migration '$migrationName' is not suspended, can not resume it");
             }
 
             $suspendedMigrations = array($suspendedMigration);
@@ -108,10 +110,10 @@ EOT
 
         $forcedRefs = array();
         if ($input->getOption('set-reference') /*&& !$input->getOption('separate-process')*/) {
-            foreach($input->getOption('set-reference') as $refSpec) {
+            foreach ($input->getOption('set-reference') as $refSpec) {
                 $ref = explode(':', $refSpec, 2);
                 if (count($ref) < 2 || $ref[0] === '') {
-                    throw new \Exception("Invalid reference specification: '$refSpec'");
+                    throw new \InvalidArgumentException("Invalid reference specification: '$refSpec'");
                 }
                 $forcedRefs[$ref[0]] = $ref[1];
             }
@@ -120,7 +122,7 @@ EOT
         $executed = 0;
         $failed = 0;
 
-        foreach($suspendedMigrations as $suspendedMigration) {
+        foreach ($suspendedMigrations as $suspendedMigration) {
             $output->writeln("<info>Resuming {$suspendedMigration->name}</info>");
 
             try {

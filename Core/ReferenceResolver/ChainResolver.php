@@ -7,6 +7,7 @@ use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
 use Kaliop\eZMigrationBundle\API\EmbeddedReferenceResolverBagInterface;
 use Kaliop\eZMigrationBundle\API\EnumerableReferenceResolverInterface;
 use Kaliop\eZMigrationBundle\API\EmbeddedReferenceResolverInterface;
+//use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\Exception\ReferenceUnresolvedException;
 
 /**
@@ -132,7 +133,9 @@ class ChainResolver implements EmbeddedReferenceResolverBagInterface, Enumerable
 
         foreach ($this->resolvers as $resolver) {
             if (! $resolver instanceof EnumerableReferenceResolverInterface) {
-                throw new \Exception("Could not enumerate references because of chained resolver of type: " . get_class($resolver));
+                // Disabled - we now allow chaining enumerable and non-enumerable sets
+                //throw new MigrationBundleException("Could not enumerate references because of chained resolver of type: " . get_class($resolver));
+                continue;
             }
 
             // later resolvers are stronger (see getReferenceValue)
@@ -156,7 +159,7 @@ class ChainResolver implements EmbeddedReferenceResolverBagInterface, Enumerable
                 }
             } else {
                 // NB: BC break for 4.8... should be enabled for 5.0 ?
-                //throw new \Exception("Could not verify embedded references because of chained resolver of type: " . get_class($resolver));
+                //throw new MigrationBundleException("Could not verify embedded references because of chained resolver of type: " . get_class($resolver));
             }
         }
 
@@ -177,7 +180,7 @@ class ChainResolver implements EmbeddedReferenceResolverBagInterface, Enumerable
                 $string = $resolver->resolveEmbeddedReferences($string);
             } else {
                 // NB: BC break for 4.8... should be enabled for 5.0 ?
-                //throw new \Exception("Could not resolve embedded references because of chained resolver of type: " . get_class($resolver));
+                //throw new MigrationBundleException("Could not resolve embedded references because of chained resolver of type: " . get_class($resolver));
             }
         }
 

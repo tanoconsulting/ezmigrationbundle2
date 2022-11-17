@@ -6,11 +6,16 @@ use Doctrine\DBAL\Connection;
 use Kaliop\eZMigrationBundle\API\EmbeddedReferenceResolverBagInterface;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchResultsNumberException;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
 
+/**
+ * @property EmbeddedReferenceResolverBagInterface $referenceResolver
+ */
 class SQLExecutor extends AbstractExecutor
 {
     use IgnorableStepExecutorTrait;
+    use ReferenceSetterTrait;
     use NonScalarReferenceSetterTrait;
 
     protected $scalarReferences = array('count');
@@ -22,9 +27,6 @@ class SQLExecutor extends AbstractExecutor
 
     protected $supportedStepTypes = array('sql');
     protected $supportedActions = array('exec', 'query');
-
-    /** @var EmbeddedReferenceResolverBagInterface $referenceResolver */
-    protected $referenceResolver;
 
     protected $queryRequiresFetching = false;
 
@@ -70,7 +72,7 @@ class SQLExecutor extends AbstractExecutor
         $dbType = strtolower(preg_replace('/([0-9]+|Platform)/', '', $conn->getDatabasePlatform()->getName()));
 
         if (!isset($step->dsl[$dbType])) {
-            throw new \Exception("Current database type '$dbType' is not supported by the SQL migration");
+            throw new MigrationBundleException("Current database type '$dbType' is not supported by the SQL migration");
         }
         $sql = $step->dsl[$dbType];
 
@@ -92,7 +94,7 @@ class SQLExecutor extends AbstractExecutor
         $dbType = strtolower(preg_replace('/([0-9]+|Platform)/', '', $conn->getDatabasePlatform()->getName()));
 
         if (!isset($step->dsl[$dbType])) {
-            throw new \Exception("Current database type '$dbType' is not supported by the SQL migration");
+            throw new MigrationBundleException("Current database type '$dbType' is not supported by the SQL migration");
         }
         $sql = $step->dsl[$dbType];
 
@@ -132,7 +134,7 @@ class SQLExecutor extends AbstractExecutor
 
     protected function setExecReferences($result, $step)
     {
-        if (!array_key_exists('references', $step->dsl)) {
+        if (!array_key_exists('references', $step->dsl) || !count($step->dsl['references'])) {
             return false;
         }
 
@@ -150,13 +152,15 @@ class SQLExecutor extends AbstractExecutor
             if (isset($reference['overwrite'])) {
                 $overwrite = $reference['overwrite'];
             }
-            $this->referenceResolver->addReference($reference['identifier'], $value, $overwrite);
+            $this->addReference($reference['identifier'], $value, $overwrite);
         }
+
+        return true;
     }
 
     protected function setQueryReferences($result, $step, $singleResult)
     {
-        if (!array_key_exists('references', $step->dsl)) {
+        if (!array_key_exists('references', $step->dsl) || !count($step->dsl['references'])) {
             return false;
         }
 
@@ -173,6 +177,7 @@ class SQLExecutor extends AbstractExecutor
                     if (count($result)) {
                         $colName = substr($reference['attribute'], 8);
                         if (!isset($result[0][$colName])) {
+                            /// @todo use a MigrationBundleException ?
                             throw new \InvalidArgumentException('Sql Executor does not support setting references for attribute ' . $reference['attribute']);
                         }
                         $value = array_column($result, $colName);
@@ -189,8 +194,10 @@ class SQLExecutor extends AbstractExecutor
             if (isset($reference['overwrite'])) {
                 $overwrite = $reference['overwrite'];
             }
-            $this->referenceResolver->addReference($reference['identifier'], $value, $overwrite);
+            $this->addReference($reference['identifier'], $value, $overwrite);
         }
+
+        return true;
     }
 
     /**

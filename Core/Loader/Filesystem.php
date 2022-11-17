@@ -6,6 +6,7 @@ use Kaliop\eZMigrationBundle\API\LoaderInterface;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Collection\MigrationDefinitionCollection;
 use Kaliop\eZMigrationBundle\API\ConfigResolverInterface;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -78,31 +79,52 @@ class Filesystem implements LoaderInterface
             }
         }
 
+        $rootDir = realpath($this->kernel->getProjectDir() . '/..') . '/';
+
         $definitions = array();
         foreach ($paths as $path) {
+            // we normalize all paths and try to make them relative to the root dir, both in input and output
+            if ($path === './') {
+                $path = $rootDir;
+            } elseif ($path[0] !== '/') {
+                $path = $rootDir . $path;
+            }
+
             if (is_file($path)) {
-                $definitions[basename($path)] = $returnFilename ? $path : new MigrationDefinition(
+                $path = realpath($path);
+                $definitions[basename($path)] = $returnFilename ? $this->normalizePath($path) : new MigrationDefinition(
                     basename($path),
-                    $path,
+                    $this->normalizePath($path),
                     file_get_contents($path)
                 );
             } elseif (is_dir($path)) {
                 foreach (new \DirectoryIterator($path) as $file) {
                     if ($file->isFile()) {
                         $definitions[$file->getFilename()] =
-                            $returnFilename ? $file->getRealPath() : new MigrationDefinition(
+                            $returnFilename ? $this->normalizePath($file->getRealPath()) : new MigrationDefinition(
                                 $file->getFilename(),
-                                $file->getRealPath(),
+                                $this->normalizePath($file->getRealPath()),
                                 file_get_contents($file->getRealPath())
                             );
                     }
                 }
             } else {
-                throw new \Exception("Path '$path' is neither a file nor directory");
+                throw new MigrationBundleException("Path '$path' is neither a file nor directory");
             }
         }
         ksort($definitions);
 
         return $definitions;
+    }
+
+    /**
+     * @param string $path should be an absolute path
+     * @return string the same path, but relative to current root dir if it is a subpath
+     */
+    protected function normalizePath($path)
+    {
+        $rootDir = realpath($this->kernel->getProjectDir() . '/..') . '/';
+        // note: we handle the case of 'path = root dir', but path is expected to include a filename...
+        return $path === $rootDir ? './' : preg_replace('#^' . preg_quote($rootDir, '#'). '#', '', $path);
     }
 }

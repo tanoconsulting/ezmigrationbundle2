@@ -2,10 +2,11 @@
 
 namespace Kaliop\eZMigrationBundle\Core\FieldHandler;
 
+use eZ\Publish\API\Repository\Repository;
 use eZ\Publish\Core\FieldType\Selection\Value as SelectionValue;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\FieldValueImporterInterface;
 use Kaliop\eZMigrationBundle\API\FieldDefinitionConverterInterface;
-use \eZ\Publish\API\Repository\Repository;
 
 class EzSelection extends AbstractFieldHandler implements FieldValueImporterInterface, FieldDefinitionConverterInterface
 {
@@ -36,8 +37,9 @@ class EzSelection extends AbstractFieldHandler implements FieldValueImporterInte
 
         // allow user to pass in selection values by name
         $fieldSettings = null;
-        foreach($fieldValue as $key => $val) {
+        foreach ($fieldValue as $key => $val) {
 
+            // NB: this might result in double reference-resolving when the original value is a string, given preResolveReferences...
             $val = $this->referenceResolver->resolveReference($val);
 
             if (is_string($val)) {
@@ -47,7 +49,7 @@ class EzSelection extends AbstractFieldHandler implements FieldValueImporterInte
                     if ($fieldSettings === null) {
                         $fieldSettings = $this->loadFieldSettings($context['contentTypeIdentifier'], $context['fieldIdentifier']);
                     }
-                    foreach($fieldSettings['options'] as $pos => $name) {
+                    foreach ($fieldSettings['options'] as $pos => $name) {
                         if ($name === $val) {
                             $fieldValue[$key] = $pos;
                             break;
@@ -82,7 +84,7 @@ class EzSelection extends AbstractFieldHandler implements FieldValueImporterInte
     {
         foreach ($settingsHash['options'] as $key => $value) {
             if (!is_int($key) && !ctype_digit($key)) {
-                throw new \Exception("The list of values allowed for an eZSelection field can only use integer keys, found: '$key'");
+                throw new MigrationBundleException("The list of values allowed for an eZSelection field can only use integer keys, found: '$key'");
             }
         }
         return $settingsHash;

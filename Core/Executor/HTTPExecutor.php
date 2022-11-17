@@ -2,21 +2,22 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
-use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
 use Kaliop\eZMigrationBundle\API\EmbeddedReferenceResolverBagInterface;
+use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @property EmbeddedReferenceResolverBagInterface $referenceResolver
+ */
 class HTTPExecutor extends AbstractExecutor
 {
     use IgnorableStepExecutorTrait;
+    use ReferenceSetterTrait;
 
     protected $supportedStepTypes = array('http');
     protected $supportedActions = array('call');
-
-    /** @var EmbeddedReferenceResolverBagInterface $referenceResolver */
-    protected $referenceResolver;
 
     protected $container;
 
@@ -66,7 +67,7 @@ class HTTPExecutor extends AbstractExecutor
             throw new InvalidStepDefinitionException("Can not execute http call without 'uri' in the step definition");
         }
 
-        $method = isset($dsl['method']) ? $dsl['method'] : 'GET';
+        $method = isset($dsl['method']) ? $this->resolveReference($dsl['method']) : 'GET';
 
         $uri = $this->resolveReferencesInText($dsl['uri']);
 
@@ -75,7 +76,7 @@ class HTTPExecutor extends AbstractExecutor
         $body = isset($dsl['body']) ? $this->resolveReferencesInText($dsl['body']) : null;
 
         if (isset($dsl['client'])) {
-            $client = $this->container->get('httplug.client.'.$dsl['client']);
+            $client = $this->container->get('httplug.client.'.$this->resolveReference($dsl['client']));
         } else {
             $client = $this->container->get('httplug.client');
         }
@@ -98,7 +99,7 @@ class HTTPExecutor extends AbstractExecutor
      */
     protected function setReferences(ResponseInterface $response, $dsl)
     {
-        if (!array_key_exists('references', $dsl)) {
+        if (!array_key_exists('references', $dsl) || !count($dsl['references'])) {
             return false;
         }
 
@@ -128,25 +129,10 @@ class HTTPExecutor extends AbstractExecutor
             if (isset($reference['overwrite'])) {
                 $overwrite = $reference['overwrite'];
             }
-            $this->referenceResolver->addReference($reference['identifier'], $value, $overwrite);
+            $this->addReference($reference['identifier'], $value, $overwrite);
         }
 
         return true;
-    }
-
-    /**
-     * @todo should be moved into the reference resolver classes
-     */
-    protected function resolveReferencesRecursively($match)
-    {
-        if (is_array($match)) {
-            foreach ($match as $condition => $values) {
-                $match[$condition] = $this->resolveReferencesRecursively($values);
-            }
-            return $match;
-        } else {
-            return $this->referenceResolver->resolveReference($match);
-        }
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Kaliop\eZMigrationBundle\Core\ReferenceResolver;
 
 use Kaliop\eZMigrationBundle\API\EnumerableReferenceResolverInterface;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 
 class LoopResolver extends AbstractResolver implements EnumerableReferenceResolverInterface
 {
@@ -35,7 +36,7 @@ class LoopResolver extends AbstractResolver implements EnumerableReferenceResolv
      */
     public function getReferenceValue($identifier)
     {
-        switch(substr($identifier, 5)) {
+        switch (substr($identifier, 5)) {
             case 'iteration':
                 $current = end($this->stack);
                 return $current['step'];
@@ -48,7 +49,7 @@ class LoopResolver extends AbstractResolver implements EnumerableReferenceResolv
             case 'depth':
                 return count($this->stack);
             default:
-                throw new \Exception("Can not resolve loop value '$identifier'");
+                throw new MigrationBundleException("Can not resolve loop value '$identifier'");
         }
     }
 

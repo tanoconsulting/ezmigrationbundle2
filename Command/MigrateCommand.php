@@ -6,6 +6,7 @@ use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Exception\AfterMigrationExecutionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\Core\EventListener\TracingStepExecutedListener;
 use Kaliop\eZMigrationBundle\Core\MigrationService;
 use Kaliop\eZMigrationBundle\Core\Process\Process;
@@ -23,23 +24,21 @@ use Symfony\Component\Process\PhpExecutableFinder;
  */
 class MigrateCommand extends AbstractCommand
 {
-    // in between QUIET and NORMAL
-    const VERBOSITY_CHILD = 0.5;
+    // in between QUIET and NORMAL. Sadly the OutputInterface consts changed somewhere between Symfony 2 and 3. Will they do it again?
+    static $VERBOSITY_CHILD = 0.5;
 
     protected static $defaultName = 'kaliop:migration:migrate';
 
     protected $subProcessTimeout = 86400;
     protected $subProcessErrorString = '';
     protected $stepExecutedListener;
-    protected $kernel;
     protected $customReferenceResolver;
 
     public function __construct(MigrationService $migrationService, TracingStepExecutedListener $stepExecutedListener,
         KernelInterface $kernel, ReferenceBagInterface $customReferenceResolver)
     {
-        parent::__construct($migrationService);
+        parent::__construct($migrationService, $kernel);
         $this->stepExecutedListener = $stepExecutedListener;
-        $this->kernel = $kernel;
         $this->customReferenceResolver = $customReferenceResolver;
     }
 
@@ -67,19 +66,24 @@ class MigrateCommand extends AbstractCommand
             ->addOption('force-sigchild-enabled', null, InputOption::VALUE_NONE, "When using a separate php process to run each migration, tell Symfony that php was compiled with --enable-sigchild option")
             ->addOption('survive-disconnected-tty', null, InputOption::VALUE_NONE, "Keep on executing migrations even if the tty where output is written to gets removed. Useful if you run the command over an unstable ssh connection")
             ->addOption('set-reference', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, "Inject references into the migrations. Format: --set-reference refname:value --set-reference ref2name:value2")
+            ->addOption('child-process-php-ini-config', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, "Passed using `-d` to child php processes when using separate-process. Format: --child-processes-php-ini-config memory_limit:-1 --child-processes-php-ini-config setting2:value2")
             ->addOption('child', null, InputOption::VALUE_NONE, "*DO NOT USE* Internal option for when forking separate processes")
             ->setHelp(<<<EOT
 The <info>kaliop:migration:migrate</info> command loads and executes migrations:
 
-    <info>./ezpublish/console kaliop:migration:migrate</info>
+    <info>php bin/console kaliop:migration:migrate</info>
 
 You can optionally specify the path to migration definitions with <info>--path</info>:
 
-    <info>./ezpublish/console kaliop:migrations:migrate --path=/path/to/bundle/version_directory --path=/path/to/bundle/version_directory/single_migration_file</info>
+    <info>php bin/console kaliop:migration:migrate --path=/path/to/bundle/version_directory --path=/path/to/bundle/version_directory/single_migration_file</info>
 
 Use -v and -vv options to get troubleshooting information on the execution of each step in the migration(s).
 EOT
             );
+
+            if (self::$VERBOSITY_CHILD <= OutputInterface::VERBOSITY_QUIET) {
+                self::$VERBOSITY_CHILD = (OutputInterface::VERBOSITY_QUIET + OutputInterface::VERBOSITY_NORMAL) / 2;
+            }
     }
 
     /**
@@ -97,7 +101,7 @@ EOT
         $this->setVerbosity($output->getVerbosity());
 
         if ($input->getOption('child') && $output->getVerbosity() <= OutputInterface::VERBOSITY_NORMAL) {
-            $this->setVerbosity(self::VERBOSITY_CHILD);
+            $this->setVerbosity(self::$VERBOSITY_CHILD);
         }
 
         $this->stepExecutedListener->setOutput($output);
@@ -107,7 +111,7 @@ EOT
 
         $force = $input->getOption('force');
 
-        $toExecute = $this->buildMigrationsList($input->getOption('path'), $migrationService, $force);
+        $toExecute = $this->buildMigrationsList($this->normalizePaths($input->getOption('path')), $migrationService, $force);
 
         if (!count($toExecute)) {
             $output->writeln('<info>No migrations to execute</info>');
@@ -128,6 +132,16 @@ EOT
             $executableFinder = new PhpExecutableFinder();
             if (false !== $php = $executableFinder->find()) {
                 $prefix[] = $php;
+
+                if ($input->getOption('child-process-php-ini-config')) {
+                    foreach ($input->getOption('child-process-php-ini-config') as $iniSpec) {
+                        $ini = explode(':', $iniSpec, 2);
+                        if (count($ini) < 2 || $ini[0] === '') {
+                            throw new \InvalidArgumentException("Invalid php ini specification: '$iniSpec'");
+                        }
+                        $prefix[] = '-d ' . $ini[0] . '=' . $ini[1];
+                    }
+                }
             }
             $builderArgs = array_merge($prefix, $this->createChildProcessArgs($input));
         }
@@ -143,10 +157,10 @@ EOT
         }
 
         if ($input->getOption('set-reference') && !$input->getOption('separate-process')) {
-            foreach($input->getOption('set-reference') as $refSpec) {
+            foreach ($input->getOption('set-reference') as $refSpec) {
                 $ref = explode(':', $refSpec, 2);
                 if (count($ref) < 2 || $ref[0] === '') {
-                    throw new \Exception("Invalid reference specification: '$refSpec'");
+                    throw new \InvalidArgumentException("Invalid reference specification: '$refSpec'");
                 }
                 $this->customReferenceResolver->addReference($ref[0], $ref[1], true);
             }
@@ -158,10 +172,10 @@ EOT
         $skipped = 0;
         $total = count($toExecute);
 
-        /** @var MigrationDefinition $migrationDefinition */
         foreach ($toExecute as $name => $migrationDefinition) {
 
             // let's skip migrations that we know are invalid - user was warned and he decided to proceed anyway
+            /// @todo should we save their 'skipped' status in the db?
             if ($migrationDefinition->status == MigrationDefinition::STATUS_INVALID) {
                 $output->writeln("<comment>Skipping $name</comment>");
                 $skipped++;
@@ -182,7 +196,6 @@ EOT
                     $executed++;
                 } catch (\Exception $e) {
                     $failed++;
-
 
                     $errorMessage = $e->getMessage();
                     // we probably have already echoed the error message while the subprocess was executing, avoid repeating it
@@ -279,7 +292,7 @@ EOT
         $process = new Process(array_merge($builderArgs, array('--path=' . $migrationDefinition->path)));
 
         if ($feedback) {
-            $this->writeln('<info>Executing: ' . $process->getCommandLine() . '</info>', OutputInterface::VERBOSITY_VERBOSE);
+            $this->writeln('<info>Executing: ' . $process->getCommandLine() . '</info>', OutputInterface::VERBOSITY_NORMAL);
         }
 
         $this->subProcessErrorString = '';
@@ -291,7 +304,7 @@ EOT
         // NB: if the subprocess writes to stderr then terminates with non-0 exit code, this will lead us to echoing the
         // error text twice, once here and once at the end of execution of this command.
         // In order to avoid that, since we can not know at this time what the subprocess exit code will be, we
-        // do print the error text now, and compare it to what we gt at the end...
+        // do print the error text now, and compare it to what we get at the end...
         $process->run(
             $feedback ?
                 function($type, $buffer) {
@@ -300,7 +313,7 @@ EOT
                         $this->writeErrorln($buffer, OutputInterface::VERBOSITY_QUIET, OutputInterface::OUTPUT_RAW);
                     } else {
                         // swallow output of child processes in quiet mode
-                        $this->writeLn($buffer, self::VERBOSITY_CHILD, OutputInterface::OUTPUT_RAW);
+                        $this->writeLn($buffer, self::$VERBOSITY_CHILD, OutputInterface::OUTPUT_RAW);
                     }
                 }
                 :
@@ -313,12 +326,19 @@ EOT
             /// @todo should we always add the exit code to the error message, even when $errorOutput is not null ?
             if ($errorOutput === '') {
                 $errorOutput = "(separate process used to execute migration failed with no stderr output. Its exit code was: " . $process->getExitCode();
+                // We go out of our way to help the user finding the cause of the error.
+                /// @todo another cause we might check for in case of empty $errorOutput is when error_reporting does
+                ///       not include fatal errors (E_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR?)
+                $errorLog = ini_get("error_log");
+                if ($errorLog != '' && $errorLog != 'syslog') {
+                    $errorOutput .= ". Error details might be in file $errorLog";
+                }
                 if ($process->getExitCode() == -1) {
                     $errorOutput .= ". If you are using Debian or Ubuntu linux, please consider using the --force-sigchild-enabled option.";
                 }
                 $errorOutput .= ")";
             }
-            throw new \Exception($errorOutput);
+            throw new MigrationBundleException($errorOutput);
         }
 
         // There are cases where the separate process dies halfway but does not return a non-zero code.
@@ -328,7 +348,7 @@ EOT
 
         if (!$migration) {
             // q: shall we add the migration to the db as failed? In doubt, we let it become a ghost, disappeared without a trace...
-            throw new \Exception("After the separate process charged to execute the migration finished, the migration can not be found in the database any more.");
+            throw new MigrationBundleException("After the separate process charged to execute the migration finished, the migration can not be found in the database any more.");
         } else if ($migration->status == Migration::STATUS_STARTED) {
             $errorMsg = "The separate process charged to execute the migration left it in 'started' state. Most likely it died halfway through execution.";
             $migrationService->endMigration(New Migration(
@@ -339,7 +359,7 @@ EOT
                 Migration::STATUS_FAILED,
                 ($migration->executionError != '' ? ($errorMsg . ' ' . $migration->executionError) : $errorMsg)
             ));
-            throw new \Exception($errorMsg);
+            throw new MigrationBundleException($errorMsg);
         }
     }
 
@@ -381,7 +401,7 @@ EOT
                             $migrationDefinition = $migrationDefinitions->reset();
                             $toExecute[$migration->name] = $migrationService->parseMigrationDefinition($migrationDefinition);
                         } else {
-                            throw new \Exception("Migration definition not found at path '$migration->path'");
+                            throw new MigrationBundleException("Migration definition not found at path '$migration->path'");
                         }
                     } catch (\Exception $e) {
                         $this->writeErrorln("Error while loading definition for migration '{$migration->name}' registered in the database, skipping it: " . $e->getMessage());
@@ -506,7 +526,7 @@ EOT
             $builderArgs[] = '--no-transactions';
         }
         if ($input->getOption('set-reference')) {
-            foreach($input->getOption('set-reference') as $refSpec) {
+            foreach ($input->getOption('set-reference') as $refSpec) {
                 $builderArgs[] = '--set-reference=' . $refSpec;
             }
         }

@@ -20,7 +20,7 @@ class ObjectStateGroupMatcher extends RepositoryMatcher implements KeyMatcherInt
         self:: MATCH_ALL, self::MATCH_AND, self::MATCH_OR, self::MATCH_NOT,
         self::MATCH_OBJECTSTATEGROUP_ID, self::MATCH_OBJECTSTATEGROUP_IDENTIFIER,
         // aliases
-        'id', 'identifier'
+        'id', 'identifier',
     );
     protected $returns = 'ObjectStateGroup';
 
@@ -102,7 +102,7 @@ class ObjectStateGroupMatcher extends RepositoryMatcher implements KeyMatcherInt
                 // return unique contents
                 $objectStateGroup = $this->repository->getObjectStateService()->loadObjectStateGroup($objectStateGroupId);
                 $objectStateGroups[$objectStateGroup->id] = $objectStateGroup;
-            } catch(NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 if (!$tolerateMisses) {
                     throw $e;
                 }

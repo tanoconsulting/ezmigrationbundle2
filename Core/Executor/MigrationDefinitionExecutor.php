@@ -4,23 +4,26 @@ namespace Kaliop\eZMigrationBundle\Core\Executor;
 
 use JmesPath\Env as JmesPath;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\MatcherInterface;
 use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
 use Kaliop\eZMigrationBundle\API\ReferenceResolverBagInterface;
 use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @property ReferenceResolverBagInterface $referenceResolver
+ */
 class MigrationDefinitionExecutor extends AbstractExecutor
 {
     use IgnorableStepExecutorTrait;
+    use ReferenceSetterTrait;
 
     protected $supportedStepTypes = array('migration_definition');
     protected $supportedActions = array('generate', 'save');
 
     /** @var \Kaliop\eZMigrationBundle\Core\MigrationService $migrationService */
     protected $migrationService;
-    /** @var ReferenceResolverBagInterface $referenceResolver */
-    protected $referenceResolver;
 
     public function __construct($migrationService, ReferenceResolverBagInterface $referenceResolver)
     {
@@ -62,33 +65,34 @@ class MigrationDefinitionExecutor extends AbstractExecutor
     protected function generate($dsl, $context)
     {
         if (!isset($dsl['migration_type'])) {
-            throw new \Exception("Invalid step definition: miss 'migration_type'");
+            throw new InvalidStepDefinitionException("Invalid step definition: miss 'migration_type'");
         }
-        $migrationType = $this->referenceResolver->resolveReference($dsl['migration_type']);
+        $migrationType = $this->resolveReference($dsl['migration_type']);
         if (!isset($dsl['migration_mode'])) {
-            throw new \Exception("Invalid step definition: miss 'migration_mode'");
+            throw new InvalidStepDefinitionException("Invalid step definition: miss 'migration_mode'");
         }
-        $migrationMode = $this->referenceResolver->resolveReference($dsl['migration_mode']);
+        $migrationMode = $this->resolveReference($dsl['migration_mode']);
         if (!isset($dsl['match']) || !is_array($dsl['match'])) {
-            throw new \Exception("Invalid step definition: miss 'match' to determine what to generate migration definition for");
+            throw new InvalidStepDefinitionException("Invalid step definition: miss 'match' to determine what to generate migration definition for");
         }
         $match = $dsl['match'];
 
         $executors = $this->getGeneratingExecutors();
         if (!in_array($migrationType, $executors)) {
-            throw new \Exception("It is not possible to generate a migration of type '$migrationType': executor not found or not a generator");
+            throw new InvalidStepDefinitionException("It is not possible to generate a migration of type '$migrationType': executor not found or not a generator");
         }
         /** @var MigrationGeneratorInterface $executor */
         $executor = $this->migrationService->getExecutor($migrationType);
 
         if (isset($dsl['lang']) && $dsl['lang'] != '') {
-            $context['defaultLanguageCode'] = $this->referenceResolver->resolveReference($dsl['lang']);
+            $context['defaultLanguageCode'] = $this->resolveReference($dsl['lang']);
         }
 
         // in case the executor does different things based on extra information present in the step definition
         $context['step'] = $dsl;
 
-        $matchCondition = array($this->referenceResolver->resolveReference($match['type']) => $this->referenceResolver->resolveReference($match['value']));
+        // q: should we use resolveReferenceRecursively for $match['value']?
+        $matchCondition = array($this->resolveReference($match['type']) => $this->resolveReference($match['value']));
         if (isset($match['except']) && $match['except']) {
             $matchCondition = array(MatcherInterface::MATCH_NOT => $matchCondition);
         }
@@ -97,7 +101,7 @@ class MigrationDefinitionExecutor extends AbstractExecutor
 
         if (isset($dsl['file'])) {
 
-            $fileName = $this->referenceResolver->resolveReference($dsl['file']);
+            $fileName = $this->resolveReference($dsl['file']);
 
             $this->saveDefinition($result, $fileName);
         }
@@ -117,14 +121,15 @@ class MigrationDefinitionExecutor extends AbstractExecutor
         }
 
         if (is_string($dsl['migration_steps'])) {
-            $definition = $this->referenceResolver->resolveReference($dsl['migration_steps']);
+            $definition = $this->resolveReference($dsl['migration_steps']);
         } else {
             $definition = $dsl['migration_steps'];
         }
 
+        /// @todo allow resolving references within texts, not only as full value
         $definition = $this->resolveReferencesRecursively($definition);
 
-        $fileName = $this->referenceResolver->resolveReference($dsl['file']);
+        $fileName = $this->resolveReference($dsl['file']);
 
         $this->saveDefinition($definition, $fileName);
 
@@ -148,7 +153,7 @@ class MigrationDefinitionExecutor extends AbstractExecutor
                 $code = json_encode($definition, JSON_PRETTY_PRINT);
                 break;
             default:
-                throw new \Exception("Can not save migration definition to a file of type '$ext'");
+                throw new InvalidStepDefinitionException("Can not save migration definition to a file of type '$ext'");
         }
 
         $dir = dirname($fileName);
@@ -157,13 +162,13 @@ class MigrationDefinitionExecutor extends AbstractExecutor
         }
 
         if (!file_put_contents($fileName, $code)) {
-            throw new \Exception("Failed saving migration definition to file '$fileName'");
+            throw new MigrationBundleException("Failed saving migration definition to file '$fileName'");
         }
     }
 
     protected function setReferences($result, $dsl)
     {
-        if (!array_key_exists('references', $dsl)) {
+        if (!array_key_exists('references', $dsl) || !count($dsl['references'])) {
             return false;
         }
 
@@ -186,8 +191,10 @@ class MigrationDefinitionExecutor extends AbstractExecutor
                 $overwrite = $reference['overwrite'];
             }
 
-            $this->referenceResolver->addReference($reference['identifier'], $value, $overwrite);
+            $this->addReference($reference['identifier'], $value, $overwrite);
         }
+
+        return true;
     }
 
     /**
@@ -198,28 +205,12 @@ class MigrationDefinitionExecutor extends AbstractExecutor
     {
         $migrationService = $this->migrationService;
         $executors = $migrationService->listExecutors();
-        foreach($executors as $key => $name) {
+        foreach ($executors as $key => $name) {
             $executor = $migrationService->getExecutor($name);
             if (!$executor instanceof MigrationGeneratorInterface) {
                 unset($executors[$key]);
             }
         }
         return $executors;
-    }
-
-    /**
-     * @todo should be moved into the reference resolver classes
-     * @todo allow resolving references within texts, not only as full value
-     */
-    protected function resolveReferencesRecursively($match)
-    {
-        if (is_array($match)) {
-            foreach ($match as $condition => $values) {
-                $match[$condition] = $this->resolveReferencesRecursively($values);
-            }
-            return $match;
-        } else {
-            return $this->referenceResolver->resolveReference($match);
-        }
     }
 }

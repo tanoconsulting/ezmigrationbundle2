@@ -49,7 +49,7 @@ class StatusTest extends MigrationExecutingTest
 
     public function testTodo()
     {
-        $filePath = $this->dslDir.'/misc/UnitTestOK701_harmless.yml';
+        $filePath = realpath($this->dslDir.'/misc/UnitTestOK701_harmless.yml');
         $this->prepareMigration($filePath);
         $output = $this->runCommand('kaliop:migration:status', array('--todo' => true));
         $this->assertRegexp('?^'.$filePath.'$?m', $output);
@@ -82,11 +82,11 @@ class StatusTest extends MigrationExecutingTest
         $this->deleteMigration($filePath, false);
 
         $output = $this->runCommand('kaliop:migration:status', array('--show-path' => true, '--path' => array($filePath)));
-        $this->assertStringContainsString($filePath, $output);
+        $this->assertStringContainsString(realpath($filePath), $output);
 
         $this->addMigration($filePath);
         $output = $this->runCommand('kaliop:migration:status', array('--show-path' => true));
-        $this->assertStringContainsString($filePath, $output);
+        $this->assertStringContainsString(realpath($filePath), $output);
 
         $this->deleteMigration($filePath);
     }

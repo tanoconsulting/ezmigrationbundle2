@@ -2,12 +2,12 @@
 
 namespace Kaliop\eZMigrationBundle\Command;
 
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
-use Symfony\Component\Console\Helper\Table;
 
 /**
  * Command to display the status of migrations.
@@ -29,15 +29,15 @@ class StatusCommand extends AbstractCommand
             ->addOption('sort-by', null, InputOption::VALUE_REQUIRED, "Supported sorting order: name, execution", 'name')
             ->addOption('summary', null, InputOption::VALUE_NONE, "Only print summary information")
             ->addOption('todo', null, InputOption::VALUE_NONE, "Only print list of migrations to execute (full path to each)")
-            ->addOption('show-path', null, InputOption::VALUE_NONE, "Print migration path instead of status")
+            ->addOption('show-path', null, InputOption::VALUE_NONE, "Print migration path instead of notes")
             ->setHelp(<<<EOT
 The <info>kaliop:migration:status</info> command displays the status of all available migrations:
 
-    <info>./ezpublish/console kaliop:migration:status</info>
+    <info>php bin/console kaliop:migration:status</info>
 
-You can optionally specify the path to migration versions with <info>--path</info>:
+You can optionally specify the path to migration definitions with <info>--path</info>:
 
-    <info>./ezpublish/console kaliop:migrations:status --path=/path/to/bundle/version_directory --path=/path/to/bundle/version_directory/single_migration_file</info>
+    <info>php bin/console kaliop:migration:status --path=/path/to/bundle/version_directory --path=/path/to/bundle/version_directory/single_migration_file</info>
 EOT
             );
     }
@@ -50,15 +50,17 @@ EOT
         $migrationsService = $this->getMigrationService();
 
         $displayPath = $input->getOption('show-path');
-        $migrationDefinitions = $migrationsService->getMigrationsDefinitions($input->getOption('path'));
-        $migrations = $migrationsService->getMigrationsByPaths($input->getOption('path'));
+        $paths = $this->normalizePaths($input->getOption('path'));
+        $migrationDefinitions = $migrationsService->getMigrationsDefinitions($paths);
+        $migrations = $migrationsService->getMigrationsByPaths($paths);
 
-        if (!count($migrationDefinitions) && !count($migrations) && !$input->getOption('summary')) {
+        if (!count($migrationDefinitions) && !count($migrations)) {
             $output->writeln('<info>No migrations found</info>');
             return 0;
         }
 
         // create a unique list of all migrations (coming from db) and definitions (coming from disk)
+
         $index = array();
         foreach ($migrationDefinitions as $migrationDefinition) {
             $index[$migrationDefinition->name] = array('definition' => $migrationDefinition);
@@ -70,17 +72,36 @@ EOT
                 $index[$migration->name] = array('migration' => $migration);
 
                 // no definition, but a migration is there. Check if the definition sits elsewhere on disk than we expect it to be...
-                // q: what if we have a loader which does not work with is_file? Could we remove this check?
-                if ($migration->path != '' && is_file($migration->path)) {
+                // q: what if we have a loader which does not work with is_file? Could we remove this check? Also, path
+                // is usually relative to the app's root dir
+                if ($migration->path != '' /*&& is_file($migration->path)*/) {
                     try {
                         $migrationDefinitionCollection = $migrationsService->getMigrationsDefinitions(array($migration->path));
                         if (count($migrationDefinitionCollection)) {
+                            // the migration has been executed, but it is in a path outside what we are examining here.
+                            // We  add it as a note
                             $index[$migration->name]['definition'] = $migrationDefinitionCollection->reset();
+                            $index[$migration->name]['notes'] = array('<comment>The migration definition file is in a custom path</comment>');
                         }
                     } catch (\Exception $e) {
                         /// @todo one day we should be able to limit the kind of exceptions we have to catch here...
                     }
                 }
+            }
+        }
+
+        // In case the user has passed in path(s), and there are migration defs in those paths which have the same name
+        // as executed/skipped migrations in the db which are outside the path, they will be listed as 'to execute',
+        // which is misleading. We add the following loop to fix that, so that the status command will match more closely
+        // the 'migrate' command
+        if (count($paths)) {
+            foreach ($index as $migrationName => $data) {
+                if (!isset($data['migration'])) {
+                    $migration = $migrationsService->getMigration($migrationName);
+                    if ($migration !== null) {
+                        $index[$migration->name]['migration'] = $migration;
+                    }
+               }
             }
         }
 
@@ -190,9 +211,12 @@ EOT
                         if (md5($migrationDefinition->rawDefinition) != $migration->md5) {
                             $notes[] = '<comment>The migration definition file has now a different checksum</comment>';
                         }
-                        if ($migrationDefinition->path != $migrationDefinition->path) {
+                        if ($migrationDefinition->path != $migration->path) {
                             $notes[] = '<comment>The migration definition file has now moved</comment>';
                         }
+                    }
+                    if (isset($value['notes'])) {
+                        $notes = array_merge($notes, $value['notes']);
                     }
                     $notes = implode(' ', $notes);
                 }
@@ -240,7 +264,7 @@ EOT
      */
     protected function sortMigrationIndex(array &$index, $sortBy)
     {
-        switch($sortBy) {
+        switch ($sortBy) {
             case 'execution':
                 uasort($index, function($m1, $m2) {
                     if (isset($m1['migration']) && $m1['migration']->executionDate !== null) {
@@ -268,7 +292,7 @@ EOT
                 ksort($index);
                 break;
             default:
-                throw new \Exception("Unsupported sort order: '$sortBy'");
+                throw new \InvalidArgumentException("Unsupported sort order: '$sortBy'");
         }
     }
 }

@@ -3,10 +3,10 @@
 namespace Kaliop\eZMigrationBundle\Command;
 
 use Kaliop\eZMigrationBundle\Core\MigrationService;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Base command class that all migration commands extend from.
@@ -18,15 +18,17 @@ abstract class AbstractCommand extends Command
      */
     private $migrationService;
 
+    protected $kernel;
     /** @var OutputInterface $output */
     protected $output;
     /** @var OutputInterface $output */
     protected $errOutput;
     protected $verbosity = OutputInterface::VERBOSITY_NORMAL;
 
-    public function __construct(MigrationService $migrationService)
+    public function __construct(MigrationService $migrationService, KernelInterface $kernel)
     {
         $this->migrationService = $migrationService;
+        $this->kernel = $kernel;
 
         parent::__construct();
     }
@@ -88,5 +90,28 @@ abstract class AbstractCommand extends Command
                 $this->errOutput->writeln($message, $type);
             }
         }
+    }
+
+    /**
+     * "Canonicalizes" the paths which are subpaths of the application's root dir
+     * @param string[] $paths
+     * @return string[]
+     */
+    protected function normalizePaths($paths)
+    {
+        $rootDir = realpath($this->kernel->getProjectDir() . '/..') . '/';
+        foreach ($paths as $i => $path) {
+            if ($path === $rootDir || $path === './') {
+                $paths[$i] = './';
+            } else if (strpos($path, './') === 0) {
+                $paths[$i] = substr($path, 2);
+                // q: should we also call realpath on $path? what if there are symlinks at play?
+            } elseif (strpos($path, $rootDir) === 0) {
+                $paths[$i] = substr($path, strlen($rootDir));
+            } elseif ($path === '') {
+                unset($paths[$i]);
+            }
+        }
+        return $paths;
     }
 }

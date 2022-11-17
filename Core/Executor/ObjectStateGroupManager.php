@@ -5,9 +5,10 @@ namespace Kaliop\eZMigrationBundle\Core\Executor;
 use eZ\Publish\API\Repository\Values\ObjectState\ObjectStateGroup;
 use Kaliop\eZMigrationBundle\API\Collection\ObjectStateGroupCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
-use Kaliop\eZMigrationBundle\Core\Matcher\ObjectStateGroupMatcher;
-use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
+use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
+use Kaliop\eZMigrationBundle\Core\Matcher\ObjectStateGroupMatcher;
 
 /**
  * Handles object-state-group migrations.
@@ -46,7 +47,7 @@ class ObjectStateGroupManager extends RepositoryExecutor implements MigrationGen
 
         $objectStateService = $this->repository->getObjectStateService();
 
-        $objectStateGroupIdentifier = $this->referenceResolver->resolveReference($step->dsl['identifier']);
+        $objectStateGroupIdentifier = $this->resolveReference($step->dsl['identifier']);
         $objectStateGroupCreateStruct = $objectStateService->newObjectStateGroupCreateStruct($objectStateGroupIdentifier);
         $objectStateGroupCreateStruct->defaultLanguageCode = $this->getLanguageCode($step); // was: self::DEFAULT_LANGUAGE_CODE;
 
@@ -91,14 +92,14 @@ class ObjectStateGroupManager extends RepositoryExecutor implements MigrationGen
         $this->validateResultsCount($groupsCollection, $step);
 
         if (count($groupsCollection) > 1 && isset($step->dsl['identifier'])) {
-            throw new \Exception("Can not execute Object State Group update because multiple groups match, and an identifier is specified in the dsl.");
+            throw new MigrationBundleException("Can not execute Object State Group update because multiple groups match, and an identifier is specified in the dsl.");
         }
 
         foreach ($groupsCollection as $objectStateGroup) {
             $objectStateGroupUpdateStruct = $objectStateService->newObjectStateGroupUpdateStruct();
 
             if (isset($step->dsl['identifier'])) {
-                $objectStateGroupUpdateStruct->identifier = $this->referenceResolver->resolveReference($step->dsl['identifier']);
+                $objectStateGroupUpdateStruct->identifier = $this->resolveReference($step->dsl['identifier']);
             }
             if (isset($step->dsl['names'])) {
                 foreach ($step->dsl['names'] as $languageCode => $name) {
@@ -152,7 +153,7 @@ class ObjectStateGroupManager extends RepositoryExecutor implements MigrationGen
         // convert the references passed in the match
         $match = $this->resolveReferencesRecursively($step->dsl['match']);
 
-        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->referenceResolver->resolveReference($step->dsl['match_tolerate_misses']) : false;
+        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->resolveReference($step->dsl['match_tolerate_misses']) : false;
 
         return $this->objectStateGroupMatcher->match($match, $tolerateMisses);
     }
@@ -240,16 +241,16 @@ class ObjectStateGroupManager extends RepositoryExecutor implements MigrationGen
                     );
                     break;
                 default:
-                    throw new \Exception("Executor 'object_state_group' doesn't support mode '$mode'");
+                    throw new InvalidStepDefinitionException("Executor 'object_state_group' doesn't support mode '$mode'");
             }
 
             if ($mode != 'delete') {
                 $names = array();
                 $descriptions = array();
-                foreach($objectStateGroup->languageCodes as $languageCode) {
+                foreach ($objectStateGroup->languageCodes as $languageCode) {
                     $names[$languageCode] =  $objectStateGroup->getName($languageCode);
                 }
-                foreach($objectStateGroup->languageCodes as $languageCode) {
+                foreach ($objectStateGroup->languageCodes as $languageCode) {
                     $descriptions[$languageCode] =  $objectStateGroup->getDescription($languageCode);
                 }
                 $groupData = array_merge(

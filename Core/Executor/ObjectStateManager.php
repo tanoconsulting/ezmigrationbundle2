@@ -3,12 +3,13 @@
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
 use eZ\Publish\API\Repository\Values\ObjectState\ObjectState;
+use Kaliop\eZMigrationBundle\API\Collection\ObjectStateCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
+use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
+use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
 use Kaliop\eZMigrationBundle\Core\Matcher\ObjectStateGroupMatcher;
 use Kaliop\eZMigrationBundle\Core\Matcher\ObjectStateMatcher;
-use Kaliop\eZMigrationBundle\API\Collection\ObjectStateCollection;
-use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
-use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
 
 /**
  * Handles object-state migrations.
@@ -61,10 +62,10 @@ class ObjectStateManager extends RepositoryExecutor implements MigrationGenerato
         $objectStateService = $this->repository->getObjectStateService();
 
         $objectStateGroupId = $step->dsl['object_state_group'];
-        $objectStateGroupId = $this->referenceResolver->resolveReference($objectStateGroupId);
+        $objectStateGroupId = $this->resolveReference($objectStateGroupId);
         $objectStateGroup = $this->objectStateGroupMatcher->matchOneByKey($objectStateGroupId);
 
-        $objectStateIdentifier = $this->referenceResolver->resolveReference($step->dsl['identifier']);
+        $objectStateIdentifier = $this->resolveReference($step->dsl['identifier']);
         $objectStateCreateStruct = $objectStateService->newObjectStateCreateStruct($objectStateIdentifier);
         $objectStateCreateStruct->defaultLanguageCode = $this->getLanguageCode($step); // was: self::DEFAULT_LANGUAGE_CODE;
 
@@ -107,7 +108,7 @@ class ObjectStateManager extends RepositoryExecutor implements MigrationGenerato
         $this->validateResultsCount($stateCollection, $step);
 
         if (count($stateCollection) > 1 && isset($step->dsl['identifier'])) {
-            throw new \Exception("Can not execute Object State update because multiple states match, and an identifier is specified in the dsl.");
+            throw new MigrationBundleException("Can not execute Object State update because multiple states match, and an identifier is specified in the dsl.");
         }
 
         $objectStateService = $this->repository->getObjectStateService();
@@ -116,7 +117,7 @@ class ObjectStateManager extends RepositoryExecutor implements MigrationGenerato
             $objectStateUpdateStruct = $objectStateService->newObjectStateUpdateStruct();
 
             if (isset($step->dsl['identifier'])) {
-                $objectStateUpdateStruct->identifier = $this->referenceResolver->resolveReference($step->dsl['identifier']);
+                $objectStateUpdateStruct->identifier = $this->resolveReference($step->dsl['identifier']);
             }
             if (isset($step->dsl['names'])) {
                 foreach ($step->dsl['names'] as $name) {
@@ -170,7 +171,7 @@ class ObjectStateManager extends RepositoryExecutor implements MigrationGenerato
         // convert the references passed in the match
         $match = $this->resolveReferencesRecursively($step->dsl['match']);
 
-        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->referenceResolver->resolveReference($step->dsl['match_tolerate_misses']) : false;
+        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->resolveReference($step->dsl['match_tolerate_misses']) : false;
 
         return $this->objectStateMatcher->match($match, $tolerateMisses);
     }
@@ -260,16 +261,16 @@ class ObjectStateManager extends RepositoryExecutor implements MigrationGenerato
                     );
                     break;
                 default:
-                    throw new \Exception("Executor 'object_state_group' doesn't support mode '$mode'");
+                    throw new InvalidStepDefinitionException("Executor 'object_state_group' doesn't support mode '$mode'");
             }
 
             if ($mode != 'delete') {
                 $names = array();
                 $descriptions = array();
-                foreach($objectState->languageCodes as $languageCode) {
+                foreach ($objectState->languageCodes as $languageCode) {
                     $names[$languageCode] =  $objectState->getName($languageCode);
                 }
-                foreach($objectState->languageCodes as $languageCode) {
+                foreach ($objectState->languageCodes as $languageCode) {
                     $descriptions[$languageCode] =  $objectState->getDescription($languageCode);
                 }
                 $groupData = array_merge(

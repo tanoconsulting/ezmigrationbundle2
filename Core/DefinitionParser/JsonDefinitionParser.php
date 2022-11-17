@@ -31,15 +31,7 @@ class JsonDefinitionParser extends AbstractDefinitionParser implements Definitio
     public function parseMigrationDefinition(MigrationDefinition $definition)
     {
         try {
-            // php 7.3 and later
-            if (defined('JSON_THROW_ON_ERROR')) {
-                $data = json_decode($definition->rawDefinition, true, 512, JSON_THROW_ON_ERROR);
-            } else {
-                $data = json_decode($definition->rawDefinition, true);
-                if (json_last_error() != JSON_ERROR_NONE) {
-                    throw new \Exception(json_last_error_msg());
-                }
-            }
+            $data = json_decode($definition->rawDefinition, true, 512, JSON_THROW_ON_ERROR);
         } catch (\Exception $e) {
             return new MigrationDefinition(
                 $definition->name,

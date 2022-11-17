@@ -54,7 +54,8 @@ The maximum number of processes to run in parallel is specified via the 'concurr
 <info>NB: the rule that each migration filename has to be unique still applies, even if migrations are spread across different directories.</info>
 Unlike for the 'normal' migration command, it is not recommended to use the <info>--separate-process</info> option, as it will make execution slower if you have many migrations
 EOT
-            );
+            )
+        ;
     }
 
     /**
@@ -74,7 +75,7 @@ EOT
         $isChild = $input->getOption('child');
 
         if ($isChild && $output->getVerbosity() <= OutputInterface::VERBOSITY_NORMAL) {
-            $this->setVerbosity(self::VERBOSITY_CHILD);
+            $this->setVerbosity(self::$VERBOSITY_CHILD);
         }
 
         $this->stepExecutedListener->setOutput($output);
@@ -85,7 +86,7 @@ EOT
 
         $force = $input->getOption('force');
 
-        $toExecute = $this->buildMigrationsList($input->getOption('path'), $migrationService, $force, $isChild);
+        $toExecute = $this->buildMigrationsList($this->normalizePaths($input->getOption('path')), $migrationService, $force, $isChild);
 
         if (!count($toExecute)) {
             $this->writeln('<info>No migrations to execute</info>');
@@ -142,7 +143,7 @@ EOT
 
         $processes = array();
         /** @var MigrationDefinition $migrationDefinition */
-        foreach($paths as $path => $count) {
+        foreach ($paths as $path => $count) {
             $this->writeln("<info>Queueing processing of: $path ($count migrations)</info>", OutputInterface::VERBOSITY_VERBOSE);
 
             $process = new Process(array_merge($builderArgs, array('--path=' . $path)));
@@ -157,7 +158,7 @@ EOT
         $this->writeln("<info>Starting queued processes...</info>");
 
         $total = count($toExecute);
-        $this->migrationsDone = array(0, 0, 0);
+        $this->migrationsDone = array(Migration::STATUS_DONE => 0, Migration::STATUS_FAILED => 0, Migration::STATUS_SKIPPED => 0);
 
         $processManager = new ProcessManager();
         $processManager->runParallel($processes, $concurrency, 500, array($this, 'onChildProcessOutput'));
@@ -168,6 +169,13 @@ EOT
                 $errorOutput = $process->getErrorOutput();
                 if ($errorOutput === '') {
                     $errorOutput = "(process used to execute migrations failed with no stderr output. Its exit code was: " . $process->getExitCode();
+                    // We go out of our way to help the user finding the cause of the error.
+                    /// @todo another cause we might check for in case of an empty $errorOutput is when error_reporting
+                    ///       does not include fatal errors (E_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR?)
+                    $errorLog = ini_get("error_log");
+                    if ($errorLog != '' && $errorLog != 'syslog') {
+                        $errorOutput .= ". Error details might be in file $errorLog";
+                    }
                     if ($process->getExitCode() == -1) {
                         $errorOutput .= ". If you are using Debian or Ubuntu linux, please consider using the --force-sigchild-enabled option.";
                     }
@@ -217,6 +225,15 @@ EOT
             $executableFinder = new PhpExecutableFinder();
             if (false !== $php = $executableFinder->find()) {
                 $prefix[] = $php;
+                if ($input->getOption('child-process-php-ini-config')) {
+                    foreach ($input->getOption('child-process-php-ini-config') as $iniSpec) {
+                        $ini = explode(':', $iniSpec, 2);
+                        if (count($ini) < 2 || $ini[0] === '') {
+                            throw new \InvalidArgumentException("Invalid php ini specification: '$iniSpec'");
+                        }
+                        $prefix[] = '-d ' . $ini[0] . '=' . $ini[1];
+                    }
+                }
             }
 
             $builderArgs = array_merge($prefix, parent::createChildProcessArgs($input));
@@ -236,12 +253,12 @@ EOT
         foreach ($toExecute as  $name => $migrationDefinition) {
             // let's skip migrations that we know are invalid - user was warned and he decided to proceed anyway
             if ($migrationDefinition->status == MigrationDefinition::STATUS_INVALID) {
-                $this->writeln("<comment>Skipping migration (invalid definition?) Path: ".$migrationDefinition->path."</comment>", self::VERBOSITY_CHILD);
+                $this->writeln("<comment>Skipping migration (invalid definition?) Path: ".$migrationDefinition->path."</comment>", self::$VERBOSITY_CHILD);
                 $skipped++;
                 continue;
             }
 
-            $this->writeln("<info>Processing $name</info>", self::VERBOSITY_CHILD);
+            $this->writeln("<info>Processing $name</info>", self::$VERBOSITY_CHILD);
 
             if ($input->getOption('separate-process')) {
 
@@ -276,7 +293,7 @@ EOT
                     $this->executeMigrationInProcess($migrationDefinition, $force, $migrationService, $input);
 
                     $executed++;
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     $failed++;
 
                     $errorMessage = $e->getMessage();
@@ -297,7 +314,7 @@ EOT
             $this->writeErrorln("\n<error>Migration execution aborted</error>");
         }
 
-        $this->writeln("Migrations executed: $executed, failed: $failed, skipped: $skipped, missed: $missed", self::VERBOSITY_CHILD);
+        $this->writeln("Migrations executed: $executed, failed: $failed, skipped: $skipped, missed: $missed", self::$VERBOSITY_CHILD);
 
         // We do not return an error code > 0 if migrations fail but , but only on proper fatals.
         // The parent will analyze the output of the child process to gather the number of executed/failed migrations anyway
@@ -332,7 +349,7 @@ EOT
                     $this->writeErrorln($msg, OutputInterface::VERBOSITY_QUIET, OutputInterface::OUTPUT_RAW);
                 } else {
                     // swallow output of child processes in quiet mode
-                    $this->writeLn($msg, self::VERBOSITY_CHILD, OutputInterface::OUTPUT_RAW);
+                    $this->writeLn($msg, self::$VERBOSITY_CHILD, OutputInterface::OUTPUT_RAW);
                 }
             }
         }
@@ -361,7 +378,7 @@ EOT
 
         // filter away all migrations except 'to do' ones
         $toExecute = array();
-        foreach($migrationDefinitions as $name => $migrationDefinition) {
+        foreach ($migrationDefinitions as $name => $migrationDefinition) {
             if (!isset($migrations[$name]) || (($migration = $migrations[$name]) && in_array($migration->status, $allowedStatuses))) {
                 $toExecute[$name] = $isChild ? $migrationService->parseMigrationDefinition($migrationDefinition) : $migrationDefinition;
             }
@@ -416,7 +433,7 @@ EOT
     protected function groupMigrationsByPath($toExecute)
     {
         $paths = array();
-        foreach($toExecute as $name => $migrationDefinition) {
+        foreach ($toExecute as $name => $migrationDefinition) {
             $path = dirname($migrationDefinition->path);
             if (!isset($paths[$path])) {
                 $paths[$path] = 1;
@@ -494,8 +511,13 @@ EOT
             $builderArgs[] = '--separate-process';
         }
         if ($input->getOption('set-reference')) {
-            foreach($input->getOption('set-reference') as $refSpec) {
+            foreach ($input->getOption('set-reference') as $refSpec) {
                 $builderArgs[] = '--set-reference=' . $refSpec;
+            }
+        }
+        if ($input->getOption('child-process-php-ini-config')) {
+            foreach ($input->getOption('child-process-php-ini-config') as $iniSpec) {
+                $builderArgs[] = '--child-process-php-ini-config=' . $iniSpec;
             }
         }
         return $builderArgs;

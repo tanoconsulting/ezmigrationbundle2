@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Yaml\Yaml;
 use Twig\Environment;
 
@@ -38,9 +38,9 @@ class GenerateCommand extends AbstractCommand
     protected $configResolver;
 
     public function __construct(MigrationService $migrationService, EventDispatcherInterface $eventDispatcher,
-        Environment $twig, ConfigResolverInterface $configResolver)
+        Environment $twig, ConfigResolverInterface $configResolver, KernelInterface $kernel)
     {
-        parent::__construct($migrationService);
+        parent::__construct($migrationService, $kernel);
         $this->eventDispatcher = $eventDispatcher;
         $this->twig = $twig;
         $this->configResolver = $configResolver;
@@ -68,32 +68,32 @@ class GenerateCommand extends AbstractCommand
             ->setHelp(<<<EOT
 The <info>kaliop:migration:generate</info> command generates a skeleton migration definition file:
 
-    <info>php ezpublish/console kaliop:migration:generate</info>
+    <info>php bin/console kaliop:migration:generate</info>
 
 You can optionally specify the file type to generate with <info>--format</info>, bundle name where the migration definition should be created as well a name for the migration:
 
-    <info>php ezpublish/console kaliop:migration:generate --format=json bundleName migrationName</info>
+    <info>php bin/console kaliop:migration:generate --format=json bundleName migrationName</info>
 
 For SQL type migration you can optionally specify the database server type the migration is for with <info>--dbserver</info>:
 
-    <info>php ezpublish/console kaliop:migration:generate --format=sql</info>
+    <info>php bin/console kaliop:migration:generate --format=sql</info>
 
 For content/content_type/language/object_state/role/section migrations you need to specify the entity that you want to generate the migration for:
 
-    <info>php ezpublish/console kaliop:migration:generate --type=content --match-type=content_id --match-value=10,14 --lang=all</info>
+    <info>php bin/console kaliop:migration:generate --type=content --match-type=content_id --match-value=10,14 --lang=all</info>
 
 For role type migration you will receive a yaml file with the current role definition. You must define ALL the policies
 you wish for the role. Any not defined will be removed. Example for updating an existing role:
 
-    <info>php ezpublish/console kaliop:migration:generate --type=role --mode=update --match-type=identifier --match-value=Anonymous</info>
+    <info>php bin/console kaliop:migration:generate --type=role --mode=update --match-type=identifier --match-value=Anonymous</info>
 
 For freeform php migrations, you will receive a php class definition
 
-    <info>php ezpublish/console kaliop:migration:generate --format=php classname</info>
+    <info>php bin/console kaliop:migration:generate --format=php classname</info>
 
 To list all available migration types for generation, as well as the corresponding match-types, run:
 
-    <info>php ezpublish/console ka:mig:gen --list-types</info>
+    <info>php bin/console ka:mig:gen --list-types</info>
 
 Note that you can pass in a custom directory path instead of a bundle name, but, if you do, you will have to use the <info>--path</info>
 option when you run the <info>migrate</info> command.
@@ -176,7 +176,7 @@ EOT
         }
 
         // allow to generate migrations for many entities
-        if (strpos($matchValue, ',') !== false ) {
+        if (strpos($matchValue, ',') !== false) {
             $matchValue = explode(',', $matchValue);
         }
 
@@ -266,8 +266,9 @@ EOT
                 $template = $migrationType . 'Migration.' . $fileType . '.twig';
                 $templatePath = $this->getApplication()->getKernel()->getBundle($this->thisBundle)->getPath() . '/Resources/views/MigrationTemplate/';
                 if (!is_file($templatePath . $template)) {
-                    throw new \Exception("The combination of migration type '$migrationType' is not supported with format '$fileType'");
+                    throw new \InvalidArgumentException("The combination of migration type '$migrationType' is not supported with format '$fileType'");
                 }
+
                 $code = $this->twig->render('@' . preg_replace('/Bundle$/', '', $this->thisBundle) . '/MigrationTemplate/' . $template, $parameters);
 
                 // allow event handlers to replace data
@@ -282,7 +283,7 @@ EOT
                 // Generate migration file by executor
                 $executors = $this->getGeneratingExecutors();
                 if (!in_array($migrationType, $executors)) {
-                    throw new \Exception("It is not possible to generate a migration of type '$migrationType': executor not found or not a generator");
+                    throw new \InvalidArgumentException("It is not possible to generate a migration of type '$migrationType': executor not found or not a generator");
                 }
                 /** @var MigrationGeneratorInterface $executor */
                 $executor = $this->getMigrationService()->getExecutor($migrationType);
@@ -315,7 +316,7 @@ EOT
                         $code = json_encode($data, JSON_PRETTY_PRINT);
                         break;
                     default:
-                        throw new \Exception("The combination of migration type '$migrationType' is not supported with format '$fileType'");
+                        throw new \InvalidArgumentException("The combination of migration type '$migrationType' is not supported with format '$fileType'");
                 }
         }
 
@@ -377,7 +378,7 @@ EOT
     {
         $migrationService = $this->getMigrationService();
         $executors = $migrationService->listExecutors();
-        foreach($executors as $key => $name) {
+        foreach ($executors as $key => $name) {
             $executor = $migrationService->getExecutor($name);
             if (!$executor instanceof MigrationGeneratorInterface) {
                 unset($executors[$key]);

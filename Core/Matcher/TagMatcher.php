@@ -6,6 +6,7 @@ use eZ\Publish\API\Repository\Exceptions\NotFoundException;
 use eZ\Publish\API\Repository\Exceptions\UnauthorizedException;
 use Kaliop\eZMigrationBundle\API\Collection\TagCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchConditionsException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\KeyMatcherInterface;
 
 /**
@@ -64,7 +65,7 @@ class TagMatcher extends AbstractMatcher implements KeyMatcherInterface
     public function matchTag(array $conditions, $tolerateMisses = false)
     {
         if ($this->tagService == null) {
-            throw new \Exception('Netgen TAG Bundle is required to use tag matching');
+            throw new MigrationBundleException('Netgen TAG Bundle is required to use tag matching');
         }
 
         $this->validateConditions($conditions);
@@ -131,7 +132,7 @@ class TagMatcher extends AbstractMatcher implements KeyMatcherInterface
                 // return unique contents
                 $tag = $this->tagService->loadTag($tagId);
                 $tags[$tag->id] = $tag;
-            } catch(NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 if (!$tolerateMisses) {
                     throw $e;
                 }
@@ -160,7 +161,7 @@ class TagMatcher extends AbstractMatcher implements KeyMatcherInterface
                 foreach ($this->tagService->loadTagChildren($tag) as $childTag) {
                     $tags[$childTag->id] = $childTag;
                 }
-            } catch(NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 if (!$tolerateMisses) {
                     throw $e;
                 }
@@ -188,7 +189,7 @@ class TagMatcher extends AbstractMatcher implements KeyMatcherInterface
             $childTags = $this->findTagsByParentTagIds(array_keys($parentTags));
             $tags = array_merge($tags, $childTags);
             $parentTags = $childTags;
-        } while (count( $childTags ) > 0);
+        } while (count($childTags) > 0);
 
         return $tags;
     }
@@ -221,7 +222,7 @@ class TagMatcher extends AbstractMatcher implements KeyMatcherInterface
                 // return unique contents
                 $tag = $this->tagService->loadTagByRemoteId($tagRemoteId);
                 $tags[$tag->id] = $tag;
-            } catch(NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 if (!$tolerateMisses) {
                     throw $e;
                 }

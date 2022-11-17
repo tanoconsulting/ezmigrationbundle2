@@ -6,6 +6,7 @@ use eZ\Publish\API\Repository\Values\Content\Location;
 use Kaliop\eZMigrationBundle\API\Collection\ContentCollection;
 use Kaliop\eZMigrationBundle\API\Collection\LocationCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\Core\Matcher\ContentMatcher;
 use Kaliop\eZMigrationBundle\Core\Matcher\LocationMatcher;
 use Kaliop\eZMigrationBundle\Core\Helper\SortConverter;
@@ -57,7 +58,7 @@ class LocationManager extends RepositoryExecutor
 
         // resolve references and remote ids
         foreach ($parentLocationIds as $id => $parentLocationId) {
-            $parentLocationId = $this->referenceResolver->resolveReference($parentLocationId);
+            $parentLocationId = $this->resolveReference($parentLocationId);
             $parentLocationIds[$id] = $this->matchLocationByKey($parentLocationId)->id;
         }
 
@@ -71,23 +72,23 @@ class LocationManager extends RepositoryExecutor
                 $locationCreateStruct = $locationService->newLocationCreateStruct($parentLocationId);
 
                 if (isset($step->dsl['is_hidden'])) {
-                    $locationCreateStruct->hidden = $this->referenceResolver->resolveReference($step->dsl['is_hidden']);
+                    $locationCreateStruct->hidden = $this->resolveReference($step->dsl['is_hidden']);
                 }
 
                 if (isset($step->dsl['priority'])) {
-                    $locationCreateStruct->priority = $this->referenceResolver->resolveReference($step->dsl['priority']);
+                    $locationCreateStruct->priority = $this->resolveReference($step->dsl['priority']);
                 }
 
                 if (isset($step->dsl['sort_order'])) {
-                    $locationCreateStruct->sortOrder = $this->getSortOrder($this->referenceResolver->resolveReference($step->dsl['sort_order']));
+                    $locationCreateStruct->sortOrder = $this->getSortOrder($this->resolveReference($step->dsl['sort_order']));
                 }
 
                 if (isset($step->dsl['sort_field'])) {
-                    $locationCreateStruct->sortField = $this->getSortField($this->referenceResolver->resolveReference($step->dsl['sort_field']));
+                    $locationCreateStruct->sortField = $this->getSortField($this->resolveReference($step->dsl['sort_field']));
                 }
 
                 if (isset($step->dsl['remote_id'])) {
-                    $locationCreateStruct->remoteId = $this->referenceResolver->resolveReference($step->dsl['remote_id']);
+                    $locationCreateStruct->remoteId = $this->resolveReference($step->dsl['remote_id']);
                 }
 
                 $location = $locationService->createLocation($contentInfo, $locationCreateStruct);
@@ -136,7 +137,7 @@ class LocationManager extends RepositoryExecutor
         $this->validateResultsCount($locationCollection, $step);
 
         if (count($locationCollection) > 1 && isset($step->dsl['swap_with_location'])) {
-            throw new \Exception("Can not execute Location update because multiple locations match, and a swap_with_location is specified in the dsl.");
+            throw new MigrationBundleException("Can not execute Location update because multiple locations match, and a swap_with_location is specified in the dsl.");
         }
 
         // support legacy tag: parent_location_id
@@ -146,6 +147,8 @@ class LocationManager extends RepositoryExecutor
 
         foreach ($locationCollection as $key => $location) {
 
+           $updated = false;
+
             if (isset($step->dsl['priority'])
                 || isset($step->dsl['sort_field'])
                 || isset($step->dsl['sort_order'])
@@ -154,22 +157,24 @@ class LocationManager extends RepositoryExecutor
                 $locationUpdateStruct = $locationService->newLocationUpdateStruct();
 
                 if (isset($step->dsl['priority'])) {
-                    $locationUpdateStruct->priority = $this->referenceResolver->resolveReference($step->dsl['priority']);
+                    $locationUpdateStruct->priority = $this->resolveReference($step->dsl['priority']);
                 }
 
                 if (isset($step->dsl['sort_field'])) {
-                    $locationUpdateStruct->sortField = $this->getSortField($this->referenceResolver->resolveReference($step->dsl['sort_field']), $location->sortField);
+                    $locationUpdateStruct->sortField = $this->getSortField($this->resolveReference($step->dsl['sort_field']), $location->sortField);
                 }
 
                 if (isset($step->dsl['sort_order'])) {
-                    $locationUpdateStruct->sortOrder = $this->getSortOrder($this->referenceResolver->resolveReference($step->dsl['sort_order']), $location->sortOrder);
+                    $locationUpdateStruct->sortOrder = $this->getSortOrder($this->resolveReference($step->dsl['sort_order']), $location->sortOrder);
                 }
 
                 if (isset($step->dsl['remote_id'])) {
-                    $locationUpdateStruct->remoteId = $this->referenceResolver->resolveReference($step->dsl['remote_id']);
+                    $locationUpdateStruct->remoteId = $this->resolveReference($step->dsl['remote_id']);
                 }
 
                 $location = $locationService->updateLocation($location, $locationUpdateStruct);
+
+               $updated = true;
             }
 
             // Check if visibility needs to be updated
@@ -179,13 +184,15 @@ class LocationManager extends RepositoryExecutor
                 } else {
                     $location = $locationService->unhideLocation($location);
                 }
+
+                $updated = true;
             }
 
             // Move or swap location
             if (isset($step->dsl['parent_location']) || isset($step->dsl['parent_location_id'])) {
                 // Move the location and all its children to a new parent
                 $parentLocationId = isset($step->dsl['parent_location']) ? $step->dsl['parent_location'] : $step->dsl['parent_location_id'];
-                $parentLocationId = $this->referenceResolver->resolveReference($parentLocationId);
+                $parentLocationId = $this->resolveReference($parentLocationId);
 
                 $newParentLocation = $this->matchLocationByKey($parentLocationId);
 
@@ -193,10 +200,12 @@ class LocationManager extends RepositoryExecutor
 
                 // we have to reload the location to be able to set references to the modified data
                 $location = $locationService->loadLocation($location->id);
+
+                $updated = true;
             } elseif (isset($step->dsl['swap_with_location'])) {
                 // Swap locations
                 $swapLocationId = $step->dsl['swap_with_location'];
-                $swapLocationId = $this->referenceResolver->resolveReference($swapLocationId);
+                $swapLocationId = $this->resolveReference($swapLocationId);
 
                 $locationToSwap = $this->matchLocationByKey($swapLocationId);
 
@@ -204,14 +213,23 @@ class LocationManager extends RepositoryExecutor
 
                 // we have to reload the location to be able to set references to the modified data
                 $location = $locationService->loadLocation($location->id);
+
+                $updated = true;
             }
 
             // make the location the main one
             if (isset($step->dsl['is_main'])) {
                 $this->setMainLocation($location);
 
-                //have to reload the location so that correct data can be set as reference
+                // have to reload the location so that correct data can be set as reference
                 $location = $locationService->loadLocation($location->id);
+
+                $updated = true;
+            }
+
+            if (!$updated) {
+                /// @todo check: should we throw before executing changes?
+                throw new InvalidStepDefinitionException("Can not execute Location update because there is nothing to update in the migration step as defined.");
             }
 
             $locationCollection[$key] = $location;
@@ -267,7 +285,7 @@ class LocationManager extends RepositoryExecutor
      * @return LocationCollection
      * @throws \Exception
      */
-    protected function matchLocations($action, $step)
+    public function matchLocations($action, $step)
     {
         if (!isset($step->dsl['location_id']) && !isset($step->dsl['match'])) {
             throw new InvalidStepDefinitionException("The id or a match condition is required to $action a location");
@@ -283,11 +301,11 @@ class LocationManager extends RepositoryExecutor
         // convert the references passed in the match
         $match = $this->resolveReferencesRecursively($match);
 
-        $offset = isset($step->dsl['match_offset']) ? $this->referenceResolver->resolveReference($step->dsl['match_offset']) : 0;
-        $limit = isset($step->dsl['match_limit']) ? $this->referenceResolver->resolveReference($step->dsl['match_limit']) : 0;
-        $sort = isset($step->dsl['match_sort']) ? $this->referenceResolver->resolveReference($step->dsl['match_sort']) : array();
+        $offset = isset($step->dsl['match_offset']) ? $this->resolveReference($step->dsl['match_offset']) : 0;
+        $limit = isset($step->dsl['match_limit']) ? $this->resolveReference($step->dsl['match_limit']) : 0;
+        $sort = isset($step->dsl['match_sort']) ? $this->resolveReference($step->dsl['match_sort']) : array();
 
-        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->referenceResolver->resolveReference($step->dsl['match_tolerate_misses']) : false;
+        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->resolveReference($step->dsl['match_tolerate_misses']) : false;
 
         return $this->locationMatcher->match($match, $sort, $offset, $limit, $tolerateMisses);
     }
@@ -428,16 +446,16 @@ class LocationManager extends RepositoryExecutor
         foreach ($match as $condition => $values) {
             if (is_array($values)) {
                 foreach ($values as $position => $value) {
-                    $match[$condition][$position] = $this->referenceResolver->resolveReference($value);
+                    $match[$condition][$position] = $this->resolveReference($value);
                 }
             } else {
-                $match[$condition] = $this->referenceResolver->resolveReference($values);
+                $match[$condition] = $this->resolveReference($values);
             }
         }
 
-        $offset = isset($step->dsl['match_offset']) ? $this->referenceResolver->resolveReference($step->dsl['match_offset']) : 0;
-        $limit = isset($step->dsl['match_limit']) ? $this->referenceResolver->resolveReference($step->dsl['match_limit']) : 0;
-        $sort = isset($step->dsl['match_sort']) ? $this->referenceResolver->resolveReference($step->dsl['match_sort']) : array();
+        $offset = isset($step->dsl['match_offset']) ? $this->resolveReference($step->dsl['match_offset']) : 0;
+        $limit = isset($step->dsl['match_limit']) ? $this->resolveReference($step->dsl['match_limit']) : 0;
+        $sort = isset($step->dsl['match_sort']) ? $this->resolveReference($step->dsl['match_sort']) : array();
 
         return $this->contentMatcher->matchContent($match, $sort, $offset, $limit);
     }

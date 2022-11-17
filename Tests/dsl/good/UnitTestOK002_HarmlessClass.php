@@ -2,8 +2,6 @@
 
 use Kaliop\eZMigrationBundle\API\MigrationInterface;
 
-use Kaliop\eZMigrationBundle\API\Value\Migration;
-use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class HarmlessClass implements MigrationInterface

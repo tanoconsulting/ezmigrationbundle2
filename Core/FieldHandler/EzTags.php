@@ -32,6 +32,9 @@ class EzTags extends AbstractFieldHandler implements FieldValueImporterInterface
                 throw new InvalidStepDefinitionException('Definition of EzTags field is incorrect: each element of the tags array must be an array with one element');
             }
 
+            # @todo support single-value elements too? if numeric, it is a tag id, if it is a string it is... what?
+            #       it could be either a tag's remote id or a keyword...
+
             $identifier = reset($def);
             $type = key($def);
 

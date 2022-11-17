@@ -4,6 +4,7 @@ namespace Kaliop\eZMigrationBundle\Core\Executor;
 
 use Kaliop\eZMigrationBundle\API\EnumerableReferenceResolverInterface;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\ReferenceResolverBagInterface;
 use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,16 +14,18 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @property ReferenceResolverBagInterface $referenceResolver
+ */
 class ReferenceExecutor extends AbstractExecutor
 {
     use IgnorableStepExecutorTrait;
+    use ReferenceSetterTrait;
 
     protected $supportedStepTypes = array('reference');
     protected $supportedActions = array('set', 'load', 'save', 'dump');
 
     protected $container;
-    /** @var ReferenceResolverBagInterface $referenceResolver */
-    protected $referenceResolver;
 
     public function __construct(ContainerInterface $container, ReferenceResolverBagInterface $referenceResolver)
     {
@@ -65,11 +68,12 @@ class ReferenceExecutor extends AbstractExecutor
 
         if (!isset($dsl['resolve_references']) || $dsl['resolve_references']) {
             // this makes sense since we started supporting embedded refs...
-            $value = $this->referenceResolver->resolveReference($dsl['value']);
+            $value = $this->resolveReferencesRecursively($dsl['value']);
         } else {
             $value = $dsl['value'];
         }
 
+        /// @todo make this happen recursively too in case the ref value is an array. Overload resolveReferencesRecursively
         if (is_string($value)) {
             if (0 === strpos($value, '%env(') && ')%' === substr($value, -2) && '%env()%' !== $value) {
                 /// @todo find out how to use Sf components to resolve this value instead of doing it by ourselves...
@@ -77,7 +81,7 @@ class ReferenceExecutor extends AbstractExecutor
                 // we use getenv because $_ENV gets cleaned up (by whom?)
                 $val = getenv($env);
                 if ($val === false) {
-                    throw new \Exception("Env var $env seems not to be defined");
+                    throw new MigrationBundleException("Env var $env seems not to be defined");
                 }
                 $value = $val;
             } else {
@@ -90,8 +94,8 @@ class ReferenceExecutor extends AbstractExecutor
             }
         }
 
-        $overwrite = isset($dsl['overwrite']) ? $overwrite = $dsl['overwrite'] : false;
-        $this->referenceResolver->addReference($dsl['identifier'], $value, $overwrite);
+        $overwrite = isset($dsl['overwrite']) ? $dsl['overwrite'] : false;
+        $this->addReference($dsl['identifier'], $value, $overwrite);
 
         return $value;
     }
@@ -101,10 +105,10 @@ class ReferenceExecutor extends AbstractExecutor
         if (!isset($dsl['file'])) {
             throw new InvalidStepDefinitionException("Invalid step definition: miss 'file' for loading references");
         }
-        $fileName = $this->referenceResolver->resolveReference($dsl['file']);
+        $fileName = $this->resolveReference($dsl['file']);
         $fileName = str_replace('{ENV}', $this->container->get('kernel')->getEnvironment(), $fileName);
 
-        $overwrite = isset($dsl['overwrite']) ? $overwrite = $dsl['overwrite'] : false;
+        $overwrite = isset($dsl['overwrite']) ? $dsl['overwrite'] : false;
 
         if (!is_file($fileName) && is_file(dirname($context['path']) . '/references/' . $fileName)) {
             $fileName = dirname($context['path']) . '/references/' . $fileName;
@@ -129,16 +133,19 @@ class ReferenceExecutor extends AbstractExecutor
         }
 
         if (!is_array($data)) {
-            throw new \Exception("Invalid step definition: file does not contain an array of key/value pairs");
+            // the error is not in the step definition here, but rather in the data file        
+            throw new MigrationBundleException("Invalid step definition: file does not contain an array of key/value pairs");
         }
 
         foreach ($data as $refName => $value) {
+            /// @todo what about '%env()%' syntax ?
+
             if (preg_match('/%.+%$/', $value)) {
                 $value = $this->container->getParameter(trim($value, '%'));
             }
 
-            if (!$this->referenceResolver->addReference($refName, $value, $overwrite)) {
-                throw new \Exception("Failed adding to Reference Resolver the reference: $refName");
+            if (!$this->addReference($refName, $value, $overwrite)) {
+                throw new MigrationBundleException("Failed adding to Reference Resolver the reference: $refName");
             }
         }
 
@@ -153,17 +160,18 @@ class ReferenceExecutor extends AbstractExecutor
         if (!isset($dsl['file'])) {
             throw new InvalidStepDefinitionException("Invalid step definition: miss 'file' for saving references");
         }
-        $fileName = $this->referenceResolver->resolveReference($dsl['file']);
+        $fileName = $this->resolveReference($dsl['file']);
         $fileName = str_replace('{ENV}', $this->container->get('kernel')->getEnvironment(), $fileName);
 
-        $overwrite = isset($dsl['overwrite']) ? $overwrite = $dsl['overwrite'] : false;
+        $overwrite = isset($dsl['overwrite']) ? $dsl['overwrite'] : false;
 
         if (is_file($fileName) && !$overwrite) {
-            throw new \Exception("Invalid step definition: file '$fileName' for saving references already exists");
+            // the error is not in the step definition, really, but in external circumstances
+            throw new MigrationBundleException("Invalid step definition: file '$fileName' for saving references already exists");
         }
 
         if (! $this->referenceResolver instanceof EnumerableReferenceResolverInterface) {
-            throw new \Exception("Can not save references as resolver is not enumerable");
+            throw new MigrationBundleException("Can not save references as resolver is not enumerable");
         }
 
         $data = $this->referenceResolver->listReferences();
@@ -193,10 +201,10 @@ class ReferenceExecutor extends AbstractExecutor
             throw new InvalidStepDefinitionException("Invalid step definition: miss 'identifier' for dumping reference");
         }
         if (!$this->referenceResolver->isReference($dsl['identifier'])) {
-            throw new \Exception("Invalid step definition: identifier '{$dsl['identifier']}' is not a reference");
+            throw new InvalidStepDefinitionException("Invalid step definition: identifier '{$dsl['identifier']}' is not a reference");
         }
         if (isset($context['output']) && $context['output'] instanceof OutputInterface && $context['output']->isQuiet()) {
-            return $this->referenceResolver->resolveReference($dsl['identifier']);
+            return $this->resolveReference($dsl['identifier']);
         }
 
         if (isset($dsl['label'])) {
@@ -204,7 +212,7 @@ class ReferenceExecutor extends AbstractExecutor
         } else {
             $label = $this->dumpVar($dsl['identifier']);
         }
-        $value = $this->dumpVar($this->referenceResolver->resolveReference($dsl['identifier']));
+        $value = $this->dumpVar($this->resolveReference($dsl['identifier']));
 
         if (isset($context['output']) && $context['output'] instanceof OutputInterface) {
             $context['output']->write($label . $value, false, OutputInterface::OUTPUT_RAW|OutputInterface::VERBOSITY_NORMAL);

@@ -2,6 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Loader;
 
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 
 /**
@@ -31,7 +32,7 @@ class FilesystemRecursive extends Filesystem
         }
 
         $definitions = array();
-        foreach($paths as $path) {
+        foreach ($paths as $path) {
             if (is_file($path)) {
                 $definitions[basename($path)] = $returnFilename ? $path : new MigrationDefinition(
                     basename($path),
@@ -66,7 +67,7 @@ class FilesystemRecursive extends Filesystem
                 }
             }
             else {
-                throw new \Exception("Path '$path' is neither a file nor directory");
+                throw new MigrationBundleException("Path '$path' is neither a file nor directory");
             }
         }
         ksort($definitions);

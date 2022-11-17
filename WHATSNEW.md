@@ -1,5 +1,9 @@
-Version: 1.0-beta1 (unreleased)
-===============================
+Version: 1.0-beta1
+==================
+
+* New: implemented all changes which were implemented in the kaliop/ezmigrationbundle version of this tool between
+  releases 5.15.1 and 6.2.1. The list is too long to be copied verbatim here; it can be found online at
+  https://github.com/kaliop-uk/ezmigrationbundle/blob/main/WHATSNEW.md
 
 * Fixed: when generating contentType migrations, do export the `is-thumbnail` attribute for Content Type Fields, and
   the Content Type's `default_always_available`, `default_sort_order` and `default_sort_field`

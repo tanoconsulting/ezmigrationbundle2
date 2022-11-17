@@ -137,14 +137,31 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
                 return new Query\Criterion\LocationRemoteId($values);
 
             case self::MATCH_ATTRIBUTE:
+                /// @todo support filtering on multiple fields - in that case wrap many criteria in an AND one
+                if (count($values) > 1) {
+                    throw new InvalidMatchConditionsException("Can not use " . self::MATCH_ATTRIBUTE . " as comparison operator for multiple attributes. Use an AND condition instead");
+                }
                 $spec = reset($values);
                 $attribute = key($values);
-                $match = reset($spec);
-                $operator = key($spec);
-                if (!isset(self::$operatorsMap[$operator])) {
-                    throw new InvalidMatchConditionsException("Can not use '$operator' as comparison operator for attributes");
+                if (is_array($spec)) {
+                    if (count($spec) > 1) {
+                        throw new InvalidMatchConditionsException("Can not use multiple operators for matching attribute $attribute");
+                    }
+                    $match = reset($spec);
+                    $operator = key($spec);
+                    if (!isset(self::$operatorsMap[$operator])) {
+                        throw new InvalidMatchConditionsException("Can not use '$operator' as comparison operator for attributes");
+                    }
+                    return new Query\Criterion\Field($attribute, self::$operatorsMap[$operator], $match);
+                } else {
+                    /// @todo make the list of unary operators more flexible
+                    switch ($spec) {
+                        case 'empty':
+                            return new Query\Criterion\IsFieldEmpty($attribute);
+                        default:
+                            throw new InvalidMatchConditionsException("Can not use '$spec' as comparison operator for attributes");
+                    }
                 }
-                return new Query\Criterion\Field($attribute, self::$operatorsMap[$operator], $match);
 
             case 'contenttype_id':
             case self::MATCH_CONTENT_TYPE_ID:
@@ -163,7 +180,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
                 return new Query\Criterion\DateMetadata(Query\Criterion\DateMetadata::CREATED, self::$operatorsMap[$operator], $match);
 
             case self::MATCH_GROUP:
-                foreach($values as &$value) {
+                foreach ($values as &$value) {
                     if (!ctype_digit($value)) {
                         $value = $this->groupMatcher->matchOneByKey($value)->id;
                     }
@@ -182,7 +199,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
                 return new Query\Criterion\DateMetadata(Query\Criterion\DateMetadata::MODIFIED, self::$operatorsMap[$operator], $match);
 
             case self::MATCH_OBJECT_STATE:
-                foreach($values as &$value) {
+                foreach ($values as &$value) {
                     if (!ctype_digit($value)) {
                         $value = $this->stateMatcher->matchOneByKey($value)->id;
                     }
@@ -190,7 +207,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
                 return new Query\Criterion\ObjectStateId($values);
 
             case self::MATCH_OWNER:
-                foreach($values as &$value) {
+                foreach ($values as &$value) {
                     if (!ctype_digit($value)) {
                         $value = $this->userMatcher->matchOneByKey($value)->id;
                     }
@@ -210,7 +227,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
                 return new Query\Criterion\ParentLocationId($locationIds);
 
             case self::MATCH_SECTION:
-                foreach($values as &$value) {
+                foreach ($values as &$value) {
                     if (!ctype_digit($value)) {
                         $value = $this->sectionMatcher->matchOneByKey($value)->id;
                     }
@@ -231,7 +248,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
 
             case self::MATCH_AND:
                 $subCriteria = array();
-                foreach($values as $subCriterion) {
+                foreach ($values as $subCriterion) {
                     $value = reset($subCriterion);
                     $subCriteria[] = $this->getQueryCriterion(key($subCriterion), $value);
                 }
@@ -239,7 +256,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
 
             case self::MATCH_OR:
                 $subCriteria = array();
-                foreach($values as $subCriterion) {
+                foreach ($values as $subCriterion) {
                     $value = reset($subCriterion);
                     $subCriteria[] = $this->getQueryCriterion(key($subCriterion), $value);
                 }
@@ -284,7 +301,7 @@ abstract class QueryBasedMatcher extends RepositoryMatcher
 
             $direction = $this->hash2SortOrder($sortItem['sort_order']);
 
-            switch($sortItem['sort_field']) {
+            switch ($sortItem['sort_field']) {
                 case self::SORT_CONTENT_ID:
                     $out[] = new SortClause\ContentId($direction);
                     break;

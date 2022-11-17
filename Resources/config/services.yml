@@ -81,6 +81,8 @@ parameters:
     ez_migration_bundle.executor.tag_manager.class: Kaliop\eZMigrationBundle\Core\Executor\TagManager
     ez_migration_bundle.executor.trash_manager.class: Kaliop\eZMigrationBundle\Core\Executor\TrashManager
     ez_migration_bundle.executor.user_manager.class: Kaliop\eZMigrationBundle\Core\Executor\UserManager
+    ez_migration_bundle.executor.url_alias.class: Kaliop\eZMigrationBundle\Core\Executor\UrlAliasManager
+    ez_migration_bundle.executor.url_wildcard.class: Kaliop\eZMigrationBundle\Core\Executor\UrlWildcardManager
     ez_migration_bundle.executor.user_group_manager.class: Kaliop\eZMigrationBundle\Core\Executor\UserGroupManager
 
     ez_migration_bundle.content_matcher.class: Kaliop\eZMigrationBundle\Core\Matcher\ContentMatcherDirectLoad
@@ -96,6 +98,8 @@ parameters:
     ez_migration_bundle.section_matcher.class: Kaliop\eZMigrationBundle\Core\Matcher\SectionMatcher
     ez_migration_bundle.tag_matcher.class: Kaliop\eZMigrationBundle\Core\Matcher\TagMatcher
     ez_migration_bundle.trash_matcher.class: Kaliop\eZMigrationBundle\Core\Matcher\TrashMatcher
+    ez_migration_bundle.url_alias_matcher.class: Kaliop\eZMigrationBundle\Core\Matcher\UrlAliasMatcher
+    ez_migration_bundle.url_wildcard_matcher.class: Kaliop\eZMigrationBundle\Core\Matcher\UrlWildcardMatcher
     ez_migration_bundle.user_matcher.class: Kaliop\eZMigrationBundle\Core\Matcher\UserMatcher
     ez_migration_bundle.user_group_matcher.class: Kaliop\eZMigrationBundle\Core\Matcher\UserGroupMatcher
 
@@ -121,6 +125,7 @@ parameters:
     ez_migration_bundle.reference_resolver.chain_prefix.class: Kaliop\eZMigrationBundle\Core\ReferenceResolver\ChainPrefixResolver
     ez_migration_bundle.reference_resolver.customreference.class: Kaliop\eZMigrationBundle\Core\ReferenceResolver\CustomReferenceResolver
     ez_migration_bundle.reference_resolver.content.class: Kaliop\eZMigrationBundle\Core\ReferenceResolver\ContentResolver
+    ez_migration_bundle.reference_resolver.expression.class: Kaliop\eZMigrationBundle\Core\ReferenceResolver\ExpressionResolver
     ez_migration_bundle.reference_resolver.location.class: Kaliop\eZMigrationBundle\Core\ReferenceResolver\LocationResolver
     ez_migration_bundle.reference_resolver.loop.class: Kaliop\eZMigrationBundle\Core\ReferenceResolver\LoopResolver
     ez_migration_bundle.reference_resolver.tag.class: Kaliop\eZMigrationBundle\Core\ReferenceResolver\TagResolver
@@ -293,6 +298,7 @@ services:
         class: '%ez_migration_bundle.executor.php.class%'
         arguments:
             - '@service_container'
+            - '@ez_migration_bundle.reference_resolver.customreference'
         calls:
             - ['setReferenceMatcher', ['@ez_migration_bundle.reference_matcher']]
         tags:
@@ -505,6 +511,27 @@ services:
         tags:
             - { name: ez_migration_bundle.executor }
 
+    ez_migration_bundle.executor.url_alias:
+        parent: ez_migration_bundle.executor.repository
+        class: '%ez_migration_bundle.executor.url_alias.class%'
+        arguments:
+            - '@ez_migration_bundle.url_alias_matcher'
+            - '@ez_migration_bundle.executor.location_manager'
+        calls:
+            - ['setReferenceMatcher', ['@ez_migration_bundle.reference_matcher']]
+        tags:
+            - { name: ez_migration_bundle.executor }
+
+    ez_migration_bundle.executor.url_wildcard:
+        parent: ez_migration_bundle.executor.repository
+        class: '%ez_migration_bundle.executor.url_wildcard.class%'
+        arguments:
+            - '@ez_migration_bundle.url_wildcard_matcher'
+        calls:
+            - [ 'setReferenceMatcher', [ '@ez_migration_bundle.reference_matcher' ] ]
+        tags:
+            - { name: ez_migration_bundle.executor }
+
     ez_migration_bundle.executor.user_group_manager:
         parent: ez_migration_bundle.executor.repository
         class: '%ez_migration_bundle.executor.user_group_manager.class%'
@@ -603,6 +630,16 @@ services:
             - '@ez_migration_bundle.object_state_matcher'
             - '@ez_migration_bundle.user_matcher'
             - '%ez_migration_bundle.query_limit%'
+
+    ez_migration_bundle.url_alias_matcher:
+        class: '%ez_migration_bundle.url_alias_matcher.class%'
+        arguments:
+            - '@ezpublish.api.repository'
+
+    ez_migration_bundle.url_wildcard_matcher:
+        class: '%ez_migration_bundle.url_wildcard_matcher.class%'
+        arguments:
+            - '@ezpublish.api.repository'
 
     ez_migration_bundle.user_matcher:
         class: '%ez_migration_bundle.user_matcher.class%'
@@ -786,6 +823,13 @@ services:
         arguments:
             - '@ez_migration_bundle.content_matcher'
 
+    ez_migration_bundle.reference_resolver.expression:
+        class: '%ez_migration_bundle.reference_resolver.expression.class%'
+        arguments:
+            - '@ez_migration_bundle.reference_resolver.customreference'
+        lazy: true
+
+    # @deprecated
     ez_migration_bundle.reference_resolver.location:
         class: '%ez_migration_bundle.reference_resolver.location.class%'
         arguments:
@@ -799,7 +843,7 @@ services:
         arguments:
             - '@ez_migration_bundle.tag_matcher'
 
-    # A service which resolves *only* custom references. As such, it is used in most places
+    # A service which resolves *only* custom references (plus loop variables and expressions). As such, it is used in most places
     ez_migration_bundle.reference_resolver.customreference:
         alias: ez_migration_bundle.reference_resolver.customreference.flexible
 
@@ -813,7 +857,10 @@ services:
     ez_migration_bundle.reference_resolver.customreference.flexible:
         class: '%ez_migration_bundle.reference_resolver.chain_prefix.class%'
         arguments:
-            - [ '@ez_migration_bundle.reference_resolver.customreference.base', '@ez_migration_bundle.reference_resolver.loop' ]
+            -
+                - '@ez_migration_bundle.reference_resolver.customreference.base'
+                - '@ez_migration_bundle.reference_resolver.loop'
+                - '@ez_migration_bundle.reference_resolver.expression'
 
     ### misc
 

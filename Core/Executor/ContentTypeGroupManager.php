@@ -5,6 +5,7 @@ namespace Kaliop\eZMigrationBundle\Core\Executor;
 use eZ\Publish\API\Repository\Values\ContentType\ContentTypeGroup;
 use Kaliop\eZMigrationBundle\API\Collection\ContentTypeGroupCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
 use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
 use Kaliop\eZMigrationBundle\Core\Matcher\ContentTypeGroupMatcher;
@@ -41,7 +42,7 @@ class ContentTypeGroupManager extends RepositoryExecutor implements MigrationGen
 
         $contentTypeService = $this->repository->getContentTypeService();
 
-        $contentTypeGroupIdentifier = $this->referenceResolver->resolveReference($step->dsl['identifier']);
+        $contentTypeGroupIdentifier = $this->resolveReference($step->dsl['identifier']);
         $createStruct = $contentTypeService->newContentTypeGroupCreateStruct($contentTypeGroupIdentifier);
 
         if (isset($step->dsl['creation_date'])) {
@@ -78,7 +79,7 @@ class ContentTypeGroupManager extends RepositoryExecutor implements MigrationGen
             $updateStruct = $contentTypeService->newContentTypeGroupUpdateStruct();
 
             if (isset($step->dsl['identifier'])) {
-                $updateStruct->identifier = $this->referenceResolver->resolveReference($step->dsl['identifier']);
+                $updateStruct->identifier = $this->resolveReference($step->dsl['identifier']);
             }
             if (isset($step->dsl['modification_date'])) {
                 $updateStruct->modificationDate = $this->toDateTime($step->dsl['modification_date']);
@@ -126,7 +127,7 @@ class ContentTypeGroupManager extends RepositoryExecutor implements MigrationGen
         // convert the references passed in the match
         $match = $this->resolveReferencesRecursively($step->dsl['match']);
 
-        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->referenceResolver->resolveReference($step->dsl['match_tolerate_misses']) : false;
+        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->resolveReference($step->dsl['match_tolerate_misses']) : false;
 
         return $this->contentTypeGroupMatcher->match($match, $tolerateMisses);
     }
@@ -218,7 +219,7 @@ class ContentTypeGroupManager extends RepositoryExecutor implements MigrationGen
                         );
                     break;
                 default:
-                    throw new \Exception("Executor 'content_type_group' doesn't support mode '$mode'");
+                    throw new InvalidStepDefinitionException("Executor 'content_type_group' doesn't support mode '$mode'");
             }
 
             $data[] = $contentTypeGroupData;

@@ -47,6 +47,8 @@ To get the latest version, you can update the bundle to the latest available ver
 
     composer update tanoconsulting/ezmigrationbundle2
 
+For upgrades from beta releases to 1.0, see the instructions at the bottom of this readme.
+
 ## Getting started
 
 All commands accept the standard Symfony/eZPlatform options, although some of them might not have any effect on the
@@ -117,31 +119,34 @@ A simple example of a migration to create a 'folder' content is:
         attributes:
             name: hello world
 
-In a Yaml migration, you can define the following types of actions:
-- creation, update and deletion of Contents
-- creation, update and deletion of ContentTypes
-- creation, update and  deletion of ContentTypeGroups
-- deletion of Content Versions
-- creation and deletion of Languages
-- creation, update and deletion of Locations
-- creation, update and deletion of ObjectStates
-- creation, update and deletion of ObjectStateGroups
-- creation, update and deletion of Roles
-- creation, update and deletion of Sections
-- creation and deletion of Tags (from the Netgen Tags Bundle)
-- creation, update and deletion of Users
-- creation, update and deletion of UserGroups
-- purging and recovering Contents from the Trash
-- creation, appending, copy, renaming and deletion of files
-- execution of SQL queries
-- execution of command-line scripts
-- execution of methods of Symfony services
-- execution of http calls
-- sending of email
-- looping over arrays and executing one of the above actions on each element
-- canceling, snoozing or suspending the migration itself
+In a Yaml migration, you can execute the following types of actions:
+- creation, update and deletion of [Contents](Resources/doc/DSL/Contents.yml)
+- creation, update and deletion of [ContentTypes](Resources/doc/DSL/ContentTypes.yml)
+- creation, update and deletion of [ContentTypeGroups](Resources/doc/DSL/ContentTypeGroups.yml)
+- deletion of [Content Versions](Resources/doc/DSL/ContentVersions.yml)
+- creation and deletion of [Languages](Resources/doc/DSL/Languages.yml)
+- creation, update and deletion of [Locations](Resources/doc/DSL/Locations.yml)
+- creation, update and deletion of [ObjectStates](Resources/doc/DSL/ObjectStatesAndGroups.yml)
+- creation, update and deletion of [ObjectStateGroups](Resources/doc/DSL/ObjectStatesAndGroups.yml)
+- creation, update and deletion of [Roles](Resources/doc/DSL/RolesAndPolicies.yml)
+- creation, update and deletion of [Sections](Resources/doc/DSL/Sections.yml)
+- creation and deletion of [Tags](Resources/doc/DSL/Tags.yml) (from the Netgen Tags Bundle)
+- creation and deletion of [URL aliases](Resources/doc/DSL/UrlAliases.yml) and [wildcards](Resources/doc/DSL/UrlWildcards.yml)
+- creation, update and deletion of [Users](Resources/doc/DSL/UsersAndGroups.yml)
+- creation, update and deletion of [UserGroups](Resources/doc/DSL/UsersAndGroups.yml)
+- purging and recovering Contents from the [Trash](Resources/doc/DSL/Trash.yml)
+- creation, appending, copy, renaming and deletion of [files](Resources/doc/DSL/Files.yml)
+- execution of [SQL queries](Resources/doc/DSL/SQL.yml)
+- execution of [command-line scripts](Resources/doc/DSL/Processes.yml)
+- execution of methods of Symfony services](Resources/doc/DSL/Services.yml)
+- execution of [php functions and static methods](Resources/doc/DSL/PHP.yml)
+- execution of [http calls](Resources/doc/DSL/HTTP.yml)
+- sending of [email](Resources/doc/DSL/Mails.yml)
+- looping over [arrays](Resources/doc/DSL/Loops.yml) and executing one of the above actions on each element
+- canceling, snoozing or suspending the [migration itself](Resources/doc/DSL/Migrations.yml)
+- generating and saving new [migration definitions](Resources/doc/DSL/MigrationDefinitions.yml)
 
-The docs describing all supported parameters are in the [DSL Language description](Resources/doc/DSL/README.md)
+More details on all supported migration-language features are in the [DSL Language description](Resources/doc/DSL/README.md)
 
 ### Custom migrations
 
@@ -189,12 +194,17 @@ As you can see in the generated definition, the php class to be used for a migra
 interface. The Symfony DIC container is passed to the migration class so that it can access from it all the services,
 parameters and other thing that it needs.
 
+For a more detailed example of a migration definition done in PHP, look [in the MigrationVersions](MigrationVersions/20100101000200_MigrateV1ToV2.php) folder of this very bundle.
+
 *NB* if you rename the php file, keep in mind that the filename and the name of the class it contains are tied - the
 standard autoloading mechanism of the application does not apply when loading the migration definition. This is also
 the reason why the php classes used as migrations should not use namespaces.
 
 *NB* it is also possible to run any method of any existing Symfony service just by declaring it as migration step
 in a yaml migration. See the [relevant DSL](Resources/doc/DSL/Service.yml) for details.
+
+*NB* it is also possible to run any existing php function or static class method just by declaring it as migration step
+in a yaml migration. See the [relevant DSL](Resources/doc/DSL/PHP.yml) for details.
 
 ### Re-executing failed migrations
 
@@ -301,7 +311,7 @@ Event Subscribers are supported as an alternative to Event Listeners, as is stan
     - execute the migration command using a Symfony environment which has reduced logging and kernel debug disabled:
       the default configuration for the `dev` environment is known to leak memory
     - transform the migration, where possible, into one which loads and modifies contents one by one in a loop, instead
-        of modifying them all in a single action.
+        of modifying them all in a single action. See an example of using loops [here](Resources/doc/Cookbook/move_all_children_of_a_location.yml).
 
 * if you get fatal errors with the message 'You cannot create a service ("request") of an inactive scope ("request")',
   take a look at the following issue for a possible explanation and ideas for workarounds:
@@ -362,6 +372,10 @@ Example command to create such a migration:
 ### When dumping a Content into a yml migration via the `generate` command, the list of attributes is empty
 
 A: this is most likely due to using a bad language configuration
+
+### Are there examples of implementing common tasks which require complex migrations?
+
+A: yes, please take a look in folder [Resources/doc/Cookbook/](Resources/doc/Cookbook/)
 
 ### Can I run an external tool (command-line script) as part of a migration?
 
@@ -462,6 +476,16 @@ You can even keep multiple test stacks available in parallel, by using different
 - create a file `.euts.env.local` and add to it any required env var, starting with a unique `COMPOSE_PROJECT_NAME`
 - build the new test stack via `./teststack/teststack. -e .euts.env.local build`
 - run the tests via: `./teststack/teststack -e .euts.env.local runtests`
+
+## Beta version upgrades
+
+### Upgrading from previous versions 5.x to 1.0-beta1
+
+* Make sure you read carefully all the BC notes in the [release notes](WHATSNEW.md)
+
+* Run the migration named `20220101000200_FixExecutedMigrationsPaths.php`, eg:
+
+        php bin/console kaliop:migration:migrate --path vendor/tanoconsulting/ezmigrationbundle/MigrationsDefinitions
 
 
 [![License](https://poser.pugx.org/tanoconsulting/ezmigrationbundle2/license)](https://packagist.org/packages/tanoconsulting/ezmigrationbundle2)

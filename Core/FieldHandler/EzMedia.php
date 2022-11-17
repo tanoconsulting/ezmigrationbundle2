@@ -33,25 +33,25 @@ class EzMedia extends FileFieldHandler implements FieldValueConverterInterface
         } else {
             $filePath = $fieldValue['path'];
             if (isset($fieldValue['filename'])) {
-                $fileName = $fieldValue['filename'];
+                $fileName = $this->referenceResolver->resolveReference($fieldValue['filename']);
             }
             if (isset($fieldValue['has_controller'])) {
-                $hasController = $fieldValue['has_controller'];
+                $hasController = $this->referenceResolver->resolveReference($fieldValue['has_controller']);
             }
             if (isset($fieldValue['autoplay'])) {
-                $autoPlay = $fieldValue['autoplay'];
+                $autoPlay = $this->referenceResolver->resolveReference($fieldValue['autoplay']);
             }
             if (isset($fieldValue['loop'])) {
-                $loop = $fieldValue['loop'];
+                $loop = $this->referenceResolver->resolveReference($fieldValue['loop']);
             }
             if (isset($fieldValue['height'])) {
-                $height = $fieldValue['height'];
+                $height = $this->referenceResolver->resolveReference($fieldValue['height']);
             }
             if (isset($fieldValue['width'])) {
-                $width = $fieldValue['width'];
+                $width = $this->referenceResolver->resolveReference($fieldValue['width']);
             }
             if (isset($fieldValue['mime_type'])) {
-                $mimeType = $fieldValue['mime_type'];
+                $mimeType = $this->referenceResolver->resolveReference($fieldValue['mime_type']);
             }
         }
 
@@ -59,6 +59,7 @@ class EzMedia extends FileFieldHandler implements FieldValueConverterInterface
         $realFilePath = dirname($context['path']) . '/media/' . $filePath;
 
         // but in the past, when using a string, this worked as well as an absolute path, so we have to support it as well
+        /// @todo atm this does not work for files from content fields in cluster mode
         if (!is_file($realFilePath) && is_file($filePath)) {
             $realFilePath = $filePath;
         }
@@ -82,8 +83,6 @@ class EzMedia extends FileFieldHandler implements FieldValueConverterInterface
      * @param \eZ\Publish\Core\FieldType\Media\Value $fieldValue
      * @param array $context
      * @return array
-     *
-     * @todo check out if this works in ezplatform
      */
     public function fieldValueToHash($fieldValue, array $context = array())
     {
@@ -91,6 +90,7 @@ class EzMedia extends FileFieldHandler implements FieldValueConverterInterface
             return null;
         }
         $binaryFile = $this->ioService->loadBinaryFile($fieldValue->id);
+        /// @todo we should handle clustered configurations, to give back the absolute path on disk rather than the 'virtual' one
         return array(
             'path' => realpath($this->ioRootDir) . '/' . ($this->ioDecorator ? $this->ioDecorator->undecorate($binaryFile->uri) : $fieldValue->uri),
             'filename'=> $fieldValue->fileName,

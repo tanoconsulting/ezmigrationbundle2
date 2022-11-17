@@ -3,6 +3,7 @@
 namespace Kaliop\eZMigrationBundle\Core\Helper;
 
 use eZ\Publish\API\Repository\Values\Content\Location;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 
 class SortConverter
 {
@@ -40,7 +41,7 @@ class SortConverter
     public function sortField2Hash($value)
     {
         $ref = new \ReflectionClass('eZ\Publish\API\Repository\Values\Content\Location');
-        foreach($ref->getConstants() as $key => $val) {
+        foreach ($ref->getConstants() as $key => $val) {
             if (strpos($key, 'SORT_FIELD_') === 0 && $val == $value) {
                 $out = strtolower(substr($key, 11));
                 if ($out == 'contentobject_id') {
@@ -53,7 +54,7 @@ class SortConverter
             }
         }
 
-        throw new \Exception("Unknown sort field: '$value'");
+        throw new MigrationBundleException("Unknown sort field: '$value'");
     }
 
     /**

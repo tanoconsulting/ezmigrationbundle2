@@ -5,6 +5,7 @@ namespace Kaliop\eZMigrationBundle\Core\Executor;
 use eZ\Publish\API\Repository\Values\Content\Language;
 use Kaliop\eZMigrationBundle\API\Collection\LanguageCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
 use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
 use Kaliop\eZMigrationBundle\Core\Matcher\LanguageMatcher;
@@ -42,12 +43,12 @@ class LanguageManager extends RepositoryExecutor implements MigrationGeneratorIn
         }
 
         $languageCreateStruct = $languageService->newLanguageCreateStruct();
-        $languageCreateStruct->languageCode = $this->referenceResolver->resolveReference($step->dsl['lang']);
+        $languageCreateStruct->languageCode = $this->resolveReference($step->dsl['lang']);
         if (isset($step->dsl['name'])) {
-            $languageCreateStruct->name = $this->referenceResolver->resolveReference($step->dsl['name']);
+            $languageCreateStruct->name = $this->resolveReference($step->dsl['name']);
         }
         if (isset($step->dsl['enabled'])) {
-            $languageCreateStruct->enabled = (bool)$this->referenceResolver->resolveReference($step->dsl['enabled']);
+            $languageCreateStruct->enabled = (bool)$this->resolveReference($step->dsl['enabled']);
         }
         $language = $languageService->createLanguage($languageCreateStruct);
 
@@ -81,11 +82,11 @@ class LanguageManager extends RepositoryExecutor implements MigrationGeneratorIn
         foreach ($languageCollection as $key => $language) {
 
             if (isset($step->dsl['name'])) {
-                $languageService->updateLanguageName($language, $this->referenceResolver->resolveReference($step->dsl['name']));
+                $languageService->updateLanguageName($language, $this->resolveReference($step->dsl['name']));
             }
 
             if (isset($step->dsl['enabled'])) {
-                if ($this->referenceResolver->resolveReference($step->dsl['enabled'])) {
+                if ($this->resolveReference($step->dsl['enabled'])) {
                     $languageService->enableLanguage($language);
                 } else {
                     $languageService->disableLanguage($language);
@@ -134,7 +135,7 @@ class LanguageManager extends RepositoryExecutor implements MigrationGeneratorIn
         // convert the references passed in the match
         $match = $this->resolveReferencesRecursively($step->dsl['match']);
 
-        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->referenceResolver->resolveReference($step->dsl['match_tolerate_misses']) : false;
+        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->resolveReference($step->dsl['match_tolerate_misses']) : false;
 
         return $this->languageMatcher->match($match, $tolerateMisses);
     }
@@ -234,7 +235,7 @@ class LanguageManager extends RepositoryExecutor implements MigrationGeneratorIn
                     );
                     break;
                 default:
-                    throw new \Exception("Executor 'language' doesn't support mode '$mode'");
+                    throw new InvalidStepDefinitionException("Executor 'language' doesn't support mode '$mode'");
             }
 
             $data[] = $languageData;

@@ -2,17 +2,18 @@
 
 namespace Kaliop\eZMigrationBundle\Core\Executor;
 
-use eZ\Publish\API\Repository\Values\User\Role;
-use eZ\Publish\API\Repository\Values\User\RoleDraft;
 use eZ\Publish\API\Repository\RoleService;
 use eZ\Publish\API\Repository\UserService;
+use eZ\Publish\API\Repository\Values\User\Limitation;
+use eZ\Publish\API\Repository\Values\User\Role;
+use eZ\Publish\API\Repository\Values\User\RoleDraft;
 use Kaliop\eZMigrationBundle\API\Collection\RoleCollection;
-use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
-use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
 use Kaliop\eZMigrationBundle\API\EnumerableMatcherInterface;
+use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
+use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
+use Kaliop\eZMigrationBundle\API\MigrationGeneratorInterface;
 use Kaliop\eZMigrationBundle\Core\Helper\LimitationConverter;
 use Kaliop\eZMigrationBundle\Core\Matcher\RoleMatcher;
-use eZ\Publish\API\Repository\Values\User\Limitation;
 
 /**
  * Handles role migrations.
@@ -39,7 +40,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
         $roleService = $this->repository->getRoleService();
         $userService = $this->repository->getUserService();
 
-        $roleName = $this->referenceResolver->resolveReference($step->dsl['name']);
+        $roleName = $this->resolveReference($step->dsl['name']);
         $roleCreateStruct = $roleService->newRoleCreateStruct($roleName);
 
         // Publish new role
@@ -85,7 +86,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
         $this->validateResultsCount($roleCollection, $step);
 
         if (count($roleCollection) > 1 && isset($step->dsl['new_name'])) {
-            throw new \Exception("Can not execute Role update because multiple roles match, and a new_name is specified in the dsl.");
+            throw new MigrationBundleException("Can not execute Role update because multiple roles match, and a new_name is specified in the dsl.");
         }
 
         $roleService = $this->repository->getRoleService();
@@ -99,8 +100,8 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             // Updating role name
             if (isset($step->dsl['new_name'])) {
                 $update = $roleService->newRoleUpdateStruct();
-                $newRoleName = $this->referenceResolver->resolveReference($step->dsl['new_name']);
-                $update->identifier = $this->referenceResolver->resolveReference($newRoleName);
+                $newRoleName = $this->resolveReference($step->dsl['new_name']);
+                $update->identifier = $this->resolveReference($newRoleName);
 
                 $roleDraft = $roleService->updateRoleDraft($roleDraft, $update);
             }
@@ -181,7 +182,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
         // convert the references passed in the match
         $match = $this->resolveReferencesRecursively($match);
 
-        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->referenceResolver->resolveReference($step->dsl['match_tolerate_misses']) : false;
+        $tolerateMisses = isset($step->dsl['match_tolerate_misses']) ? $this->resolveReference($step->dsl['match_tolerate_misses']) : false;
 
         return $this->roleMatcher->match($match, $tolerateMisses);
     }
@@ -258,7 +259,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
                     );
                     break;
                 default:
-                    throw new \Exception("Executor 'role' doesn't support mode '$mode'");
+                    throw new InvalidStepDefinitionException("Executor 'role' doesn't support mode '$mode'");
             }
 
             if ($mode != 'delete') {
@@ -268,7 +269,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
 
                     foreach ($policy->getLimitations() as $limitation) {
                         if (!($limitation instanceof Limitation)) {
-                            throw new \Exception("The role contains an invalid limitation for policy {$policy->module}/{$policy->function}, we can not reliably generate its definition.");
+                            throw new MigrationBundleException("The role contains an invalid limitation for policy {$policy->module}/{$policy->function}, we can not reliably generate its definition.");
                         }
                         $limitations[] = $this->limitationConverter->getLimitationArrayWithIdentifiers($limitation);
                     }
@@ -326,11 +327,11 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
         $limitationType = $roleService->getLimitationType($limitation['identifier']);
 
         // 1st resolve refs (if we got passed a string)
-        $limitationValue = $this->referenceResolver->resolveReference($limitation['values']);
+        $limitationValue = $this->resolveReference($limitation['values']);
         // then, if we have an array, resolve refs recursively
         if (is_array($limitationValue)) {
             foreach ($limitationValue as $id => $value) {
-                $limitationValue[$id] = $this->referenceResolver->resolveReference($value);
+                $limitationValue[$id] = $this->resolveReference($value);
             }
         } else {
             // if still a scalar, make sure we can loop over it
@@ -366,7 +367,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             switch ($assign['type']) {
                 case 'user':
                     foreach ($assign['ids'] as $userId) {
-                        $userId = $this->referenceResolver->resolveReference($userId);
+                        $userId = $this->resolveReference($userId);
 
                         $user = $userService->loadUser($userId);
 
@@ -382,7 +383,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
                     break;
                 case 'group':
                     foreach ($assign['ids'] as $groupId) {
-                        $groupId = $this->referenceResolver->resolveReference($groupId);
+                        $groupId = $this->resolveReference($groupId);
 
                         $group = $userService->loadUserGroup($groupId);
 
@@ -397,7 +398,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
                     }
                     break;
                 default:
-                    throw new \Exception("Unsupported type '{$assign['type']}'");
+                    throw new InvalidStepDefinitionException("Unsupported type '{$assign['type']}'");
             }
         }
     }
@@ -408,10 +409,10 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             switch ($assign['type']) {
                 case 'user':
                     foreach ($assign['ids'] as $userId) {
-                        $userId = $this->referenceResolver->resolveReference($userId);
+                        $userId = $this->resolveReference($userId);
                         $user = $userService->loadUser($userId);
                         $userRoleAssignments = $roleService->getRoleAssignmentsForUser($user);
-                        foreach($userRoleAssignments as $assignment) {
+                        foreach ($userRoleAssignments as $assignment) {
                             if ($assignment->role->id == $role->id) {
                                 $roleService->removeRoleAssignment($assignment);
                             }
@@ -420,10 +421,10 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
                     break;
                 case 'group':
                     foreach ($assign['ids'] as $groupId) {
-                        $groupId = $this->referenceResolver->resolveReference($groupId);
+                        $groupId = $this->resolveReference($groupId);
                         $group = $userService->loadUserGroup($groupId);
                         $groupRoleAssignments = $roleService->getRoleAssignmentsForUserGroup($group);
-                        foreach($groupRoleAssignments as $assignment) {
+                        foreach ($groupRoleAssignments as $assignment) {
                             if ($assignment->role->id == $role->id) {
                                 $roleService->removeRoleAssignment($assignment);
                             }
@@ -431,7 +432,7 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
                     }
                     break;
                 default:
-                    throw new \Exception("Unsupported type '{$assign['type']}'");
+                    throw new InvalidStepDefinitionException("Unsupported type '{$assign['type']}'");
             }
         }
     }
@@ -487,13 +488,12 @@ class RoleManager extends RepositoryExecutor implements MigrationGeneratorInterf
             }
             // ugly: sort by comparing limitations identifiers
             return $this->compareArraysForSorting($p1['limitations'], $p2['limitations']);
-
             $p1LimIds = array();
             $p2LimIds = array();
-            foreach($p1['limitations'] as $lim) {
+            foreach ($p1['limitations'] as $lim) {
                 $p1LimIds = $lim['identifier'];
             }
-            foreach($p2['limitations'] as $lim) {
+            foreach ($p2['limitations'] as $lim) {
                 $p2LimIds = $lim['identifier'];
             }
             /// @todo if limitations identifier are the same, sort by lim. values...

@@ -5,7 +5,7 @@ namespace Kaliop\eZMigrationBundle\Core\Matcher;
 use eZ\Publish\API\Repository\Exceptions\UnauthorizedException ;
 use eZ\Publish\API\Repository\Repository;
 use eZ\Publish\API\Repository\Values\Content\Content;
-use \eZ\Publish\API\Repository\Values\Content\VersionInfo;
+use eZ\Publish\API\Repository\Values\Content\VersionInfo;
 use Kaliop\eZMigrationBundle\API\MatcherInterface;
 use Kaliop\eZMigrationBundle\API\Collection\VersionInfoCollection;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchResultsNumberException;
@@ -57,7 +57,7 @@ class ContentVersionMatcher extends RepositoryMatcher implements MatcherInterfac
         $versions = array();
 
         $contentCollection = $this->contentMatcher->match($contentConditions, $sort, $offset, $limit, $tolerateMisses);
-        foreach($contentCollection as $content) {
+        foreach ($contentCollection as $content) {
             $versions = array_merge($versions, $this->matchContentVersions($versionConditions, $content));
         }
 
@@ -179,7 +179,7 @@ class ContentVersionMatcher extends RepositoryMatcher implements MatcherInterfac
     {
         $versions = array();
         foreach ($this->findAllContentVersions($content) as $versionKey => $versionInfo) {
-            foreach($values as $acceptedStatus) {
+            foreach ($values as $acceptedStatus) {
                 if ($versionInfo->status == self::STATUS_MAP[$acceptedStatus]) {
                     $versions[$versionKey] = $versionInfo;
                     break;
@@ -203,8 +203,8 @@ class ContentVersionMatcher extends RepositoryMatcher implements MatcherInterfac
         $contentVersionsCount = count($contentVersions);
         $i = 0;
         foreach ($contentVersions as $versionKey => $versionInfo) {
-            foreach($values as $acceptedVersionNo) {
-                if ($acceptedVersionNo > 0 ) {
+            foreach ($values as $acceptedVersionNo) {
+                if ($acceptedVersionNo > 0) {
                     if ($acceptedVersionNo == $versionInfo->versionNo) {
                         $versions[$versionKey] = $versionInfo;
                         break;
@@ -233,7 +233,7 @@ class ContentVersionMatcher extends RepositoryMatcher implements MatcherInterfac
         $contentVersions = $this->repository->getContentService()->loadVersions($content->contentInfo);
         // different eZ kernels apparently sort versions in different order...
         $sortedVersions = array();
-        foreach($contentVersions as $versionInfo) {
+        foreach ($contentVersions as $versionInfo) {
             $sortedVersions[$content->contentInfo->id . '/' . $versionInfo->versionNo] = $versionInfo;
         }
         ksort($sortedVersions);

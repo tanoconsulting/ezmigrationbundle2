@@ -102,7 +102,7 @@ class ContentTypeGroupMatcher extends RepositoryMatcher implements KeyMatcherInt
                 // return unique contents
                 $contentTypeGroup = $this->repository->getContentTypeService()->loadContentTypeGroup($contentTypeGroupId);
                 $contentTypeGroups[$contentTypeGroup->id] = $contentTypeGroup;
-            } catch(NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 if (!$tolerateMisses) {
                     throw $e;
                 }
@@ -127,7 +127,7 @@ class ContentTypeGroupMatcher extends RepositoryMatcher implements KeyMatcherInt
                 // return unique contents
                 $contentTypeGroup = $this->repository->getContentTypeService()->loadContentTypeGroupByIdentifier($contentTypeGroupIdentifier);
                 $contentTypeGroups[$contentTypeGroup->id] = $contentTypeGroup;
-            } catch(NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 if (!$tolerateMisses) {
                     throw $e;
                 }

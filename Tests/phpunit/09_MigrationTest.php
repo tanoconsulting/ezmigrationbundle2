@@ -30,6 +30,13 @@ class MigrationTest extends MigrationExecutingTest
         $this->assertStringContainsString('Migration: '.basename($filePath), $output);
         $this->assertStringContainsString('Status: skipped', $output);
 
+        // make sure 'kaliop:migration:status' works when passed in an absolute path and there is a skipped migration in it
+        $output = $this->runCommand('kaliop:migration:status', array('--path' => array($filePath)));
+        $this->assertStringContainsString(basename($filePath), $output);
+        $this->assertStringContainsString('skipped', $output);
+
+        /// @todo add more tests setting and testing skipped status using variations for the path (relative path, etc)
+
         $output = $this->runCommand('kaliop:migration:migrate', array('--path' => array($filePath)));
         $this->assertStringContainsString('No migrations to execute', $output);
 

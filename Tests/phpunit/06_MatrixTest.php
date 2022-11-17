@@ -7,7 +7,7 @@ use Kaliop\eZMigrationBundle\Tests\helper\BeforeStepExecutionListener;
 use Kaliop\eZMigrationBundle\Tests\helper\StepExecutedListener;
 
 /**
-* Tests the 'kaliop:migration:migrate' command for the (different versions of) Matrix field type
+* Tests the 'kaliop:migration:migrate' command for the Matrix field type
 */
 class MatrixTest extends MigrationExecutingTest
 {
@@ -40,23 +40,7 @@ class MatrixTest extends MigrationExecutingTest
 
     public function goodDSLProvider()
     {
-        $dslDir = $this->dslDir.'/ezmatrix';
-
-        if (class_exists('EzSystems\MatrixBundle\FieldType\Matrix\Type')) {
-            $ft = new EzSystems\MatrixBundle\FieldType\Matrix\Type();
-            $errors = $ft->validateFieldSettings(array('columnList' => array()));
-            if (count($errors)) {
-                $dslDir .= '/community_01';
-            } else {
-                $dslDir .= '/community_02';
-            }
-        } else {
-            if (class_exists('EzSystems\EzPlatformMatrixFieldtype\FieldType\Type')) {
-                $dslDir .= '/platform';
-            } else {
-                return array(array(''));
-            }
-        }
+        $dslDir = $this->dslDir.'/ezmatrix/platform';
 
         $out = array();
         foreach (scandir($dslDir) as $fileName) {

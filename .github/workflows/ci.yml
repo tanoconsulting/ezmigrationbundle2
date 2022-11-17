@@ -35,7 +35,7 @@ jobs:
                 uses: actions/checkout@v2
 
             # Although this action is useful, we prefer to use the same script to set up php that we use for the
-            # docker image used for local testing. This allows us to make sure that script is always in good shape
+            # docker image used for local testing. This allows us to make sure that the script is always in good shape
             #-
             #    uses: shivammathur/setup-php@v2
             #    with:
@@ -45,6 +45,13 @@ jobs:
             #        #tools: phpunit/phpunit:a_version_compatible_with_php_5.3-5.5
             #        # NB: this disables xdebug completely
             #        coverage: none
+
+            -   name: set up the test stack and run tests
+                uses: tanoconsulting/euts@0.9.0
+                with:
+                    configuration-file: Tests/environment/${{ matrix.config-file }}
+                    code-coverage-service: ${{ matrix.code-coverage }}
+                    repo-token: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: get the teststack
                 # @todo make sure we use at least the latest available tag instead of HEAD
