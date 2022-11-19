@@ -144,6 +144,24 @@ EOT
                 }
             }
             $builderArgs = array_merge($prefix, $this->createChildProcessArgs($input));
+        } else {
+            $forcedRefs = array();
+            if ($input->getOption('set-reference')) {
+                foreach ($input->getOption('set-reference') as $refSpec) {
+                    $ref = explode(':', $refSpec, 2);
+                    if (count($ref) < 2 || $ref[0] === '') {
+                        throw new \InvalidArgumentException("Invalid reference specification: '$refSpec'");
+                    }
+                    $forcedRefs[$ref[0]] = $ref[1];
+                }
+            }
+            $migrationContext = array(
+                'useTransaction' => !$input->getOption('no-transactions'),
+                'defaultLanguageCode' => $input->getOption('default-language'),
+                'adminUserLogin' => $input->getOption('admin-login'),
+                'forceExecution' => $force,
+                'forcedReferences' => $forcedRefs
+            );
         }
 
         // For cli scripts, this means: do not die if anyone yanks out our stdout.
@@ -218,9 +236,12 @@ EOT
             } else {
 
                 try {
-                    $this->executeMigrationInProcess($migrationDefinition, $force, $migrationService, $input);
+                    $this->executeMigrationInProcess($migrationDefinition, $migrationService, $migrationContext);
 
                     $executed++;
+
+                    // in case the 1st mig changes values to the refs, we avoid injecting them in the 2nd mig and later
+                    $migrationContext['forcedReferences'] = array();
                 } catch (\Exception $e) {
                     $failed++;
 
@@ -266,18 +287,14 @@ EOT
 
     /**
      * @param MigrationDefinition $migrationDefinition
-     * @param bool $force
      * @param MigrationService $migrationService
-     * @param InputInterface $input
+     * @param array $migrationContext
      */
-    protected function executeMigrationInProcess($migrationDefinition, $force, $migrationService, $input)
+    protected function executeMigrationInProcess($migrationDefinition, $migrationService,  $migrationContext)
     {
         $migrationService->executeMigration(
             $migrationDefinition,
-            !$input->getOption('no-transactions'),
-            $input->getOption('default-language'),
-            $input->getOption('admin-login'),
-            $force
+            $migrationContext
         );
     }
 

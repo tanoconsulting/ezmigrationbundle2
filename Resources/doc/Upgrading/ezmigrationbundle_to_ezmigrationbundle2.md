@@ -43,3 +43,6 @@ Upgrade notes for developers coming from an ezmgrationbundle installation.
 
 * classes `Core\Matcher\ContentMatcher` and `Core\Matcher\LocationMatcher` were purged of all the methods which had
   been deprecated for a while
+
+* Methods `Migrationservice::executeMigration`, `executeMigrationInner` and `resumeMigration` now enforce the signature
+  they acquired in kaliop/ezmigrationbundle 6.3.0. method `Migrationservice::migrationContextFromParameters` has been dropped

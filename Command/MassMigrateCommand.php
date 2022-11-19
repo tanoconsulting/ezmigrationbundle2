@@ -237,6 +237,24 @@ EOT
             }
 
             $builderArgs = array_merge($prefix, parent::createChildProcessArgs($input));
+        } else {
+            $forcedRefs = array();
+            if ($input->getOption('set-reference')) {
+                foreach ($input->getOption('set-reference') as $refSpec) {
+                    $ref = explode(':', $refSpec, 2);
+                    if (count($ref) < 2 || $ref[0] === '') {
+                        throw new \InvalidArgumentException("Invalid reference specification: '$refSpec'");
+                    }
+                    $forcedRefs[$ref[0]] = $ref[1];
+                }
+            }
+            $migrationContext = array(
+                'useTransactions' => !$input->getOption('no-transactions'),
+                'defaultLanguageCode' => $input->getOption('default-language'),
+                'adminUserLogin' => $input->getOption('admin-login'),
+                'forceExecution' => $force,
+                'forcedReferences' => $forcedRefs
+            );
         }
 
         // allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
@@ -290,9 +308,11 @@ EOT
             } else {
 
                 try {
-                    $this->executeMigrationInProcess($migrationDefinition, $force, $migrationService, $input);
+                    $this->executeMigrationInProcess($migrationDefinition, $migrationService, $migrationContext);
 
                     $executed++;
+                    // in case the 1st mig changes values to the refs, we avoid injecting them in the 2nd mig and later
+                    $migrationContext['forcedReferences'] = array();
                 } catch (\Exception $e) {
                     $failed++;
 
