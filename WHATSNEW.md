@@ -28,7 +28,8 @@ This release is aligned with kaliop/ezmigrationbundle rel. 6.3.0.
 * BC change (for developers extending the bundle): method `MigrateCommand::executeMigrationInProcess` changed its signature
 
 * BC change (for developers extending the bundle): `Migrationservice` methods `executeMigration`, `executeMigrationInner`
-  and `resumeMigration` should now have a different signature. `Migrationservice::migrationContextFromParameters` has been dropped
+  and `resumeMigration` now have a different signature. `Migrationservice::migrationContextFromParameters` has been dropped
+
 
 Version: 1.0-beta1
 ==================
