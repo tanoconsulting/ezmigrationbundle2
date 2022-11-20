@@ -316,7 +316,7 @@ class MigrationService implements ContextProviderInterface
             throw new MigrationBundleException("Can not execute " . $this->getEntityName($migrationDefinition). " '{$migrationDefinition->name}': {$migrationDefinition->parsingError}");
         }
 
-if ($this->output) {
+        if ($this->output) {
             $migrationContext['output'] = $this->output;
         }
         $forceExecution = array_key_exists('forceExecution', $migrationContext) ? $migrationContext['forceExecution'] : false;
@@ -340,7 +340,7 @@ if ($this->output) {
         $useTransaction = array_key_exists('useTransaction', $migrationContext) ? $migrationContext['useTransaction'] : true;
         $adminLogin = array_key_exists('adminLogin', $migrationContext) ? $migrationContext['adminLogin'] : null;
 
-        /// @todo cane we make this validation smarter / move it somewhere else?
+        /// @todo can we make this validation smarter / move it somewhere else?
         if (array_key_exists('path', $migrationContext) || array_key_exists('contentTypeIdentifier', $migrationContext) ||
             array_key_exists('fieldIdentifier', $migrationContext)) {
             throw new MigrationBundleException("Invalid call to executeMigrationInner: forbidden elements in migrationContext");

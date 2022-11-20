@@ -16,9 +16,6 @@ abstract class CommandExecutingTest extends KernelTestCase
     /** @var StreamOutput $output */
     protected $output;
 
-    // tell to phpunit not to mess with ezpublish legacy global vars...
-    protected $backupGlobalsBlacklist = array('eZCurrentAccess');
-
     protected function setUp(): void
     {
         $this->_container = $this->bootContainer();

@@ -15,8 +15,6 @@
             "role": "Original author"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "php": "^7.3|^8.0",
         "ext-ctype": "*",
@@ -36,7 +34,8 @@
         "phpunit/phpunit": "^8.5.12"
     },
     "conflict": {
-        "kaliop/ezmigrationbundle": "*"
+        "kaliop/ezmigrationbundle": "*",
+        "tanoconsulting/ibexa-migration-bundle": "*"
     },
     "suggest": {
         "php-http/httplug-bundle": "Required for usage of HTTP/CALL migration steps"

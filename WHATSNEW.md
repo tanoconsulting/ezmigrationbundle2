@@ -80,12 +80,6 @@ Version 1.0-alpha
 - migration step `language/delete` is currently broken due to upstream bug https://issues.ibexa.co/browse/EZP-32349
 - see https://github.com/tanoconsulting/ezmigrationbundle2/issues/4 for missing features
 
-*BC guarantees on the road to 1.0 release:*
-
-- the current yml migration format will be kept stable (possibly parts of it deprecated, though)
-- the cli commands api will be kept stable
-- the php classes and services might be heavily refactored. Please no subclassing / injecting them in your code for now
-
 *BC with eZMigrationBundle:*
 
 See [ezmigrationbundle_to_ezmigrationbundle2.md](Resources/doc/Upgrading/ezmigrationbundle_to_ezmigrationbundle2.md)

@@ -2,12 +2,12 @@
 
 namespace Kaliop\eZMigrationBundle\Command;
 
+use Kaliop\eZMigrationBundle\API\Value\Migration;
+use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Kaliop\eZMigrationBundle\API\Value\Migration;
-use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 
 /**
  * Command to display the status of migrations.
@@ -101,7 +101,7 @@ EOT
                     if ($migration !== null) {
                         $index[$migration->name]['migration'] = $migration;
                     }
-               }
+                }
             }
         }
 
