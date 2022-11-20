@@ -677,7 +677,7 @@ class ContentManager extends RepositoryExecutor implements MigrationGeneratorInt
         foreach ($fields as $fieldIdentifier => $fieldLanguages) {
             foreach ($fieldLanguages as $language => $fieldValue) {
                 if (!$contentType->getFieldDefinition($fieldIdentifier)) {
-                    throw new fieldDefinitionsByIdentifier("Field '$fieldIdentifier' is not present in content type '{$contentType->identifier}'");
+                    throw new MigrationBundleException("Field '$fieldIdentifier' is not present in content type '{$contentType->identifier}'");
                 }
 
                 $fieldDefinition = $contentType->getFieldDefinition($fieldIdentifier);

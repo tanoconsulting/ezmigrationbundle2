@@ -1,3 +1,9 @@
+Version: (unreleased)
+=====================
+
+* Fixed an exception when throwing an exception in ContentManager
+
+
 Version: 1.0
 ============
 
