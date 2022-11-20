@@ -3,6 +3,12 @@ eZMigrationBundle2 deprecations and backwards compatibility breaks
 
 Upgrade notes for developers coming from an ezmgrationbundle installation.
 
+_NB: eZMigrationBundle2 version 1.0 is a fork of eZMigrationBundle version 6.3.0 (regardless of the long time it spent
+in beta state). All changes listed below are thus compared to the codebase and features of eZMigrationBundle 6.3.0_
+
+_If you are upgrading from a release of eZMigrationBundle prior to 6.3.0, there is **no need** to upgrade first to that
+version_
+
 * the default migration directory name is now `MigrationsDefinitions`, instead of `MigrationVersions`.
   A Symfony parameter is available to tweak that name if you feel the need to.
   Also, the `src/MigrationsDefinitons` directory is searched for migrations, if it exists, besides the

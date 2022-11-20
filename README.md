@@ -7,7 +7,8 @@ This bundle makes it easy to programmatically deploy changes to eZPlatform datab
 
 It is inspired by the [DoctrineMigrationsBundle](https://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html)
 
-*WORK IN PROGRESS* Please read [WHATSNEW.md](WHATSNEW.md) for details!
+_NB: eZMigrationBundle2 version 1.0 is a fork of eZMigrationBundle version 6.3.0, regardless of the long time it spent
+in beta state_
 
 
 ## Requirements
@@ -19,11 +20,18 @@ It is inspired by the [DoctrineMigrationsBundle](https://symfony.com/doc/current
 For Ibexa DXP 4, head on to [tanoconsulting/ibexa-migration-bundle](https://github.com/tanoconsulting/ibexa-migration-bundle). For eZPlatform 1-2 and earlier, to
 [kaliop-uk/ezmigrationbundle](https://github.com/kaliop-uk/ezmigrationbundle).
 
+
 ## Installation
 
-ATM there is no stable release. The `master` branch is now `main`, so you have to run:
+In either `require` or `require-dev` at the end of the bundle list in the composer.json file add:
 
-    composer require 'tanoconsulting/ezmigrationbundle2:dev-main'
+    composer require 'tanoconsulting/ezmigrationbundle2:^1.0'
+
+Save it and run
+
+    composer update --dev tanoconsulting/ezmigrationbundle2
+
+This will install the bundle and all its dependencies.
 
 Then make sure that the bundle is active, generally by editing `config/bundles.php`
 
@@ -47,7 +55,10 @@ To get the latest version, you can update the bundle to the latest available ver
 
     composer update tanoconsulting/ezmigrationbundle2
 
-For upgrades from beta releases to 1.0, see the instructions at the bottom of this readme.
+For upgrades from kaliop/ezmigrationbundle, see the instructions in [ezmigrationbundle_to_ezmigrationbundle2.md](Resources/doc/Upgrading/ezmigrationbundle_to_ezmigrationbundle2.md).
+
+For upgrades from beta versions of ezmigrationbundle2, see the instructions at the bottom of this readme.
+
 
 ## Getting started
 
@@ -283,15 +294,7 @@ Event Subscribers are supported as an alternative to Event Listeners, as is stan
   For the moment, the best workaround is to use the `filter-expression` parameter on the command-line when running
   `doctrine:migrations:diff` and friends, with a value of `kaliop_migrations_*`
 
-* if you get fatal errors when running a migration stating that a node or object has not been found, it is most likely
-  related to how the dual-kernel works in eZPublish, and the fact that the legacy and Symfony kernels use a separate
-  connection to the database. Since the migration bundle by default wraps all database changes for a migration in a
-  database transaction, when the Slots are fired which allow the legacy kernel to clear its caches, the legacy kernel
-  cannot see the database changes applied by the Symfony kernel, and, depending on the specific Slot in use, might
-  fail with a fatal error.
-  The simplest workaround is to disable usage of transactions by passing the `-u` flag to the `migrate` command.
-
-* similar symptoms can manifest themselves when you are using the Solr Search Engine Bundle.
+* fatal errors when running a migration can manifest themselves when you are using the Solr Search Engine Bundle.
   In this case the problem is compounded the fact that, even if a node or object is sent to Solr from within a database
   transaction, the Solr search index might be configured to only commit received data within a short time delay.
   A known workaround involve:
@@ -477,9 +480,10 @@ You can even keep multiple test stacks available in parallel, by using different
 - build the new test stack via `./teststack/teststack. -e .euts.env.local build`
 - run the tests via: `./teststack/teststack -e .euts.env.local runtests`
 
+
 ## Beta version upgrades
 
-### Upgrading from previous versions 5.x to 1.0-beta1
+### Upgrading from alpha/beta versions to 1.0
 
 * Make sure you read carefully all the BC notes in the [release notes](WHATSNEW.md)
 
