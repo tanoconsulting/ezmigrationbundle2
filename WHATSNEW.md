@@ -1,8 +1,15 @@
-Version: (unreleased)
-=====================
+Version: 1.0.1
+==============
 
 * Fixed an exception when throwing an exception in ContentManager
 
+* Fixed: MigrateCommand was setting custom reference values twice when used with `--set-reference`
+
+* Fixed: in rare circumstances (having two siteaccesses configured with the same repo and root node, but different languages),
+  the TagMatcher could use the wrong language when matching by tag keyword
+
+* BC change (for developers extending the bundle): class `TagMatcher` changed its constructor signature. the same applies
+  to service `ez_migration_bundle.tag_matcher`
 
 Version: 1.0
 ============
