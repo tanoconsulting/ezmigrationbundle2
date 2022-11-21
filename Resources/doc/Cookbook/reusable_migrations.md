@@ -6,7 +6,7 @@ This is often done via copy-pasting-then-modifying the same migration steps into
 migration logic to apply is quite complex, this can result in a tedious and brittle process, as it is easy to forget to
 change a reference or other parameter.
 
-Since version 6.3, it is possible to achieve the same result in an easier way, with less chances for manual error.
+It is possible to achieve the same result in an easier way, with less chances for manual error.
 The process is:
 
 1. create the "core" migration definition, save it in separate folder, eg. a subfolder of the `MigrationsVersions` one.
