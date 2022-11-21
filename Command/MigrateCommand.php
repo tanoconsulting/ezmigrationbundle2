@@ -2,7 +2,6 @@
 
 namespace Kaliop\eZMigrationBundle\Command;
 
-use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Exception\AfterMigrationExecutionException;
@@ -32,14 +31,12 @@ class MigrateCommand extends AbstractCommand
     protected $subProcessTimeout = 86400;
     protected $subProcessErrorString = '';
     protected $stepExecutedListener;
-    protected $customReferenceResolver;
 
     public function __construct(MigrationService $migrationService, TracingStepExecutedListener $stepExecutedListener,
-        KernelInterface $kernel, ReferenceBagInterface $customReferenceResolver)
+        KernelInterface $kernel)
     {
         parent::__construct($migrationService, $kernel);
         $this->stepExecutedListener = $stepExecutedListener;
-        $this->customReferenceResolver = $customReferenceResolver;
     }
 
     /**
@@ -79,11 +76,11 @@ You can optionally specify the path to migration definitions with <info>--path</
 
 Use -v and -vv options to get troubleshooting information on the execution of each step in the migration(s).
 EOT
-            );
+        );
 
-            if (self::$VERBOSITY_CHILD <= OutputInterface::VERBOSITY_QUIET) {
-                self::$VERBOSITY_CHILD = (OutputInterface::VERBOSITY_QUIET + OutputInterface::VERBOSITY_NORMAL) / 2;
-            }
+        if (self::$VERBOSITY_CHILD <= OutputInterface::VERBOSITY_QUIET) {
+            self::$VERBOSITY_CHILD = (OutputInterface::VERBOSITY_QUIET + OutputInterface::VERBOSITY_NORMAL) / 2;
+        }
     }
 
     /**
@@ -169,19 +166,9 @@ EOT
             ignore_user_abort(true);
         }
 
-        // allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
+        // Allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
         if ($input->getOption('force-sigchild-enabled')) {
             Process::forceSigchildEnabled(true);
-        }
-
-        if ($input->getOption('set-reference') && !$input->getOption('separate-process')) {
-            foreach ($input->getOption('set-reference') as $refSpec) {
-                $ref = explode(':', $refSpec, 2);
-                if (count($ref) < 2 || $ref[0] === '') {
-                    throw new \InvalidArgumentException("Invalid reference specification: '$refSpec'");
-                }
-                $this->customReferenceResolver->addReference($ref[0], $ref[1], true);
-            }
         }
 
         $aborted = false;
@@ -290,7 +277,7 @@ EOT
      * @param MigrationService $migrationService
      * @param array $migrationContext
      */
-    protected function executeMigrationInProcess($migrationDefinition, $migrationService,  $migrationContext)
+    protected function executeMigrationInProcess($migrationDefinition, $migrationService, $migrationContext)
     {
         $migrationService->executeMigration(
             $migrationDefinition,

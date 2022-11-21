@@ -3,7 +3,6 @@
 namespace Kaliop\eZMigrationBundle\Command;
 
 use Kaliop\eZMigrationBundle\API\Exception\AfterMigrationExecutionException;
-use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
 use Kaliop\eZMigrationBundle\Core\EventListener\TracingStepExecutedListener;
@@ -29,9 +28,9 @@ class MassMigrateCommand extends MigrateCommand
     protected $loader;
 
     public function __construct(MigrationService $migrationService, TracingStepExecutedListener $stepExecutedListener,
-        KernelInterface $kernel, ReferenceBagInterface $customReferenceResolver, FilesystemRecursive $loader)
+        KernelInterface $kernel, FilesystemRecursive $loader)
     {
-        parent::__construct($migrationService, $stepExecutedListener, $kernel, $customReferenceResolver);
+        parent::__construct($migrationService, $stepExecutedListener, $kernel);
         $this->loader = $loader;
     }
 
@@ -127,7 +126,7 @@ EOT
         $concurrency = $input->getOption('concurrency');
         $this->writeln("Executing migrations using " . count($paths) . " processes with a concurrency of $concurrency");
 
-        // allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
+        // Allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
         if ($input->getOption('force-sigchild-enabled')) {
             Process::forceSigchildEnabled(true);
         }
@@ -225,6 +224,7 @@ EOT
             $executableFinder = new PhpExecutableFinder();
             if (false !== $php = $executableFinder->find()) {
                 $prefix[] = $php;
+
                 if ($input->getOption('child-process-php-ini-config')) {
                     foreach ($input->getOption('child-process-php-ini-config') as $iniSpec) {
                         $ini = explode(':', $iniSpec, 2);
@@ -234,6 +234,7 @@ EOT
                         $prefix[] = '-d ' . $ini[0] . '=' . $ini[1];
                     }
                 }
+
             }
 
             $builderArgs = array_merge($prefix, parent::createChildProcessArgs($input));
@@ -257,7 +258,7 @@ EOT
             );
         }
 
-        // allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
+        // Allow forcing handling of sigchild. Useful on eg. Debian and Ubuntu
         if ($input->getOption('force-sigchild-enabled')) {
             Process::forceSigchildEnabled(true);
         }
