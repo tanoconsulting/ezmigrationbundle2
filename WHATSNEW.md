@@ -1,3 +1,8 @@
+Version: 1.0.3
+==============
+
+* Fixed default migration 20220101000200_FixExecutedMigrationsPaths.php
+
 Version: 1.0.2
 ==============
 
