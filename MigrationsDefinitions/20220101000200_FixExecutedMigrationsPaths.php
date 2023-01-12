@@ -1,10 +1,10 @@
 <?php
 
+use Doctrine\DBAL\Connection;
 use Kaliop\eZMigrationBundle\API\MigrationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Kaliop\eZMigrationBundle\API\Value\Migration;
 use Kaliop\eZMigrationBundle\API\Value\MigrationDefinition;
-use eZ\Publish\Core\Persistence\Database\SelectQuery;
 
 /**
  * Make paths of all executed migrations relative, if possible
@@ -12,7 +12,8 @@ use eZ\Publish\Core\Persistence\Database\SelectQuery;
 class FixExecutedMigrationsPaths implements MigrationInterface
 {
     private $container;
-    private $dbHandler;
+    /** @var Connection */
+    private $connection;
     private $migrationsTableName;
 
     // The API says we have to have a static method, but we like better non-static... :-P
@@ -31,7 +32,7 @@ class FixExecutedMigrationsPaths implements MigrationInterface
     {
         $this->migrationsTableName = $this->container->getParameter('ez_migration_bundle.table_name');
 
-        $this->dbHandler = $this->container->get('ezpublish.connection');
+        $this->connection = $this->container->get('ezpublish.persistence.connection');
 
         /** @var \Kaliop\eZMigrationBundle\Core\Helper\ConsoleIO $io */
         $io = $this->container->get('ez_migration_bundle.helper.console_io');
@@ -72,7 +73,7 @@ class FixExecutedMigrationsPaths implements MigrationInterface
     private function tableExist($tableName)
     {
         /** @var \Doctrine\DBAL\Schema\AbstractSchemaManager $sm */
-        $sm = $this->dbHandler->getConnection()->getSchemaManager();
+        $sm = $this->connection->getSchemaManager();
         foreach ($sm->listTables() as $table) {
             if ($table->getName() == $tableName) {
                 return true;
@@ -84,34 +85,20 @@ class FixExecutedMigrationsPaths implements MigrationInterface
 
     private function loadAllMigrations()
     {
-        /** @var \eZ\Publish\Core\Persistence\Database\SelectQuery $q */
-        $q = $this->dbHandler->createSelectQuery();
+        $q = $this->connection->createQueryBuilder();
         $q->select('migration, path')
             ->from($this->migrationsTableName)
-            ->orderBy('migration', SelectQuery::ASC);
-        $stmt = $q->prepare();
-        $stmt->execute();
-        $results = $stmt->fetchAll();
+            ->orderBy('migration', 'ASC');
+        $result = $q->execute();
 
-        return $results;
+        return $result->fetchAllAssociative();
     }
 
     private function updateMigrationPath($migrationName, $path)
     {
-        /** @var \eZ\Publish\Core\Persistence\Database\UpdateQuery $q */
-        $q = $this->dbHandler->createUpdateQuery();
-        $q
-            ->update($this->migrationsTableName)
-            ->set(
-                'path',
-                $q->bindValue($path)
-            )
-            ->where(
-                $q->expr->eq(
-                    'migration',
-                    $q->bindValue($migrationName)
-                )
-            );
-        $q->prepare()->execute();
+        $this->connection->executeQuery(
+            'UPDATE ' . $this->migrationsTableName . ' SET path = :newPath WHERE migration = :migrationName',
+            ['newPath' => $path, 'migrationName' => $migrationName]
+        );
     }
 }
