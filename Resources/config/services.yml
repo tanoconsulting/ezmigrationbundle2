@@ -893,6 +893,7 @@ services:
 
     ez_migration_bundle.helper.console_io:
         class: '%ez_migration_bundle.helper.console_io.class%'
+        public: true
         tags:
             - { name: kernel.event_listener, event: console.command }
 
