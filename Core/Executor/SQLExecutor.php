@@ -8,6 +8,8 @@ use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchResultsNumberException;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
 use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
+use ProxyManager\Proxy\ValueHolderInterface;
+use ReflectionProperty;
 
 /**
  * @property EmbeddedReferenceResolverBagInterface $referenceResolver
@@ -207,5 +209,18 @@ class SQLExecutor extends AbstractExecutor
     protected function isScalarReference($referenceDefinition)
     {
         return in_array($referenceDefinition['attribute'], $this->scalarReferences);
+    }
+
+    /**
+     * Only here to fix PDO's "There is no active transaction" exception (see usage)
+     * @internal
+     */
+    public function resetTransactionDepth(): void
+    {
+        $connection = ($this->connection instanceof ValueHolderInterface) ? $this->connection->getWrappedValueHolderValue() : $this->connection;
+
+        $property = new ReflectionProperty(Connection::class, 'transactionNestingLevel');
+        $property->setAccessible(true);
+        $property->setValue($connection, 0);
     }
 }

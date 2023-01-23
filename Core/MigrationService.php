@@ -2,6 +2,7 @@
 
 namespace Kaliop\eZMigrationBundle\Core;
 
+use Exception;
 use eZ\Publish\API\Repository\Repository;
 use Kaliop\eZMigrationBundle\API\ReferenceBagInterface;
 use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
@@ -23,6 +24,8 @@ use Kaliop\eZMigrationBundle\API\Event\BeforeStepExecutionEvent;
 use Kaliop\eZMigrationBundle\API\Event\StepExecutedEvent;
 use Kaliop\eZMigrationBundle\API\Event\MigrationAbortedEvent;
 use Kaliop\eZMigrationBundle\API\Event\MigrationSuspendedEvent;
+use Kaliop\eZMigrationBundle\Core\Executor\SQLExecutor;
+use PDOException;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -437,7 +440,22 @@ class MigrationService implements ContextProviderInterface
                 $currentUser = $this->getCurrentUser();
                 $this->authenticateUserByLogin($adminLogin ?? self::ADMIN_USER_LOGIN);
 
-                $this->repository->commit();
+                try {
+                    $this->repository->commit();
+                } catch (Exception $e) {
+                    if ($executor && !$executor instanceof SQLExecutor) {
+                        throw $e;
+                    }
+                    // when executing sql command, we might get an exception in the case where transaction has been auto-commited by driver
+                    // (when using drop table or create table)
+                    $previous = $e->getPrevious();
+                    $possiblePdoException = $previous ? $previous->getPrevious() : null;
+                    if (!($possiblePdoException instanceof PDOException && $possiblePdoException->getMessage() === 'There is no active transaction')) {
+                        throw $e;
+                    }
+
+                    $executor->resetTransactionDepth();
+                }
                 $this->authenticateUserByReference($currentUser);
             }
 
