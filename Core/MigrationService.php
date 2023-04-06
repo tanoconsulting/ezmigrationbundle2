@@ -23,6 +23,7 @@ use Kaliop\eZMigrationBundle\API\Event\BeforeStepExecutionEvent;
 use Kaliop\eZMigrationBundle\API\Event\StepExecutedEvent;
 use Kaliop\eZMigrationBundle\API\Event\MigrationAbortedEvent;
 use Kaliop\eZMigrationBundle\API\Event\MigrationSuspendedEvent;
+use Kaliop\eZMigrationBundle\Core\Executor\SQLExecutor;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -362,7 +363,7 @@ class MigrationService implements ContextProviderInterface
         }
 
         $this->migrationContext[$migration->name] = array('context' => $migrationContext);
-        $previousUser = null;
+        $usedSqlExecutor = false;
         $steps = array_slice($migrationDefinition->steps->getArrayCopy(), $stepOffset);
 
         try {
@@ -386,6 +387,9 @@ class MigrationService implements ContextProviderInterface
                     $this->dispatcher->dispatch($beforeStepExecutionEvent, $this->eventPrefix . 'before_execution');
                     // allow some sneaky trickery here: event listeners can manipulate 'live' the step definition and the executor
                     $executor = $beforeStepExecutionEvent->getExecutor();
+                    if ($executor instanceof SQLExecutor) {
+                        $usedSqlExecutor = true;
+                    }
                     $step = $beforeStepExecutionEvent->getStep();
 
                     try {
@@ -434,17 +438,35 @@ class MigrationService implements ContextProviderInterface
             ));
 
             if ($useTransaction) {
+                $isCommitting = false;
+
                 // there might be workflows or other actions happening at commit time that fail if we are not admin
                 /// @todo optimization - check the id of the admin user, and if it matches the current user, avoid setting it
                 $currentUser = $this->getCurrentUser();
                 $this->authenticateUserByLogin($adminLogin ?? self::ADMIN_USER_LOGIN);
                 $previousUser = $currentUser;
 
-                $this->repository->commit();
-
-                if ($previousUser) {
-                    $this->authenticateUserByReference($previousUser);
-                    $previousUser = null;
+                try {
+                    $isCommitting = true;
+                    $this->repository->commit();
+                    $isCommitting = false;
+                } catch (\RuntimeException $e) {
+                    // When running some DDL queries, some databases (eg. mysql, oracle) do commit any pending transaction.
+                    // Since php 8.0, the PDO driver does properly take that into account, and throws an exception
+                    // when we try to commit here. Short of analyzing any executed migration step checking for execution
+                    // of DDL, all we can do is swallow the error.
+                    // NB: what we get is a chain: RuntimeException/RuntimeException/PDOException. Should we validate it fully?
+                    if ($usedSqlExecutor && $e->getMessage() == 'There is no active transaction') {
+                        /// @todo either output a warning, or save it in the migration status
+                        $isCommitting = false;
+                    } else {
+                        throw $e;
+                    }
+                } finally {
+                    if ($previousUser) {
+                        $this->authenticateUserByReference($previousUser);
+                        $previousUser = null;
+                    }
                 }
             }
 
@@ -457,26 +479,23 @@ class MigrationService implements ContextProviderInterface
 
             if ($useTransaction) {
                 try {
-                    // cater to the case where the $this->repository->commit() call above throws an exception
-                    if ($previousUser) {
-                        $this->authenticateUserByReference($previousUser);
-                    }
 
-                    // there is no need to become admin here, at least in theory
+                    // there is no need to be admin here, at least in theory
                     $this->repository->rollBack();
 
                 } catch (\Throwable $e2) {
-                    // This check is not rock-solid, but at the moment is all we can do to tell apart 2 cases of
+                    // This check is not rock-solid, but at the moment is the best we can do to tell apart 2 cases of
                     // exceptions originating above: the case where the commit was successful but handling of a commit-queue
                     // signal failed, from the case where something failed beforehand.
                     // Known cases for signals failing at commit time include fe. https://jira.ez.no/browse/EZP-29333
-                    if ($previousUserId && $e2->getMessage() == 'There is no active transaction.') {
-                        // since the migration succeeded and it was committed, no use to mark it as failed...
+                    if ($isCommitting && $e2 instanceof \RuntimeException && $e2->getMessage() == 'There is no active transaction') {
+                        // since all the migration steps succeeded and it was committed (because there was nothing to roll back), no use to mark it as failed...
                         $finalStatus = Migration::STATUS_DONE;
                         $errorMessage = 'An exception was thrown after committing, in file ' .
                             $e->getFile() . ' line ' . $e->getLine() . ': ' . $this->getFullExceptionMessage($e);
                         $exception = new AfterMigrationExecutionException($errorMessage, $i, $e);
                     } else {
+
                         $errorMessage .= '. In addition, an exception was thrown while rolling back, in file ' .
                             $e2->getFile() . ' line ' . $e2->getLine() . ': ' . $this->getFullExceptionMessage($e2);
                     }
