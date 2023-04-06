@@ -209,8 +209,7 @@ services:
     ez_migration_bundle.storage_handler.database:
         class: '%ez_migration_bundle.storage_handler.database.class%'
         arguments:
-            # @todo review - is this the best way to get a handle on this ?
-            - '@ezpublish.api.storage_engine.legacy.connection'
+            - '@ezpublish.persistence.connection'
             - 'ez_migration_bundle.table_name'
             - '@ez_migration_bundle.helper.config.resolver'
             - { charset: '%ez_migration_bundle.database_charset%', collate: '%ez_migration_bundle.database_collation%'}
@@ -221,7 +220,7 @@ services:
     ez_migration_bundle.context_storage_handler.database:
         class: '%ez_migration_bundle.context_storage_handler.database.class%'
         arguments:
-            - '@ezpublish.api.storage_engine.legacy.connection'
+            - '@ezpublish.persistence.connection'
             - 'ez_migration_bundle.context_table_name'
             - '@ez_migration_bundle.helper.config.resolver'
             - { charset: '%ez_migration_bundle.database_charset%', collate: '%ez_migration_bundle.database_collation%' }
@@ -336,7 +335,7 @@ services:
     ez_migration_bundle.executor.sql:
         class: '%ez_migration_bundle.executor.sql.class%'
         arguments:
-            - '@ezpublish.api.storage_engine.legacy.connection'
+            - '@ezpublish.persistence.connection'
             - '@ez_migration_bundle.reference_resolver.customreference'
         calls:
             - ['setReferenceMatcher', ['@ez_migration_bundle.reference_matcher']]
