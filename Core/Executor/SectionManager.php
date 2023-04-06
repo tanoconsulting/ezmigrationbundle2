@@ -180,57 +180,62 @@ class SectionManager extends RepositoryExecutor implements MigrationGeneratorInt
     public function generateMigration(array $matchCondition, $mode, array $context = array())
     {
         $currentUser = $this->authenticateUserByContext($context);
-        $sectionCollection = $this->sectionMatcher->match($matchCondition);
-        $data = array();
 
-        /** @var \eZ\Publish\API\Repository\Values\Content\Section $section */
-        foreach ($sectionCollection as $section) {
+        try {
+            $sectionCollection = $this->sectionMatcher->match($matchCondition);
+            $data = array();
 
-            $sectionData = array(
-                'type' => reset($this->supportedStepTypes),
-                'mode' => $mode,
-            );
+            /** @var \eZ\Publish\API\Repository\Values\Content\Section $section */
+            foreach ($sectionCollection as $section) {
 
-            switch ($mode) {
-                case 'create':
-                    $sectionData = array_merge(
-                        $sectionData,
-                        array(
-                            'identifier' => $section->identifier,
-                            'name' => $section->name,
-                        )
-                    );
-                    break;
-                case 'update':
-                    $sectionData = array_merge(
-                        $sectionData,
-                        array(
-                            'match' => array(
-                                SectionMatcher::MATCH_SECTION_ID => $section->id
-                            ),
-                            'identifier' => $section->identifier,
-                            'name' => $section->name,
-                        )
-                    );
-                    break;
-                case 'delete':
-                    $sectionData = array_merge(
-                        $sectionData,
-                        array(
-                            'match' => array(
-                                SectionMatcher::MATCH_SECTION_ID => $section->id
+                $sectionData = array(
+                    'type' => reset($this->supportedStepTypes),
+                    'mode' => $mode,
+                );
+
+                switch ($mode) {
+                    case 'create':
+                        $sectionData = array_merge(
+                            $sectionData,
+                            array(
+                                'identifier' => $section->identifier,
+                                'name' => $section->name,
                             )
-                        )
-                    );
-                    break;
-                default:
-                    throw new InvalidStepDefinitionException("Executor 'section' doesn't support mode '$mode'");
+                        );
+                        break;
+                    case 'update':
+                        $sectionData = array_merge(
+                            $sectionData,
+                            array(
+                                'match' => array(
+                                    SectionMatcher::MATCH_SECTION_ID => $section->id
+                                ),
+                                'identifier' => $section->identifier,
+                                'name' => $section->name,
+                            )
+                        );
+                        break;
+                    case 'delete':
+                        $sectionData = array_merge(
+                            $sectionData,
+                            array(
+                                'match' => array(
+                                    SectionMatcher::MATCH_SECTION_ID => $section->id
+                                )
+                            )
+                        );
+                        break;
+                    default:
+                        throw new InvalidStepDefinitionException("Executor 'section' doesn't support mode '$mode'");
+                }
+
+                $data[] = $sectionData;
             }
 
-            $data[] = $sectionData;
+        } finally {
+            $this->authenticateUserByReference($currentUser);
         }
 
-        $this->authenticateUserByReference($currentUser);
         return $data;
     }
 

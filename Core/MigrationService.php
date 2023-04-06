@@ -57,6 +57,7 @@ class MigrationService implements ContextProviderInterface
     /** @var ExecutorInterface[] $executors */
     protected $executors = array();
 
+    /** @var Repository $repository */
     protected $repository;
 
     protected $dispatcher;
@@ -361,7 +362,7 @@ class MigrationService implements ContextProviderInterface
         }
 
         $this->migrationContext[$migration->name] = array('context' => $migrationContext);
-        $previousUserId = null;
+        $previousUser = null;
         $steps = array_slice($migrationDefinition->steps->getArrayCopy(), $stepOffset);
 
         try {
@@ -434,11 +435,17 @@ class MigrationService implements ContextProviderInterface
 
             if ($useTransaction) {
                 // there might be workflows or other actions happening at commit time that fail if we are not admin
+                /// @todo optimization - check the id of the admin user, and if it matches the current user, avoid setting it
                 $currentUser = $this->getCurrentUser();
                 $this->authenticateUserByLogin($adminLogin ?? self::ADMIN_USER_LOGIN);
+                $previousUser = $currentUser;
 
                 $this->repository->commit();
-                $this->authenticateUserByReference($currentUser);
+
+                if ($previousUser) {
+                    $this->authenticateUserByReference($previousUser);
+                    $previousUser = null;
+                }
             }
 
         } catch (\Throwable $e) {
@@ -451,8 +458,8 @@ class MigrationService implements ContextProviderInterface
             if ($useTransaction) {
                 try {
                     // cater to the case where the $this->repository->commit() call above throws an exception
-                    if (isset($currentUser)) {
-                        $this->authenticateUserByReference($currentUser);
+                    if ($previousUser) {
+                        $this->authenticateUserByReference($previousUser);
                     }
 
                     // there is no need to become admin here, at least in theory

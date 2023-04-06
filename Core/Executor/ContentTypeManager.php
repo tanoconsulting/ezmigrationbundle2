@@ -463,82 +463,87 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
     public function generateMigration(array $matchCondition, $mode, array $context = array())
     {
         $currentUser = $this->authenticateUserByContext($context);
-        $contentTypeCollection = $this->contentTypeMatcher->match($matchCondition);
-        $data = array();
 
-        /** @var \eZ\Publish\API\Repository\Values\ContentType\ContentType $contentType */
-        foreach ($contentTypeCollection as $contentType) {
+        try {
+            $contentTypeCollection = $this->contentTypeMatcher->match($matchCondition);
+            $data = array();
 
-            $contentTypeData = array(
-                'type' => reset($this->supportedStepTypes),
-                'mode' => $mode
-            );
+            /** @var \eZ\Publish\API\Repository\Values\ContentType\ContentType $contentType */
+            foreach ($contentTypeCollection as $contentType) {
 
-            switch ($mode) {
-                case 'create':
-                    $contentTypeGroups = $contentType->getContentTypeGroups();
-                    $contentTypeData = array_merge(
-                        $contentTypeData,
-                        array(
-                            'content_type_group' => reset($contentTypeGroups)->identifier,
-                            'identifier' => $contentType->identifier
-                        )
-                    );
-                    break;
-                case 'update':
-                    $contentTypeData = array_merge(
-                        $contentTypeData,
-                        // q: are we allowed to change the group in updates ?
-                        array(
-                            'match' => array(
-                                ContentTypeMatcher::MATCH_CONTENTTYPE_IDENTIFIER => $contentType->identifier
-                            ),
-                            'new_identifier' => $contentType->identifier,
-                        )
-                    );
-                    break;
-                case 'delete':
-                    $contentTypeData = array_merge(
-                        $contentTypeData,
-                        array(
-                            'match' => array(
-                                ContentTypeMatcher::MATCH_CONTENTTYPE_IDENTIFIER => $contentType->identifier
+                $contentTypeData = array(
+                    'type' => reset($this->supportedStepTypes),
+                    'mode' => $mode
+                );
+
+                switch ($mode) {
+                    case 'create':
+                        $contentTypeGroups = $contentType->getContentTypeGroups();
+                        $contentTypeData = array_merge(
+                            $contentTypeData,
+                            array(
+                                'content_type_group' => reset($contentTypeGroups)->identifier,
+                                'identifier' => $contentType->identifier
                             )
-                        )
-                    );
-                    break;
-                default:
-                    throw new InvalidStepDefinitionException("Executor 'content_type' doesn't support mode '$mode'");
-            }
-
-            if ($mode != 'delete') {
-
-                $attributes = array();
-                foreach ($contentType->getFieldDefinitions() as $i => $fieldDefinition) {
-                    $attributes[] = $this->fieldDefinitionToHash($contentType, $fieldDefinition, $context);
+                        );
+                        break;
+                    case 'update':
+                        $contentTypeData = array_merge(
+                            $contentTypeData,
+                            // q: are we allowed to change the group in updates ?
+                            array(
+                                'match' => array(
+                                    ContentTypeMatcher::MATCH_CONTENTTYPE_IDENTIFIER => $contentType->identifier
+                                ),
+                                'new_identifier' => $contentType->identifier,
+                            )
+                        );
+                        break;
+                    case 'delete':
+                        $contentTypeData = array_merge(
+                            $contentTypeData,
+                            array(
+                                'match' => array(
+                                    ContentTypeMatcher::MATCH_CONTENTTYPE_IDENTIFIER => $contentType->identifier
+                                )
+                            )
+                        );
+                        break;
+                    default:
+                        throw new InvalidStepDefinitionException("Executor 'content_type' doesn't support mode '$mode'");
                 }
 
-                $contentTypeData = array_merge(
-                    $contentTypeData,
-                    array(
-                        'name' => $contentType->getNames(),
-                        'description' => $contentType->getDescriptions(),
-                        'name_pattern' => $contentType->nameSchema,
-                        'url_name_pattern' => $contentType->urlAliasSchema,
-                        'is_container' => $contentType->isContainer,
-                        'default_always_available' => $contentType->defaultAlwaysAvailable,
-                        'default_sort_field' => $this->sortConverter->sortField2Hash($contentType->defaultSortField),
-                        'default_sort_order' => $this->sortConverter->sortOrder2Hash($contentType->defaultSortOrder),
-                        'lang' => $this->getLanguageCodeFromContext($context),
-                        'attributes' => $attributes
-                    )
-                );
+                if ($mode != 'delete') {
+
+                    $attributes = array();
+                    foreach ($contentType->getFieldDefinitions() as $i => $fieldDefinition) {
+                        $attributes[] = $this->fieldDefinitionToHash($contentType, $fieldDefinition, $context);
+                    }
+
+                    $contentTypeData = array_merge(
+                        $contentTypeData,
+                        array(
+                            'name' => $contentType->getNames(),
+                            'description' => $contentType->getDescriptions(),
+                            'name_pattern' => $contentType->nameSchema,
+                            'url_name_pattern' => $contentType->urlAliasSchema,
+                            'is_container' => $contentType->isContainer,
+                            'default_always_available' => $contentType->defaultAlwaysAvailable,
+                            'default_sort_field' => $this->sortConverter->sortField2Hash($contentType->defaultSortField),
+                            'default_sort_order' => $this->sortConverter->sortOrder2Hash($contentType->defaultSortOrder),
+                            'lang' => $this->getLanguageCodeFromContext($context),
+                            'attributes' => $attributes
+                        )
+                    );
+                }
+
+                $data[] = $contentTypeData;
             }
 
-            $data[] = $contentTypeData;
+        } finally {
+            $this->authenticateUserByReference($currentUser);
         }
 
-        $this->authenticateUserByReference($currentUser);
         return $data;
     }
 

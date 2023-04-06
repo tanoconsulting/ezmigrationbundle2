@@ -216,76 +216,81 @@ class ObjectStateManager extends RepositoryExecutor implements MigrationGenerato
     public function generateMigration(array $matchCondition, $mode, array $context = array())
     {
         $currentUser = $this->authenticateUserByContext($context);
-        $objectStateCollection = $this->objectStateMatcher->match($matchCondition);
-        $data = array();
 
-        /** @var \eZ\Publish\API\Repository\Values\ObjectState\ObjectState $objectState */
-        foreach ($objectStateCollection as $objectState) {
+        try {
+            $objectStateCollection = $this->objectStateMatcher->match($matchCondition);
+            $data = array();
 
-            $groupData = array(
-                'type' => reset($this->supportedStepTypes),
-                'mode' => $mode,
-            );
+            /** @var \eZ\Publish\API\Repository\Values\ObjectState\ObjectState $objectState */
+            foreach ($objectStateCollection as $objectState) {
 
-            switch ($mode) {
-                case 'create':
-                    $groupData = array_merge(
-                        $groupData,
-                        array(
-                            'object_state_group' => $objectState->getObjectStateGroup()->identifier,
-                            'identifier' => $objectState->identifier,
-                        )
-                    );
-                    break;
-                case 'update':
-                    $groupData = array_merge(
-                        $groupData,
-                        array(
-                            'match' => array(
-                                ObjectStateMatcher::MATCH_OBJECTSTATE_IDENTIFIER =>
-                                    $objectState->getObjectStateGroup()->identifier . '/' . $objectState->identifier
-                            ),
-                            'identifier' => $objectState->identifier,
-                        )
-                    );
-                    break;
-                case 'delete':
-                    $groupData = array_merge(
-                        $groupData,
-                        array(
-                            'match' => array(
-                                ObjectStateMatcher::MATCH_OBJECTSTATE_IDENTIFIER =>
-                                    $objectState->getObjectStateGroup()->identifier . '/' . $objectState->identifier
-                            )
-                        )
-                    );
-                    break;
-                default:
-                    throw new InvalidStepDefinitionException("Executor 'object_state_group' doesn't support mode '$mode'");
-            }
-
-            if ($mode != 'delete') {
-                $names = array();
-                $descriptions = array();
-                foreach ($objectState->languageCodes as $languageCode) {
-                    $names[$languageCode] =  $objectState->getName($languageCode);
-                }
-                foreach ($objectState->languageCodes as $languageCode) {
-                    $descriptions[$languageCode] =  $objectState->getDescription($languageCode);
-                }
-                $groupData = array_merge(
-                    $groupData,
-                    array(
-                        'names' => $names,
-                        'descriptions' => $descriptions,
-                    )
+                $groupData = array(
+                    'type' => reset($this->supportedStepTypes),
+                    'mode' => $mode,
                 );
+
+                switch ($mode) {
+                    case 'create':
+                        $groupData = array_merge(
+                            $groupData,
+                            array(
+                                'object_state_group' => $objectState->getObjectStateGroup()->identifier,
+                                'identifier' => $objectState->identifier,
+                            )
+                        );
+                        break;
+                    case 'update':
+                        $groupData = array_merge(
+                            $groupData,
+                            array(
+                                'match' => array(
+                                    ObjectStateMatcher::MATCH_OBJECTSTATE_IDENTIFIER =>
+                                        $objectState->getObjectStateGroup()->identifier . '/' . $objectState->identifier
+                                ),
+                                'identifier' => $objectState->identifier,
+                            )
+                        );
+                        break;
+                    case 'delete':
+                        $groupData = array_merge(
+                            $groupData,
+                            array(
+                                'match' => array(
+                                    ObjectStateMatcher::MATCH_OBJECTSTATE_IDENTIFIER =>
+                                        $objectState->getObjectStateGroup()->identifier . '/' . $objectState->identifier
+                                )
+                            )
+                        );
+                        break;
+                    default:
+                        throw new InvalidStepDefinitionException("Executor 'object_state_group' doesn't support mode '$mode'");
+                }
+
+                if ($mode != 'delete') {
+                    $names = array();
+                    $descriptions = array();
+                    foreach ($objectState->languageCodes as $languageCode) {
+                        $names[$languageCode] = $objectState->getName($languageCode);
+                    }
+                    foreach ($objectState->languageCodes as $languageCode) {
+                        $descriptions[$languageCode] = $objectState->getDescription($languageCode);
+                    }
+                    $groupData = array_merge(
+                        $groupData,
+                        array(
+                            'names' => $names,
+                            'descriptions' => $descriptions,
+                        )
+                    );
+                }
+
+                $data[] = $groupData;
             }
 
-            $data[] = $groupData;
+        } finally {
+            $this->authenticateUserByReference($currentUser);
         }
 
-        $this->authenticateUserByReference($currentUser);
         return $data;
     }
 
