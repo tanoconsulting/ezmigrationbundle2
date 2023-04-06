@@ -1,12 +1,25 @@
+Version: 1.0.x (unreleased)
+===========================
+
+* When generating migrations, try harder to reset the repository to the originally connected user in case of exceptions
+  being thrown
+
+* Fixed test suite failing with eZPlatform 3.3
+
+* Fixed: exception thrown at end of migration if the migration steps included sql execution including f.e.
+  creation of a table with databases such as mysql and oracle (PR #25)
+
 Version: 1.0.3
 ==============
 
 * Fixed default migration 20220101000200_FixExecutedMigrationsPaths.php
 
+
 Version: 1.0.2
 ==============
 
 * Fixed php warning in class `PHPExecutor` due to trait being used twice
+
 
 Version: 1.0.1
 ==============
