@@ -3,30 +3,39 @@
 include_once(__DIR__.'/MigrationExecutingTest.php');
 
 use Kaliop\eZMigrationBundle\API\Value\Migration;
-use Kaliop\eZMigrationBundle\Tests\helper\BeforeStepExecutionListener;
-use Kaliop\eZMigrationBundle\Tests\helper\StepExecutedListener;
 
 /**
  * Tests transaction handling
  */
 class TransactionsTest extends MigrationExecutingTest
 {
+    /**
+     * Test executing the migration without the `-u` option: wrap it in a db transaction.
+     * This is known to cause issues with php >= 8.0 and mysql, when the migration contains ddl statements, which
+     * make the wrapping transaction be committed directly by the db. We check that the code which handles
+     * the wrapping transaction in the MigrationService can cope with that
+     *
+     * @todo skip when db is not mysql
+     */
     public function testMysqlAutocommit()
     {
-        /// @todo skip when db is not mysql
+        $this->runMigration($this->dslDir.'/transactions/UnitTestOK1011_mysql_create_table.sql');
 
-        $filePath = $this->dslDir.'/transactions/UnitTestOK1011_mysql_create_table.sql';
+        $this->runMigration($this->dslDir.'/transactions/UnitTestOK1012_mysql_drop_table.sql');
+    }
 
-        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
+    /**
+     * Test the migration rollback: a failed migration should not leave partial data in the db
+     */
+    public function testRollback()
+    {
+        /** @var \Doctrine\DBAL\Connection $conn */
+        $conn = $this->getBootedContainer()->get('ezpublish.persistence.connection');
 
-        // Make sure migration is not in the db: delete it, ignoring errors
-        $this->prepareMigration($filePath);
+        $this->runMigration($this->dslDir.'/transactions/UnitTestOK1021_create_table.yml');
 
-        $output = $this->runCommand('kaliop:migration:migrate', array('--path' => array($filePath), '-n' => true));
+        $this->runMigration($this->dslDir.'/transactions/UnitTestOK1023_check_data.yml');
 
-        $m = $ms->getMigration(basename($filePath));
-        $this->assertEquals($m->status, Migration::STATUS_DONE, 'Migration supposed to be completed but in unexpected state');
-
-        $this->deleteMigration($filePath);
+        $this->runMigration($this->dslDir.'/transactions/UnitTestOK1024_drop_table.yml');
     }
 }

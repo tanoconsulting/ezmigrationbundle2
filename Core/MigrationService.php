@@ -388,7 +388,7 @@ class MigrationService implements ContextProviderInterface
                     // allow some sneaky trickery here: event listeners can manipulate 'live' the step definition and the executor
                     $executor = $beforeStepExecutionEvent->getExecutor();
                     if ($executor instanceof SQLExecutor) {
-                        $usedSqlExecutor = true;
+                        $usedSqlExecutor = $executor;
                     }
                     $step = $beforeStepExecutionEvent->getStep();
 
@@ -459,6 +459,7 @@ class MigrationService implements ContextProviderInterface
                     if ($usedSqlExecutor && $e->getMessage() == 'There is no active transaction') {
                         /// @todo either output a warning, or save it in the migration status
                         $isCommitting = false;
+                        $usedSqlExecutor->resetTransaction();
                     } else {
                         throw $e;
                     }
