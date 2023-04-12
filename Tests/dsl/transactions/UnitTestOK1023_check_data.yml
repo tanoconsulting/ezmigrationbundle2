@@ -7,14 +7,14 @@
         -   identifier: kmb_test_102
             attribute: count
 
--
-    type: reference
-    mode: dump
-    identifier: reference:kmb_test_102
-
 #-
-#    type: assert
-#    target: reference
+#    type: reference
+#    mode: dump
 #    identifier: reference:kmb_test_102
-#    test:
-#        equals: 0
+
+-
+    type: assert
+    target: reference
+    identifier: reference:kmb_test_102
+    test:
+        equals: 0
