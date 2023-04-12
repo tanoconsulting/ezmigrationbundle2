@@ -10,8 +10,8 @@ use Kaliop\eZMigrationBundle\API\Value\Migration;
 class TransactionsTest extends MigrationExecutingTest
 {
     /**
-     * Test executing the migration without the `-u` option: wrap it in a db transaction.
-     * This is known to cause issues with php >= 8.0 and mysql, when the migration contains ddl statements, which
+     * Test executing a transaction-committing migration without the `-u` option: wrap it in a db transaction.
+     * This is known to happen f.e. with php >= 8.0 and mysql, when the migration contains ddl statements, which
      * make the wrapping transaction be committed directly by the db. We check that the code which handles
      * the wrapping transaction in the MigrationService can cope with that
      *
@@ -25,7 +25,7 @@ class TransactionsTest extends MigrationExecutingTest
     }
 
     /**
-     * Test the migration rollback: a failed migration should not leave partial data in the db
+     * Test the migration rollback: a failed migration should not leave data in the db
      */
     public function testRollback()
     {
