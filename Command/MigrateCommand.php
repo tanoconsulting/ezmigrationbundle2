@@ -199,12 +199,15 @@ EOT
                     $this->executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builderArgs);
 
                     $executed++;
+                /// @todo catch \Throwable
                 } catch (\Exception $e) {
                     $failed++;
 
                     $errorMessage = $e->getMessage();
                     // we probably have already echoed the error message while the subprocess was executing, avoid repeating it
                     if ($errorMessage != $this->subProcessErrorString) {
+                        /// @todo atm this as impossible case - executeMigrationInSeparateProcess does not know enough
+                        ///       to throw an AfterMigrationExecutionException
                         if ($e instanceof AfterMigrationExecutionException) {
                             $errorMessage = "Failure after migration end! Reason: " . $errorMessage;
                         } else {
@@ -290,6 +293,9 @@ EOT
      * @param MigrationService $migrationService
      * @param array $builderArgs
      * @param bool $feedback
+     * @throws MigrationBundleException
+     * @throws \Exception @see Process::__construct, Process::run
+     * @todo catch exceptions thrown by Process, wrap them into a MigrationBundleException
      */
     protected function executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builderArgs, $feedback = true)
     {

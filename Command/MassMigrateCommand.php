@@ -285,12 +285,16 @@ EOT
                     $this->executeMigrationInSeparateProcess($migrationDefinition, $migrationService, $builderArgs);
 
                     $executed++;
+                /// @todo catch \Throwable
                 } catch (\Exception $e) {
                     $failed++;
 
                     $errorMessage = $e->getMessage();
                     if ($errorMessage != $this->subProcessErrorString) {
+                        /// @todo move these bits of strings to class constants
                         $errorMessage = preg_replace('/^\n*(\[[0-9]*\])?(Migration failed|Failure after migration end)! Reason: +/', '', $errorMessage);
+                        /// @todo atm this as impossible case - executeMigrationInSeparateProcess does not know enough
+                        ///       to throw an AfterMigrationExecutionException
                         if ($e instanceof AfterMigrationExecutionException) {
                             $errorMessage = "Failure after migration end! Path: " . $migrationDefinition->path . ", Reason: " . $errorMessage;
                         } else {
