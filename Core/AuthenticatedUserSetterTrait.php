@@ -21,7 +21,7 @@ trait AuthenticatedUserSetterTrait
     /**
      * Helper method to authenticate a user that can make changes to the system.
      *
-     * @throws \Kaliop\eZMigrationBundle\API\Exception\InvalidUserAccountException
+     * @throws InvalidUserAccountException
      */
     protected function authenticateUserByLogin(string $userLogin): void
     {

@@ -460,12 +460,12 @@ class ContentTypeManager extends RepositoryExecutor implements MigrationGenerato
      * @throws \Exception
      * @return array
      */
-    public function generateMigration(array $matchCondition, $mode, array $context = array())
+    public function generateMigration(array $matchConditions, $mode, array $context = array())
     {
         $currentUser = $this->authenticateUserByContext($context);
 
         try {
-            $contentTypeCollection = $this->contentTypeMatcher->match($matchCondition);
+            $contentTypeCollection = $this->contentTypeMatcher->match($matchConditions);
             $data = array();
 
             /** @var \eZ\Publish\API\Repository\Values\ContentType\ContentType $contentType */

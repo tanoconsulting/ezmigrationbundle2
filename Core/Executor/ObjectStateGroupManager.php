@@ -196,12 +196,12 @@ class ObjectStateGroupManager extends RepositoryExecutor implements MigrationGen
      * @throws \Exception
      * @return array
      */
-    public function generateMigration(array $matchCondition, $mode, array $context = array())
+    public function generateMigration(array $matchConditions, $mode, array $context = array())
     {
         $currentUser = $this->authenticateUserByContext($context);
 
         try {
-            $objectStateGroupCollection = $this->objectStateGroupMatcher->match($matchCondition);
+            $objectStateGroupCollection = $this->objectStateGroupMatcher->match($matchConditions);
             $data = array();
 
             /** @var \eZ\Publish\API\Repository\Values\ObjectState\ObjectStateGroup $objectStateGroup */
