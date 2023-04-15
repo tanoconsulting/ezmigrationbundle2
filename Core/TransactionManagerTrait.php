@@ -24,6 +24,10 @@ trait TransactionManagerTrait
 
     public function setRepository(Repository $repository): void
     {
+        // NB: ideally we should retrieve the DB connection from the Repository. But that means going through
+        // multiple steps of access to protected/private members (persistenceHandler / transactionHandler / ...) which
+        // are not guaranteed to be stable, or even present. So we inject th connection separately...
+
         $this->repository = $repository;
     }
 
