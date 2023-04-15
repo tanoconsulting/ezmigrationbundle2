@@ -1,5 +1,5 @@
-Version: 1.0.4 (unreleased)
-===========================
+Version: 1.0.4
+==============
 
 * Fixed: migration definitions in stock locations would not be detected any more and had to be passed using an absolute
   path (bug introduced in rel. 1.0-beta1).
