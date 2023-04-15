@@ -235,7 +235,13 @@ EOT
                 } catch (\Exception $e) {
                     $failed++;
 
-                    $this->writeErrorln("\n<error>Migration failed! Reason: " . $e->getMessage() . "</error>");
+                    $errorMessage = $e->getMessage();
+                    if ($e instanceof AfterMigrationExecutionException) {
+                        $errorMessage = "Failure after migration end! Reason: " . $errorMessage;
+                    } else {
+                        $errorMessage = "Migration failed! Reason: " . $errorMessage;
+                    }
+                    $this->writeErrorln("\n<error>$errorMessage</error>");
 
                     if (!$input->getOption('ignore-failures')) {
                         $aborted = true;
