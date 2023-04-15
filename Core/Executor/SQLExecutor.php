@@ -8,7 +8,6 @@ use Kaliop\eZMigrationBundle\API\Exception\InvalidMatchResultsNumberException;
 use Kaliop\eZMigrationBundle\API\Exception\InvalidStepDefinitionException;
 use Kaliop\eZMigrationBundle\API\Exception\MigrationBundleException;
 use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
-use ProxyManager\Proxy\ValueHolderInterface;
 
 /**
  * @property EmbeddedReferenceResolverBagInterface $referenceResolver
@@ -208,24 +207,5 @@ class SQLExecutor extends AbstractExecutor
     protected function isScalarReference($referenceDefinition)
     {
         return in_array($referenceDefinition['attribute'], $this->scalarReferences);
-    }
-
-    /**
-     * Resets the transaction counter and all other transaction-related info for the current db connection
-     * @internal
-     * @return void
-     */
-    public function resetTransaction()
-    {
-        /** @var Connection $connection */
-        $connection = ($this->connection instanceof ValueHolderInterface) ? $this->connection->getWrappedValueHolderValue() : $this->connection;
-
-        $cl = \Closure::bind(function () {
-               $this->transactionNestingLevel = 0;
-            },
-            $connection,
-            $connection
-        );
-        $cl();
     }
 }

@@ -154,6 +154,7 @@ services:
         calls:
             - ['setPermissionResolver', ['@eZ\Publish\API\Repository\PermissionResolver']]
             - ['setUserService', ['@eZ\Publish\API\Repository\UserService']]
+            - ['setConnection', ['@ezpublish.persistence.connection']]
 
     ### loaders
 

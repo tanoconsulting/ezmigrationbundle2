@@ -29,13 +29,34 @@ class TransactionsTest extends MigrationExecutingTest
      */
     public function testRollback()
     {
-        /** @var \Doctrine\DBAL\Connection $conn */
-        $conn = $this->getBootedContainer()->get('ezpublish.persistence.connection');
-
         $this->runMigration($this->dslDir.'/transactions/UnitTestOK1021_create_table.yml');
+
+        $m = $this->runMigration($this->dslDir.'/transactions/UnitTestOK1022_faulty_sql.yml', [], Migration::STATUS_FAILED, false);
+        $this->assertStringContainsString('Error in execution of step 2', $m->executionError);
 
         $this->runMigration($this->dslDir.'/transactions/UnitTestOK1023_check_data.yml');
 
         $this->runMigration($this->dslDir.'/transactions/UnitTestOK1024_drop_table.yml');
+    }
+
+    // pending transaction opened via pdo
+    public function testPendingTransaction()
+    {
+        $m = $this->runMigration($this->dslDir.'/transactions/UnitTestOK1031_BeginTransactionClass.php', [], Migration::STATUS_FAILED, false);
+        $this->assertStringContainsString('The migration was rolled back because it had left a database transaction pending', $m->executionError);
+
+        $m = $this->runMigration($this->dslDir.'/transactions/UnitTestOK1031_BeginTransactionClass.php', ['-u' => true], Migration::STATUS_FAILED, false);
+        $this->assertStringContainsString('The migration was rolled back because it had left a database transaction pending', $m->executionError);
+    }
+
+    // pending transaction opened via sql
+    public function testPendingTransaction2()
+    {
+        // this works because the 'extra' sql transaction gets committed at the end of the migration by our wrapping transaction
+        $m = $this->runMigration($this->dslDir.'/transactions/UnitTestOK1032_begin_transaction.yml');
+
+        /// @todo make this work... atm the migration is left in executing status
+        //$m = $this->runMigration($this->dslDir.'/transactions/UnitTestOK1032_begin_transaction.yml', ['-u' => true], Migration::STATUS_FAILED, false);
+        //$this->assertStringContainsString('The migration was rolled back because it had left a database transaction pending', $m->executionError);
     }
 }

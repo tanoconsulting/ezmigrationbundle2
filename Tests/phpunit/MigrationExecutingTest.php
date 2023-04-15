@@ -80,11 +80,14 @@ abstract class MigrationExecutingTest extends CommandExecutingTest
 
         $this->assertRegexp('?Processing ' . preg_quote(basename($filePath), '?') . '?', $output);
 
+        $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
+        $m = $ms->getMigration(basename($filePath));
+
         if ($expectedStatus !== false && $expectedStatus !== null) {
-            $ms = $this->getBootedContainer()->get('ez_migration_bundle.migration_service');
-            $m = $ms->getMigration(basename($filePath));
             $this->assertEquals($m->status, $expectedStatus, 'Migration in unexpected state after execution');
         }
+
+        return $m;
     }
 
     /**
@@ -92,12 +95,14 @@ abstract class MigrationExecutingTest extends CommandExecutingTest
      * @param string $filePath
      * @param array $flags
      * @param null|int $expectedStatus
+     * @return Migration
      * @throws \Exception
      */
     protected function runMigration($filePath, $flags = array(), $expectedStatus = Migration::STATUS_DONE, $checkExitCode = true)
     {
         $this->prepareMigration($filePath);
-        $this->executeMigration($filePath, $flags, $expectedStatus, $checkExitCode);
+        $m = $this->executeMigration($filePath, $flags, $expectedStatus, $checkExitCode);
         $this->deleteMigration($filePath);
+        return $m;
     }
 }
