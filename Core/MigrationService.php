@@ -465,7 +465,9 @@ class MigrationService implements ContextProviderInterface
             /// @todo this test only works if the transaction left pending was opened using the PDO connection.
             ///       If it was opened by a stray/unterminated sql `begin`, it will not be detected, and most likely
             ///       throw an error later when we try to save the migration status (unless the migration is run
-            ///       with $useTransaction, in which case the pending transaction just gets committed)
+            ///       with $useTransaction, in which case the pending transaction just gets committed).
+            ///       We could try to use PDO::inTransaction to check for pending transactions, but we'd
+            ///       have to first check if it behaves the same way across all db/php-version combinations...
             if ($steps && ($pendingTransactionLevel = $this->getDBTransactionNestingLevel() - $startTransactionLevel) > 0) {
                 // a migration step has opened a transaction and forgotten to close it! For safety, we have to roll back
 
