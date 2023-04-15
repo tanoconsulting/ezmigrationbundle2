@@ -1,11 +1,11 @@
-Version: 1.0.x (unreleased)
+Version: 1.0.4 (unreleased)
 ===========================
 
-* When generating migrations, try harder to reset the repository to the originally connected user in case of exceptions
-  being thrown
-
-* Fixed: migration definitions in stock locations would not be detected any more and had to be passed using an absolute path
-  (bug introduced in rel. 1.0-beta1)
+* Fixed: migration definitions in stock locations would not be detected any more and had to be passed using an absolute
+  path (bug introduced in rel. 1.0-beta1).
+  NB: if you had executed migration `20220101000200_FixExecutedMigrationsPaths.php` in between version 1.0-beta1 and
+  1.0.4, please check manually in the database migrations table to see if there are any migrations with a relative
+  path which starts at the wrong directory (one level up from the project dir).
 
 * Fixed: test suite failing with recent eZPlatform 3.3 versions
 
@@ -15,12 +15,16 @@ Version: 1.0.x (unreleased)
 * Fixed: correctly abort a migration when it leaves a database transaction pending (nb: this can be detected
   only for transactions started using Doctrine, not for transactions started using sql `begin` statements)
 
-* Improved: reporting of errors happening before/during/after migration execution, esp. anythinh related to transactions
+* Improved: reporting of errors happening before/during/after migration execution, esp. anything related to transactions
+
+* Improbved: when generating migrations, try harder to reset the repository to the originally connected user in case of
+  exceptions being thrown
 
 BC notes (for developer extending the bundle):
 
 * `MigrationService::getFullExceptionMessage` gained a 2nd parameter: `$addLineNumber = false`
 * `AfterMigrationExecutionException` produces a different error message when passed `0` for the `$step` parameter
+* service `ez_migration_bundle.migration_service` requires an added `setConnection` call in its definition
 
 
 Version: 1.0.3
