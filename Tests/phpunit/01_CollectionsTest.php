@@ -11,17 +11,26 @@ use Kaliop\eZMigrationBundle\API\Value\MigrationStep;
  */
 class CollectionsTest extends CommandExecutingTest
 {
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testValidElements1()
     {
         $collection = new MigrationStepsCollection(array(new MigrationStep('test')));
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testValidElements2()
     {
         $collection = new MigrationStepsCollection(array());
         $collection[] = new MigrationStep('test');
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testValidElements3()
     {
         $collection = new MigrationStepsCollection(array());
