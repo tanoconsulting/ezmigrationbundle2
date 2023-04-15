@@ -99,7 +99,7 @@ abstract class AbstractCommand extends Command
      */
     protected function normalizePaths($paths)
     {
-        $rootDir = realpath($this->kernel->getProjectDir() . '/..') . '/';
+        $rootDir = realpath($this->kernel->getProjectDir()) . '/';
         foreach ($paths as $i => $path) {
             if ($path === $rootDir || $path === './') {
                 $paths[$i] = './';

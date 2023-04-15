@@ -48,7 +48,7 @@ class FixExecutedMigrationsPaths implements MigrationInterface
         $toMigrate = $this->loadAllMigrations();
         $output->writeln("<info>Found " . count($toMigrate) . ' migrations in the database table</info>');
 
-        $rootDir = realpath($this->container->get('kernel')->getProjectDir() . '/..') . '/';
+        $rootDir = realpath($this->container->get('kernel')->getProjectDir()) . '/';
 
         foreach ($toMigrate as $legacyMigration) {
             $name = $legacyMigration['migration'];
