@@ -4,10 +4,24 @@ Version: 1.0.x (unreleased)
 * When generating migrations, try harder to reset the repository to the originally connected user in case of exceptions
   being thrown
 
-* Fixed test suite failing with eZPlatform 3.3
+* Fixed: migration definitions in stock locations would not be detected any more and had to be passed using an absolute path
+  (bug introduced in rel. 1.0-beta1)
 
-* Fixed: exception thrown at end of migration if the migration steps included sql execution including f.e.
-  creation of a table with databases such as mysql and oracle (PR #25)
+* Fixed: test suite failing with recent eZPlatform 3.3 versions
+
+* Fixed: exception thrown at end of migration if the migration steps include sql executing transaction commits, such as
+  f.e. creation of a table with databases such as mysql and oracle (PR #25)
+
+* Fixed: correctly abort a migration when it leaves a database transaction pending (nb: this can be detected
+  only for transactions started using Doctrine, not for transactions started using sql `begin` statements)
+
+* Improved: reporting of errors happening before/during/after migration execution, esp. anythinh related to transactions
+
+BC notes (for developer extending the bundle):
+
+* `MigrationService::getFullExceptionMessage` gained a 2nd parameter: `$addLineNumber = false`
+* `AfterMigrationExecutionException` produces a different error message when passed `0` for the `$step` parameter
+
 
 Version: 1.0.3
 ==============
