@@ -21,4 +21,6 @@ if (file_exists($configDir.'/bootstrap.php')) {
     (new Dotenv())->bootEnv(dirname($configDir).'/.env');
 }
 
+/// @todo if the kernel is booted first with this variable set to false, by eg. running a cli command instead of phpunit,
+///       then it will be cached with the test config not loaded, which will make tests fail. How to prevent that?
 Kaliop\eZMigrationBundle\DependencyInjection\eZMigrationExtension::$loadTestConfig = true;
