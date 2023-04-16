@@ -206,7 +206,7 @@ EOT
                     $errorMessage = $e->getMessage();
                     // we probably have already echoed the error message while the subprocess was executing, avoid repeating it
                     if ($errorMessage != $this->subProcessErrorString) {
-                        /// @todo atm this as impossible case - executeMigrationInSeparateProcess does not know enough
+                        /// @todo atm this is impossible case - executeMigrationInSeparateProcess does not know enough
                         ///       to throw an AfterMigrationExecutionException
                         if ($e instanceof AfterMigrationExecutionException) {
                             $errorMessage = "Failure after migration end! Reason: " . $errorMessage;
