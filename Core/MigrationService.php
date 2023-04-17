@@ -322,7 +322,8 @@ class MigrationService implements ContextProviderInterface
         }
         $forceExecution = array_key_exists('forceExecution', $migrationContext) ? $migrationContext['forceExecution'] : false;
 
-        /// @todo log a warning if there are already db transactions active
+        /// @todo log a warning if there are already db transactions active (an active pdo-only transaction will result in an
+        ///       exception, but a dbal transaction will result in not committing immediately transaction status update)
 
         // set migration as begun - has to be in own db transaction
         $migration = $this->storageHandler->startMigration($migrationDefinition, $forceExecution);

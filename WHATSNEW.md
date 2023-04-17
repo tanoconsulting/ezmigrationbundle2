@@ -17,7 +17,7 @@ Version: 1.0.4
 
 * Improved: reporting of errors happening before/during/after migration execution, esp. anything related to transactions
 
-* Improbved: when generating migrations, try harder to reset the repository to the originally connected user in case of
+* Improved: when generating migrations, try harder to reset the repository to the originally connected user in case of
   exceptions being thrown
 
 BC notes (for developer extending the bundle):
