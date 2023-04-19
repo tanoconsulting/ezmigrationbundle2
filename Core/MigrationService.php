@@ -495,6 +495,10 @@ class MigrationService implements ContextProviderInterface
                 }
             }
 
+            /// @todo in the same way that we check for migration steps having left a pending transaction in the code
+            ///       block above, we could check if any transaction has changed the currently logged-in user, and roll
+            ///       that back, too
+
             // in case we are wrapping the migration in a transaction, either commit or roll back
             if ($requires == 'commit') {
                 try {
