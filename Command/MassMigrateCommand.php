@@ -318,6 +318,7 @@ EOT
                     $executed++;
                     // in case the 1st mig changes values to the refs, we avoid injecting them in the 2nd mig and later
                     $migrationContext['forcedReferences'] = array();
+                /// @todo catch \Throwable
                 } catch (\Exception $e) {
                     $failed++;
 

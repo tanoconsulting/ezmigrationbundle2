@@ -232,6 +232,7 @@ EOT
 
                     // in case the 1st mig changes values to the refs, we avoid injecting them in the 2nd mig and later
                     $migrationContext['forcedReferences'] = array();
+                /// @todo catch \Throwable
                 } catch (\Exception $e) {
                     $failed++;
 
@@ -419,6 +420,7 @@ EOT
                         } else {
                             throw new MigrationBundleException("Migration definition not found at path '$migration->path'");
                         }
+                    /// @todo catch \Throwable ?
                     } catch (\Exception $e) {
                         $this->writeErrorln("Error while loading definition for migration '{$migration->name}' registered in the database, skipping it: " . $e->getMessage());
                     }

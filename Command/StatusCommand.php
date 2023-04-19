@@ -82,7 +82,7 @@ EOT
                             // We  add it as a note
                             $index[$migration->name]['definition'] = $migrationDefinitionCollection->reset();
                             $index[$migration->name]['notes'] = array('<comment>The migration definition file is in a custom path</comment>');
-
+                        }
                     /// @todo catch \Throwable ?
                     } catch (\Exception $e) {
                         /// @todo one day we should be able to limit the kind of exceptions we have to catch here...
