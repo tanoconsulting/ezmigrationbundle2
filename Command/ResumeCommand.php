@@ -134,6 +134,7 @@ EOT
                 $migrationService->resumeMigration($suspendedMigration, $migrationContext);
 
                 $executed++;
+            /// @todo catch \Throwable ?
             } catch (\Exception $e) {
                 if ($input->getOption('ignore-failures')) {
                     $this->errOutput->writeln("\n<error>Migration failed! Reason: " . $e->getMessage() . "</error>\n");

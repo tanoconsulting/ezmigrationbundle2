@@ -72,7 +72,7 @@ EOT
         $this->setOutput($output);
         $this->setVerbosity($output->getVerbosity());
 
-        if (!$input->getOption('add') && !$input->getOption('delete') && !$input->getOption('skip') && 
+        if (!$input->getOption('add') && !$input->getOption('delete') && !$input->getOption('skip') &&
             !$input->getOption('info') && !$input->getOption('fail')) {
             throw new \InvalidArgumentException('You must specify whether you want to --add, --delete, --skip, --fail or --info the specified migration.');
         }
@@ -147,6 +147,7 @@ EOT
                         } else {
                             $output->writeln('Definition error: <error>The migration definition file can not be loaded</error>');
                         }
+                    /// @todo catch \Throwable ?
                     } catch (\Exception $e) {
                         /// @todo one day we should be able to limit the kind of exceptions we have to catch here...
                         $output->writeln('Definition parsing error: <error>' . $e->getMessage() . '</error>');
