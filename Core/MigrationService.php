@@ -78,7 +78,6 @@ class MigrationService implements ContextProviderInterface
     /** @var ReferenceBagInterface */
     protected $referenceResolver;
 
-    /// @todo replace injection of $repository with a transaction-manager service
     public function __construct(LoaderInterface $loader, StorageHandlerInterface $storageHandler, Repository $repository,
         EventDispatcherInterface $eventDispatcher, $contextHandler, $referenceResolver)
     {
