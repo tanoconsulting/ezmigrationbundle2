@@ -3,6 +3,10 @@ Version: 1.0.5
 
 * Fixed: the `--admin-login` option had been broken for `migrate` commands since version 1.0
 
+* port fix for error reporting for after-migration errors to `mass_migrate` command
+
+* make `php` step executor handle php Errors besides Exceptions
+
 
 Version: 1.0.4
 ==============
