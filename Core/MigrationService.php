@@ -303,7 +303,7 @@ class MigrationService implements ContextProviderInterface
      * @throws \Exception
      *
      * @todo add support for setting in $migrationContext a userContentType, userGroupContentType ?
-     * @todo treating a null and false $adminLogin values differently is prone to hard-to-track errors.
+     * @todo treating a null and false 'adminUserLogin' values differently is prone to hard-to-track errors.
      *       Shall we use instead -1 to indicate the desire to not-login-as-admin-user-at-all ?
      */
     public function executeMigration(MigrationDefinition $migrationDefinition, $migrationContext = array())
@@ -347,7 +347,7 @@ class MigrationService implements ContextProviderInterface
         }
 
         $useTransaction = array_key_exists('useTransaction', $migrationContext) ? $migrationContext['useTransaction'] : true;
-        $adminLogin = array_key_exists('adminLogin', $migrationContext) ? $migrationContext['adminLogin'] : null;
+        $adminLogin = array_key_exists('adminUserLogin', $migrationContext) ? $migrationContext['adminUserLogin'] : null;
 
         $messageSuffix = '';
         if (isset($migrationContext['forcedReferences']) && count($migrationContext['forcedReferences'])) {
